@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "warn",
+    "eslint/no-console": ["warn", { "allow": ["warn", "error"] }],
+    "eslint/no-unused-vars": "error"
+  },
+  "ignorePatterns": ["node_modules", ".nuxt", ".output", "dist", ".turbo"]
+}

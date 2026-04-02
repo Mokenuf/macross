@@ -1,0 +1,24 @@
+# Node dependencies
+node_modules
+
+# Nuxt
+.nuxt
+.output
+.data
+dist
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Turbo
+.turbo
+
+# Misc
+*.log
