@@ -7,4 +7,9 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
   },
+  vite: {
+    optimizeDeps: {
+      include: ['zod'],
+    },
+  },
 })
