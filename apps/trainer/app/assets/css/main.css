@@ -1,2 +1,60 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+
+@theme {
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-logo: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: #0a0a0c;
+  --color-surface: #141418;
+  --color-surface-elevated: #1c1c22;
+  --color-foreground: #f1f1f1;
+}
+
+@theme static {
+  --color-brand-50: #fef2f3;
+  --color-brand-100: #fde3e5;
+  --color-brand-200: #fcccd0;
+  --color-brand-300: #f9a8ae;
+  --color-brand-400: #f3767f;
+  --color-brand-500: #e63946;
+  --color-brand-600: #d52d3a;
+  --color-brand-700: #b3222d;
+  --color-brand-800: #942029;
+  --color-brand-900: #7b2128;
+  --color-brand-950: #430c10;
+
+  --color-macross-blue-50: #eef6ff;
+  --color-macross-blue-100: #daeaff;
+  --color-macross-blue-200: #bddbff;
+  --color-macross-blue-300: #90c6ff;
+  --color-macross-blue-400: #4a9eff;
+  --color-macross-blue-500: #3584fc;
+  --color-macross-blue-600: #1f64f1;
+  --color-macross-blue-700: #174ede;
+  --color-macross-blue-800: #1940b4;
+  --color-macross-blue-900: #1a3a8e;
+  --color-macross-blue-950: #152556;
+
+  --color-macross-amber-50: #fef8ec;
+  --color-macross-amber-100: #fbeaca;
+  --color-macross-amber-200: #f7d490;
+  --color-macross-amber-300: #f3b956;
+  --color-macross-amber-400: #f0a030;
+  --color-macross-amber-500: #e97e17;
+  --color-macross-amber-600: #ce5c11;
+  --color-macross-amber-700: #ab3f12;
+  --color-macross-amber-800: #8b3115;
+  --color-macross-amber-900: #732914;
+  --color-macross-amber-950: #421306;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}

@@ -6,7 +6,7 @@ Plataforma digital para entrenadores personales. El entrenador gestiona clientes
 
 - **Monorepo**: TurboRepo + pnpm workspaces
 - **Apps**: 2x Nuxt 4 (`apps/trainer` y `apps/client`)
-- **UI**: NuxtUI v3
+- **UI**: NuxtUI v4
 - **Backend**: Supabase (DB Postgres, Auth, Storage, RLS, Realtime)
 - **Acceso a datos**: `@nuxtjs/supabase` → `useSupabaseClient()` directo, sin ORM
 - **Validación**: Zod
@@ -224,6 +224,20 @@ macross-for-progress/
 ├── pnpm-workspace.yaml
 └── CLAUDE.md
 ```
+
+## Design system (apps/trainer)
+
+- **Nuxt UI 4** + **Tailwind 4**: imports en `app/assets/css/main.css` (`tailwindcss` + `@nuxt/ui`).
+- **Fuentes**: Nuxt UI registra `@nuxt/fonts`; se declaran en `@theme` y se cargan solas.
+  - Cuerpo: `DM Sans` → `--font-sans`.
+  - Wordmark “MACROSS” / logo: `Bebas Neue` → `--font-logo` → clase Tailwind `font-logo`.
+- **Tokens de layout** (`@theme`): `background` `#0a0a0c`, `surface` `#141418`, `surface-elevated` `#1c1c22`, `foreground` `#f1f1f1`.
+- **Escalas 50–950** (`@theme static`): `brand` (primario), `macross-blue` (secundario), `macross-amber` (terciario). Los nombres deben coincidir con el prefijo `--color-{nombre}-*`.
+- **Roles semánticos** (`app/app.config.ts`): `primary` → `brand`, `secondary` → `macross-blue`, `tertiary` → `macross-amber`, `neutral` → `zinc`.
+- **Registro de colores extra** (`nuxt.config.ts` → `ui.theme.colors`): incluye `tertiary` (y el resto de roles que uses con `color="..."` en componentes).
+- **Base**: `@layer base` con `color-scheme: dark` y `body` usando `background` / `foreground`.
+
+Convención UI: preferir `text-primary`, `bg-background`, `bg-surface`, `font-logo` en el wordmark, y `text-muted` donde aplique Nuxt UI, en lugar de `text-red-500` / grises sueltos salvo excepción.
 
 ## Convenciones de código
 
