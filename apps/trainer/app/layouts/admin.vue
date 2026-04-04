@@ -41,10 +41,12 @@ const navigation: NavigationMenuItem[] = [
   <UDashboardGroup>
     <UDashboardSidebar collapsible>
       <template #header="{ collapsed }">
-        <span v-if="!collapsed" class="text-lg font-bold tracking-widest text-red-500 uppercase"
+        <span
+          v-if="!collapsed"
+          class="font-logo text-primary text-lg font-bold tracking-wide uppercase"
           >Macross</span
         >
-        <span v-else class="text-lg font-bold text-red-500 mx-auto">M</span>
+        <span v-else class="text-lg font-bold font-logo text-primary mx-auto">M</span>
         <UDashboardSidebarCollapse />
       </template>
 
@@ -57,6 +59,7 @@ const navigation: NavigationMenuItem[] = [
           <UButton
             icon="i-lucide-log-out"
             variant="ghost"
+            class="cursor-pointer"
             size="xs"
             color="neutral"
             @click="handleLogout"

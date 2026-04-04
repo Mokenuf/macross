@@ -41,8 +41,8 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
 <template>
   <div class="w-full max-w-sm p-8">
     <div class="text-center mb-8">
-      <h1 class="text-2xl font-bold tracking-widest text-red-500 uppercase">Macross</h1>
-      <p class="text-sm text-gray-500 mt-1">Panel de entrenador</p>
+      <h1 class="text-2xl font-bold tracking-widest font-logo text-primary uppercase">Macross</h1>
+      <p class="text-sm text-neutral-400 mt-1">Panel de entrenador</p>
     </div>
 
     <UAuthForm
