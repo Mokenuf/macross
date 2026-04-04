@@ -1,5 +1,13 @@
+<script setup lang="ts">
+useHead({
+  titleTemplate: '%s | Macross',
+})
+</script>
+
 <template>
   <UApp>
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </UApp>
 </template>
