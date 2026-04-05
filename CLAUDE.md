@@ -37,22 +37,28 @@ app/pages o app/components → useFetch('/api/...') → server/api/... → serve
 - Las server routes validan el body con `readValidatedBody(event, schema.parse)` usando schemas de Zod.
 - Para reads simples en componentes, `useSupabaseClient()` directo es aceptable.
 - **Excepción**: el login usa `useSupabaseClient()` en el client side porque Supabase Auth necesita setear cookies en el browser.
+- Endpoints de listado devuelven `BaseResponse<T>` (interface en `shared`) con `rows: T[]` y `pagination: { page, limit, total, totalPages }`.
+- Helper `toCamelCase` en `server/utils/` convierte snake_case de Supabase a camelCase de schemas.
+- Estructura de server routes por recurso en carpeta: `server/api/[recurso]/index.get.ts`, `server/api/[recurso]/[slug].get.ts`, etc.
 
 ### Composables
 
 Los composables van directo en `composables/`, sin subcarpeta `services/`. Nuxt los auto-importa.
 
+Patrón **flat**: un composable (`useX`) por operación, agrupados por recurso en un solo archivo.
+
 ```
 composables/
-├── auth.ts          # useAuth: login, logout
-├── exercises.ts     # useGetExercises, useCreateExercise... (futuro)
+├── auth.ts          # useLogin, useLogout
+├── exercises.ts     # useGetExercises, useCreateExercise, useUpdateExercise, useDeleteExercise
 ├── clients.ts       # useGetClients... (futuro)
 ├── routines.ts      # useGetRoutines... (futuro)
-└── users.ts         # useGetCurrentUser (futuro)
+└── users.ts         # useGetMe
 ```
 
-- `useFetch` para queries que necesitan cache y reactividad (data en template).
-- `$fetch` para acciones puntuales sin cache (login, logout, create, update, delete).
+- Naming: `useGet[Entity]` (queries), `useCreate[Entity]` / `useUpdate[Entity]` / `useDelete[Entity]` (mutations), `useLogin` / `useLogout` (auth, sin prefijo CRUD).
+- Queries con estado reactivo (`useFetch` + refs de filtros/paginación) retornan `{ data, pending, refresh, ...filtros }`.
+- Acciones puntuales (`$fetch`) retornan `{ action, pending?, error? }` según necesidad.
 - No usamos Pinia. El estado del servidor se maneja con `useFetch`/`useAsyncData` (cache built-in de Nuxt).
 - Estado de UI (filtros, preferencias) se resuelve cuando lo necesitemos, probablemente con Pinia.
 
@@ -61,16 +67,19 @@ composables/
 - Schemas compartidos viven en `packages/shared/types/`.
 - El frontend valida formularios con `UForm :schema="loginSchema"` de NuxtUI (validación automática).
 - Las server routes validan con `readValidatedBody(event, schema.parse)` (tira 400 automáticamente si falla).
+- Las server routes validan query params con `getValidatedQuery(event, entityQueryParamsSchema.parse)`.
+- La data que viene de Supabase se valida en runtime en la server route con `z.array(entitySchema).parse(toCamelCase(data))`.
 - Convención de naming:
-  - `[entity]Schema` — schema completo
+  - `[entity]Schema` — schema completo (usado en server para validar data de Supabase)
   - `create[Entity]Schema` — `.omit()` de campos generados por backend
   - `update[Entity]Schema` — `.partial().required({ id })`
+  - `[entity]QueryParamsSchema` — query params para listados (extiende `queryParamsSchema` de `shared`)
   - Tipos inferidos: `type Login = z.infer<typeof loginSchema>` (sin sufijo "Input" ni "Data")
 
 ### Autenticación
 
-- Login: composable `useAuth().login()` usa `useSupabaseClient().auth.signInWithPassword()` client side para setear cookies, y llama a la server route para validación server side.
-- Logout: composable `useAuth().logout()` → `client.auth.signOut()` → `navigateTo('/auth/login', { external: true })`.
+- Login: composable `useLogin().login()` usa `$fetch` a la server route para validación + toast de feedback.
+- Logout: composable `useLogout().logout()` → `$fetch` + toast + `navigateTo('/auth/login')`.
 - El `{ external: true }` en `navigateTo` es necesario para dar tiempo a que las cookies se refresquen.
 - Protección de rutas: `redirect: false` en config + middlewares propios (`auth.ts` y `guest.ts`).
 - `useSupabaseUser()` da el usuario logueado reactivo.
@@ -308,9 +317,9 @@ macross-for-progress/
 
 ### Naming
 
-- Composables prefijados con `use` (ej: `useAuth`, `useExercises`)
-- Server routes: `server/api/[recurso].get.ts`, `server/api/[recurso].post.ts`
-- Schemas Zod: `[entity]Schema`, `create[Entity]Schema`, `update[Entity]Schema`
+- Composables flat: `useGet[Entity]`, `useCreate[Entity]`, `useUpdate[Entity]`, `useDelete[Entity]`, `useLogin`, `useLogout`, `useGetMe`
+- Server routes por carpeta: `server/api/[recurso]/index.get.ts`, `server/api/[recurso]/index.post.ts`, `server/api/[recurso]/[slug].get.ts`
+- Schemas Zod: `[entity]Schema`, `create[Entity]Schema`, `update[Entity]Schema`, `[entity]QueryParamsSchema`
 - Tipos inferidos sin sufijo: `Login`, `Exercise`, `CreateExercise` (no `LoginInput`)
 - Componentizar solo cuando se reutilice o la page supere ~100 líneas
 

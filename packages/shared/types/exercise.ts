@@ -32,8 +32,10 @@ export const createExerciseSchema = exerciseSchema
 
 export const updateExerciseSchema = exerciseSchema.partial().required({ id: true })
 
+export const exerciseSortSchema = z.enum(['name', 'createdAt', 'muscleGroup'])
+
 export const exerciseQueryParamsSchema = queryParamsSchema.extend({
-  sort: z.enum(['name', 'createdAt', 'updatedAt']).default('createdAt'),
+  sort: exerciseSortSchema.default('createdAt'),
   muscleGroup: z.string().optional(),
 })
 
@@ -41,3 +43,4 @@ export type Exercise = z.infer<typeof exerciseSchema>
 export type CreateExercise = z.infer<typeof createExerciseSchema>
 export type UpdateExercise = z.infer<typeof updateExerciseSchema>
 export type ExerciseQueryParams = z.infer<typeof exerciseQueryParamsSchema>
+export type ExerciseSortOptions = z.infer<typeof exerciseSortSchema>

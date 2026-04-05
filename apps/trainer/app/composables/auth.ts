@@ -1,7 +1,7 @@
 import type { ApiError, Login } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
-export function useAuth() {
+export function useLogin() {
   const toast = useToast()
 
   async function login(input: Login) {
@@ -18,11 +18,17 @@ export function useAuth() {
     }
   }
 
+  return { login }
+}
+
+export function useLogout() {
+  const toast = useToast()
+
   async function logout() {
     await $fetch('/api/auth/logout', { method: 'POST' })
     toast.add({ title: 'Adios', color: 'success' })
     await navigateTo('/auth/login')
   }
 
-  return { login, logout }
+  return { logout }
 }
