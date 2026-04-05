@@ -11,8 +11,8 @@ useHead({ title: 'Iniciar sesión' })
 
 const { login } = useAuth()
 
-const loading = ref(false)
-const error = ref('')
+const loading = ref<boolean>(false)
+const error = ref<string>('')
 const fields: AuthFormField[] = [
   { name: 'email', type: 'email', label: 'Email', placeholder: 'Ingresa tu email', required: true },
   {

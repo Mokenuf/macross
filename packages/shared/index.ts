@@ -1,3 +1,4 @@
+export * from './types/api-error'
 export * from './types/auth'
 export * from './types/enums'
 export * from './types/trainer'

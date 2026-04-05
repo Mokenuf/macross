@@ -13,7 +13,10 @@ export default defineEventHandler(async event => {
   })
 
   if (error) {
-    throw createError({ statusCode: 401, statusMessage: 'Email o contraseña incorrectos' })
+    throw createError({
+      statusCode: 401,
+      statusMessage: error.message ?? 'Email o contraseña incorrectos',
+    })
   }
 
   return { user: data.user, session: data.session }
