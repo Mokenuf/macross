@@ -20,6 +20,7 @@ export default defineNuxtConfig({
   },
   supabase: {
     redirect: false,
+    types: '../../../packages/shared/types/database.ts',
   },
   vite: {
     optimizeDeps: {
