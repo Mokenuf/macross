@@ -1,4 +1,4 @@
-import { adminUserSchema } from '@macross/shared'
+import { AdminUser, adminUserSchema } from '@macross/shared'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
@@ -22,14 +22,7 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 500, statusMessage: 'Error al obtener el usuario' })
   }
 
-  const adminUser = adminUserSchema.parse({
-    fullName: data.full_name,
-    email: data.email,
-    role: data.role,
-    avatarUrl: data.avatar_url,
-    phone: data.phone,
-    nanoId: data.nano_id,
-  })
+  const adminUser = adminUserSchema.parse(toCamelCase<AdminUser>(data))
 
   return adminUser
 })
