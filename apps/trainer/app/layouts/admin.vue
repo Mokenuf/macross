@@ -44,9 +44,9 @@ const navigation: NavigationMenuItem[] = [
         <span
           v-if="!collapsed"
           class="font-logo text-primary text-lg font-bold tracking-wide uppercase"
-          >Macross</span
+          >Macros for progress</span
         >
-        <span v-else class="text-lg font-bold font-logo text-primary mx-auto">M</span>
+        <span v-else class="text-lg font-bold font-logo text-primary mx-auto">M4P</span>
         <UDashboardSidebarCollapse />
       </template>
 

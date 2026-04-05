@@ -13,6 +13,6 @@ const user = useSupabaseUser()
 <template>
   <div>
     <h1 class="text-2xl font-bold">Hola, {{ user?.email }}</h1>
-    <p class="text-neutral-400 mt-2">Bienvenido al panel de Macross for progress.</p>
+    <p class="text-neutral-400 mt-2">Bienvenido al panel de Macros for progress.</p>
   </div>
 </template>

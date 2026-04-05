@@ -1,6 +1,6 @@
 <script setup lang="ts">
 useHead({
-  titleTemplate: '%s | Macross',
+  titleTemplate: '%s | Macros for progress',
 })
 </script>
 
