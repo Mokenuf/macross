@@ -39,7 +39,9 @@ app/pages o app/components → useFetch('/api/...') → server/api/... → serve
 - **Excepción**: el login usa `useSupabaseClient()` en el client side porque Supabase Auth necesita setear cookies en el browser.
 - Endpoints de listado devuelven `BaseResponse<T>` (interface en `shared`) con `rows: T[]` y `pagination: { page, limit, total, totalPages }`.
 - Helper `toCamelCase` en `server/utils/` convierte snake_case de Supabase a camelCase de schemas.
-- Estructura de server routes por recurso en carpeta: `server/api/[recurso]/index.get.ts`, `server/api/[recurso]/[slug].get.ts`, etc.
+- Estructura de server routes por recurso en carpeta: `server/api/[recurso]/index.get.ts`, `server/api/[recurso]/index.post.ts`, `server/api/[recurso]/[slug].get.ts`, etc.
+- En POST (create): `serverSupabaseUser(event)` para obtener el usuario. El id del user está en `user.sub` (no `user.id`). Convertir campos `undefined` del body a `null` antes de insertar en Supabase.
+- Slug se genera en el server a partir del name: minúsculas, sin acentos, espacios → guiones. Verificar unicidad antes de insertar (409 si existe).
 
 ### Composables
 
@@ -61,6 +63,7 @@ composables/
 - Acciones puntuales (`$fetch`) retornan `{ action, pending?, error? }` según necesidad.
 - No usamos Pinia. El estado del servidor se maneja con `useFetch`/`useAsyncData` (cache built-in de Nuxt).
 - Estado de UI (filtros, preferencias) se resuelve cuando lo necesitemos, probablemente con Pinia.
+- `useQueryState` composable custom para sincronizar estado de filtros/paginación con URL query params (`router.replace`). Batchea múltiples updates en un solo `nextTick` para evitar race conditions. Vive en `composables/use-query-state.ts`.
 
 ### Validación con Zod
 
@@ -71,7 +74,7 @@ composables/
 - La data que viene de Supabase se valida en runtime en la server route con `z.array(entitySchema).parse(toCamelCase(data))`.
 - Convención de naming:
   - `[entity]Schema` — schema completo (usado en server para validar data de Supabase)
-  - `create[Entity]Schema` — `.omit()` de campos generados por backend
+  - `create[Entity]Schema` — declarado explícito (no derivado del base) con los campos del form. Usa `.optional()` en vez de `.nullable()` para compatibilidad con `UForm`/`UInput`. Campos URL opcionales usan `z.preprocess` para convertir `''` a `undefined`.
   - `update[Entity]Schema` — `.partial().required({ id })`
   - `[entity]QueryParamsSchema` — query params para listados (extiende `queryParamsSchema` de `shared`)
   - Tipos inferidos: `type Login = z.infer<typeof loginSchema>` (sin sufijo "Input" ni "Data")
@@ -248,8 +251,17 @@ macross-for-progress/
 │   ├── trainer/
 │   │   ├── app/
 │   │   │   ├── components/
+│   │   │   │   ├── base/
+│   │   │   │   │   ├── BaseTable.vue
+│   │   │   │   │   ├── BasePagination.vue
+│   │   │   │   │   └── BaseFilters.vue
+│   │   │   │   └── forms/
+│   │   │   │       └── ExerciseForm.vue
 │   │   │   ├── composables/
-│   │   │   │   └── auth.ts
+│   │   │   │   ├── auth.ts          # useLogin, useLogout
+│   │   │   │   ├── exercise.ts      # useGetExercises, useCreateExercise
+│   │   │   │   ├── user.ts          # useGetMe
+│   │   │   │   └── use-query-state.ts
 │   │   │   ├── layouts/
 │   │   │   │   ├── admin.vue
 │   │   │   │   └── auth.vue
@@ -259,14 +271,25 @@ macross-for-progress/
 │   │   │   ├── pages/
 │   │   │   │   ├── auth/
 │   │   │   │   │   └── login.vue
+│   │   │   │   ├── exercises/
+│   │   │   │   │   ├── index.vue
+│   │   │   │   │   └── add.vue
 │   │   │   │   └── index.vue
 │   │   │   └── types/
+│   │   │       ├── base-table.ts    # TableAction<T>, ActionType, re-export TableColumn
+│   │   │       └── base-filters.ts  # Filter, SearchFilter, SelectFilter
 │   │   ├── server/
 │   │   │   ├── api/
-│   │   │   │   └── auth/
-│   │   │   │       ├── login.post.ts
-│   │   │   │       └── logout.post.ts
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── login.post.ts
+│   │   │   │   │   └── logout.post.ts
+│   │   │   │   ├── exercises/
+│   │   │   │   │   ├── index.get.ts
+│   │   │   │   │   └── index.post.ts
+│   │   │   │   └── users/
+│   │   │   │       └── me.get.ts
 │   │   │   └── utils/
+│   │   │       └── index.ts         # toCamelCase helper
 │   │   ├── .env
 │   │   └── nuxt.config.ts
 │   └── client/
@@ -277,7 +300,14 @@ macross-for-progress/
 ├── packages/
 │   └── shared/
 │       ├── types/
-│       │   └── auth.ts
+│       │   ├── api-error.ts
+│       │   ├── auth.ts
+│       │   ├── base-response.ts     # BaseResponse<T>, Pagination
+│       │   ├── enums.ts             # roleEnum, orderEnum
+│       │   ├── exercise.ts          # exerciseSchema, exerciseQueryParamsSchema, exerciseSortSchema
+│       │   ├── query-params.ts      # queryParamsSchema (base para listados)
+│       │   ├── trainer.ts
+│       │   └── user.ts
 │       ├── index.ts
 │       └── package.json
 ├── .husky/
@@ -293,6 +323,59 @@ macross-for-progress/
 ├── CLAUDE.md
 └── README.md
 ```
+
+## Componentes base
+
+Componentes reutilizables en `components/base/`. Config-driven: reciben arrays de configuración y renderizan dinámicamente.
+
+### BaseTable
+
+- Props: `columns: TableColumn<T>[]`, `actions: TableAction<T>[]`, `data: T[]`, `loading: boolean`, `pagination: Pagination`
+- Emits: `update:page`, `update:limit`
+- Usa `generic="T"` en `<script setup>` para inferir tipos desde la data.
+- Genera la columna de acciones automáticamente a partir del array `actions`.
+- Catálogo de defaults por `ActionType` (`view`, `edit`, `delete`, `custom`) con label/icon/color predefinidos.
+- Acciones filtradas por `visible` (soporta `boolean` y `ComputedRef<boolean>` para control por rol).
+- Integra `BasePagination` internamente.
+- Tipos en `app/types/base-table.ts`: `TableAction<T>`, `ActionType`, re-export de `TableColumn`.
+
+### BasePagination
+
+- Props: `page`, `limit`, `total`
+- Emits: `update:page`, `update:limit`
+- Renderiza `UPagination` + `USelect` (20, 50, 100 por página).
+- Resetea page a 1 cuando cambia el limit.
+
+### BaseFilters
+
+- Props: `filters: Filter[]`, `values: Record<string, string | number>`
+- Emits: `update:filters` con `{ key, value }`
+- Config-driven: renderiza controles dinámicamente según `filter.type` (`search`, `select`).
+- Debounce configurable por filtro (ej: `debounce: 300` en SearchFilter).
+- Tipos en `app/types/base-filters.ts`: `Filter` (discriminated union), `SearchFilter`, `SelectFilter`.
+- Extensible: agregar nuevos tipos de filtro (multiselect, date, switch) extendiendo el union `Filter`.
+
+### Patrón de page "listado"
+
+```
+Page (orquestador)
+├── BaseFilters (config de filtros + values reactivos)
+└── BaseTable (columns + actions + data + pagination)
+    └── BasePagination (page controls + limit selector)
+```
+
+- La page conecta el composable (`useGet[Entity]`) con los componentes base.
+- Filtros y paginación sincronizados con URL vía `useQueryState`.
+- Permisos por rol: `useGetMe()` → `isManager` computed → controla `visible` en actions y `v-if` en botones de acción (ej: crear).
+
+### Formularios
+
+- Forms en `components/forms/`. Cada form es reutilizable para create y edit.
+- Usan `UForm` con `:schema` (Zod) y `:state` (reactive). Validación y errores automáticos vía `UFormField` con `name` que matchea keys del schema.
+- Prop `initialValues` opcional para modo edit. Para create se pasa vacío.
+- El form emite `submit` con la data validada. La page decide qué hacer (create o update).
+- Mutations usan `$fetch` → toast de feedback → `refreshNuxtData(key)` → `navigateTo`. Toast después de `navigateTo` para que sobreviva la transición de página.
+- Nuxt config: `components: [{ path: '~/components', pathPrefix: false }]` para auto-importar componentes sin prefijo de carpeta.
 
 ## Convenciones de código
 

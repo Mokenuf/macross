@@ -16,19 +16,12 @@ export const exerciseSchema = z.object({
   deletedAt: z.string().nullable(),
 })
 
-export const createExerciseSchema = exerciseSchema
-  .omit({
-    id: true,
-    trainerId: true,
-    slug: true,
-    nanoId: true,
-    createdAt: true,
-    updatedAt: true,
-    deletedAt: true,
-  })
-  .extend({
-    name: z.string().min(1, 'El nombre es requerido'),
-  })
+export const createExerciseSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  description: z.string().optional(),
+  videoUrl: z.preprocess(val => (val === '' ? undefined : val), z.url().optional()),
+  muscleGroup: z.string().optional(),
+})
 
 export const updateExerciseSchema = exerciseSchema.partial().required({ id: true })
 

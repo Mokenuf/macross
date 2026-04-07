@@ -1,10 +1,13 @@
 import type {
+  ApiError,
   BaseResponse,
+  CreateExercise,
   Exercise,
   ExerciseSortOptions,
   OrderOptions,
   Pagination,
 } from '@macross/shared'
+import type { FetchError } from 'ofetch'
 
 export function useGetExercises() {
   const page = useQueryState('page', 1)
@@ -35,4 +38,26 @@ export function useGetExercises() {
     sort,
     order,
   }
+}
+
+export function useCreateExercise() {
+  const toast = useToast()
+
+  async function create(input: CreateExercise) {
+    try {
+      await $fetch('/api/exercises', { method: 'POST', body: input })
+      await refreshNuxtData('exercises')
+      await navigateTo('/exercises')
+      toast.add({ title: 'Ejercicio creado', color: 'success' })
+    } catch (e) {
+      toast.add({
+        title: 'Error',
+        description:
+          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo crear el ejercicio',
+        color: 'error',
+      })
+    }
+  }
+
+  return { create }
 }
