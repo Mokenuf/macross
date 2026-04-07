@@ -7,16 +7,15 @@ import type {
 } from '@macross/shared'
 
 export function useGetExercises() {
-  const page = ref(1)
-  const limit = ref(20)
-  const search = ref('')
-  const sort = ref<ExerciseSortOptions>('createdAt')
-  const order = ref<OrderOptions>('desc')
-
-  const debouncedSearch = refDebounced(search, 300)
+  const page = useQueryState('page', 1)
+  const limit = useQueryState('limit', 20)
+  const search = useQueryState('search', '')
+  const sort = useQueryState<ExerciseSortOptions>('sort', 'createdAt')
+  const order = useQueryState<OrderOptions>('order', 'desc')
 
   const { data, pending, refresh, error } = useFetch<BaseResponse<Exercise>>('/api/exercises', {
-    query: { page, limit, search: debouncedSearch, sort, order },
+    key: 'exercises',
+    query: { page, limit, search, sort, order },
   })
 
   const exercises = computed<Exercise[]>(() => data.value?.rows ?? [])

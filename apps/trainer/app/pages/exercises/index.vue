@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Exercise } from '@macross/shared'
-import type { DropdownMenuItem, TableColumn } from '@nuxt/ui'
+
+import type { Filter } from '@/types/base-filters'
+import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth' })
 useHead({ title: 'Ejercicios' })
@@ -10,56 +12,33 @@ const { data: user } = useGetMe()
 
 const isManager = computed(() => user.value?.role === 'manager')
 
+const filterConfig: Filter[] = [
+  {
+    type: 'search',
+    key: 'search',
+    label: 'Buscar',
+    placeholder: 'Buscar ejercicio...',
+    debounce: 300,
+  },
+]
+
+const filterValues = computed(() => ({ search: search.value }))
+
 const columns: TableColumn<Exercise>[] = [
   { accessorKey: 'name', header: 'Nombre' },
   { accessorKey: 'muscleGroup', header: 'Grupo Muscular' },
   { accessorKey: 'description', header: 'Descripción' },
-  {
-    id: 'actions',
-    header: '',
-    meta: { class: { td: 'text-right' } },
-    cell: ({ row }) => {
-      const UDropdownMenu = resolveComponent('UDropdownMenu')
-      const UButton = resolveComponent('UButton')
-
-      return h(
-        UDropdownMenu,
-        { content: { align: 'end' }, items: getRowActions(row.original) },
-        () =>
-          h(UButton, { icon: 'i-lucide-ellipsis-vertical', color: 'neutral', variant: 'ghost' }),
-      )
-    },
-  },
 ]
 
-function getRowActions(exercise: Exercise) {
-  const items: DropdownMenuItem[][] = [
-    [
-      {
-        label: 'Ver',
-        icon: 'i-lucide-eye',
-        onSelect: () => navigateTo(`/exercises/${exercise.slug}`),
-      },
-    ],
-  ]
+const actions: TableAction<Exercise>[] = [
+  { type: 'view', href: row => `/exercises/${row.slug}` },
+  { type: 'edit', href: row => `/exercises/${row.slug}/edit`, visible: isManager },
+  { type: 'delete', onSelect: row => handleDelete(row.id), visible: isManager },
+]
 
-  if (isManager.value) {
-    items.push([
-      {
-        label: 'Editar',
-        icon: 'i-lucide-pencil',
-        onSelect: () => navigateTo(`/exercises/${exercise.slug}/edit`),
-      },
-      {
-        label: 'Eliminar',
-        icon: 'i-lucide-trash',
-        color: 'error',
-        onSelect: () => handleDelete(exercise.id),
-      },
-    ])
-  }
-
-  return items
+function onFilterUpdate({ key, value }: { key: string; value: string | number }) {
+  const map: Record<string, Ref | WritableComputedRef<string | number>> = { search }
+  if (map[key]) map[key].value = value
 }
 
 function handleDelete(id: string) {
@@ -70,7 +49,11 @@ function handleDelete(id: string) {
 <template>
   <div class="space-y-4">
     <div class="flex items-center justify-between">
-      <UInput v-model="search" placeholder="Buscar ejercicio..." icon="i-lucide-search" />
+      <BaseFilters
+        :filters="filterConfig"
+        :values="filterValues"
+        @update:filters="onFilterUpdate"
+      />
       <UButton
         v-if="isManager"
         label="Agregar Ejercicio"
@@ -80,8 +63,14 @@ function handleDelete(id: string) {
       />
     </div>
 
-    <UTable :columns :data="exercises" :loading />
-
-    <UPagination v-model:page="page" :items-per-page="limit" :total="pagination.total" />
+    <BaseTable
+      :columns
+      :actions
+      :data="exercises"
+      :loading
+      :pagination
+      v-model:page="page"
+      v-model:limit="limit"
+    />
   </div>
 </template>

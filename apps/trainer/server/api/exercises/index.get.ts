@@ -34,7 +34,7 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
     })
     .range(from, to)
   if (queryParams.search) {
-    supabaseQuery = supabaseQuery.like('name', `%${queryParams.search}%`)
+    supabaseQuery = supabaseQuery.ilike('name', `%${queryParams.search}%`)
   }
   if (queryParams.muscleGroup) {
     supabaseQuery = supabaseQuery.eq('muscle_group', queryParams.muscleGroup)
