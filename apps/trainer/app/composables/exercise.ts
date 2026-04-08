@@ -6,6 +6,7 @@ import type {
   ExerciseSortOptions,
   OrderOptions,
   Pagination,
+  UpdateExercise,
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
@@ -40,6 +41,14 @@ export function useGetExercises() {
   }
 }
 
+export function useGetExercise(slug: string) {
+  const { data, pending, refresh, error } = useFetch<Exercise>(`/api/exercises/${slug}`, {
+    key: `exercise-${slug}`,
+  })
+
+  return { exercise: data, loading: pending, refresh, error }
+}
+
 export function useCreateExercise() {
   const toast = useToast()
 
@@ -60,4 +69,26 @@ export function useCreateExercise() {
   }
 
   return { create }
+}
+
+export function useUpdateExercise() {
+  const toast = useToast()
+
+  async function update(slug: string, input: UpdateExercise) {
+    try {
+      await ($fetch as Function)(`/api/exercises/${slug}`, { method: 'PATCH', body: input })
+      await refreshNuxtData(`exercise-${slug}`)
+      await navigateTo('/exercises')
+      toast.add({ title: 'Ejercicio actualizado', color: 'success' })
+    } catch (e) {
+      toast.add({
+        title: 'Error',
+        description:
+          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo actualizar el ejercicio',
+        color: 'error',
+      })
+    }
+  }
+
+  return { update }
 }

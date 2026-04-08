@@ -23,7 +23,7 @@ export const createExerciseSchema = z.object({
   muscleGroup: z.string().optional(),
 })
 
-export const updateExerciseSchema = exerciseSchema.partial().required({ id: true })
+export const updateExerciseSchema = createExerciseSchema.extend({})
 
 export const exerciseSortSchema = z.enum(['name', 'createdAt', 'muscleGroup'])
 

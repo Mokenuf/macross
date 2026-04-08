@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { createExerciseSchema, type CreateExercise } from '@macross/shared'
+import { createExerciseSchema, type CreateExercise, type Exercise } from '@macross/shared'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 interface ExerciseFormProps {
-  initialValues?: Partial<CreateExercise>
+  exercise?: Exercise
 }
 interface ExerciseFormEmits {
   submit: [payload: CreateExercise]
 }
 
-const { initialValues } = defineProps<ExerciseFormProps>()
+const { exercise } = defineProps<ExerciseFormProps>()
 const emit = defineEmits<ExerciseFormEmits>()
 
 const state = reactive<Partial<CreateExercise>>({
-  name: initialValues?.name ?? '',
-  description: initialValues?.description ?? '',
-  videoUrl: initialValues?.videoUrl ?? '',
-  muscleGroup: initialValues?.muscleGroup ?? '',
+  name: exercise?.name ?? '',
+  description: exercise?.description ?? '',
+  videoUrl: exercise?.videoUrl ?? '',
+  muscleGroup: exercise?.muscleGroup ?? '',
 })
 
 function onSubmit(event: FormSubmitEvent<CreateExercise>) {
