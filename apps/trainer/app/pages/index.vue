@@ -7,8 +7,7 @@ definePageMeta({
 
 useHead({ title: 'Dashboard' })
 
-const { getMe } = useUser()
-const { data: user, pending } = getMe()
+const { data: user, pending } = useGetMe()
 </script>
 
 <template>

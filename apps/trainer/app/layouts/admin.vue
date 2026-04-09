@@ -7,10 +7,10 @@ const user = useSupabaseUser()
 const avatarText = computed(() => user?.value?.email?.charAt(0).toUpperCase())
 const routeTitle = computed(() => (route.meta.title as string) || 'Dashboard')
 
+const { logout } = useLogout()
+
 async function handleLogout() {
-  const client = useSupabaseClient()
-  await client.auth.signOut()
-  await navigateTo('/auth/login')
+  await logout()
 }
 
 const navigation: NavigationMenuItem[] = [

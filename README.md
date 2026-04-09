@@ -11,16 +11,16 @@ Dos aplicaciones en un mismo monorepo:
 
 ## Stack
 
-| Capa | Tecnología |
-|---|---|
-| Monorepo | TurboRepo + pnpm workspaces |
-| Frontend | Nuxt 4 × 2 apps |
-| UI | NuxtUI v3 |
-| Backend | Supabase (Postgres, Auth, Storage, RLS) |
-| Validación | Zod |
-| Linter | Oxlint |
-| Formatter | Oxfmt |
-| Git hooks | Husky + lint-staged + Commitizen |
+| Capa       | Tecnología                              |
+| ---------- | --------------------------------------- |
+| Monorepo   | TurboRepo + pnpm workspaces             |
+| Frontend   | Nuxt 4 × 2 apps                         |
+| UI         | NuxtUI v4                               |
+| Backend    | Supabase (Postgres, Auth, Storage, RLS) |
+| Validación | Zod                                     |
+| Linter     | Oxlint                                  |
+| Formatter  | Oxfmt                                   |
+| Git hooks  | Husky + lint-staged + Commitizen        |
 
 ## Estructura
 
@@ -83,9 +83,25 @@ fix/trainer/auth        ─┘
 - `development` — rama default, integración
 - Features y fixes salen de `development` con el formato `tipo/app/descripcion`
 
+## Features implementadas
+
+### Trainer app
+
+- Autenticación (login/logout) con Supabase Auth + toasts de feedback
+- Dashboard con perfil del usuario logueado
+- CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
+- Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
+- Filtros sincronizados con URL query params
+- Permisos por rol (manager vs trainer) en UI
+
+### Shared
+
+- Schemas Zod compartidos (ejercicios, auth, query params)
+- Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
+
 ## Estado
 
-🚧 En desarrollo — MVP en progreso.
+En desarrollo — MVP en progreso.
 
 ## Autor
 
