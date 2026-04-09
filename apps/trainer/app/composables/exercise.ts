@@ -92,3 +92,24 @@ export function useUpdateExercise() {
 
   return { update }
 }
+
+export function useDeleteExercise() {
+  const toast = useToast()
+
+  async function remove(slug: string) {
+    try {
+      await ($fetch as Function)(`/api/exercises/${slug}`, { method: 'DELETE' })
+      await refreshNuxtData('exercises')
+      toast.add({ title: 'Ejercicio eliminado', color: 'success' })
+    } catch (e) {
+      toast.add({
+        title: 'Error',
+        description:
+          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo eliminar el ejercicio',
+        color: 'error',
+      })
+    }
+  }
+
+  return { remove }
+}

@@ -42,6 +42,8 @@ app/pages o app/components → useFetch('/api/...') → server/api/... → serve
 - Estructura de server routes por recurso en carpeta: `server/api/[recurso]/index.get.ts`, `server/api/[recurso]/index.post.ts`, `server/api/[recurso]/[slug].get.ts`, etc.
 - En POST (create): `serverSupabaseUser(event)` para obtener el usuario. El id del user está en `user.sub` (no `user.id`). Convertir campos `undefined` del body a `null` antes de insertar en Supabase.
 - Slug se genera en el server a partir del name: minúsculas, sin acentos, espacios → guiones. Verificar unicidad antes de insertar (409 si existe).
+- En PATCH (update): se identifica el recurso por slug (router param). Si el nombre cambió, se regenera el slug y se verifica unicidad del nuevo. Validación del body con `updateExerciseSchema`.
+- **Nitro typing issue**: `$fetch` con rutas dinámicas (`[slug].patch.ts`, `[slug].put.ts`) no genera tipos correctamente para métodos distintos a GET/POST. Workaround: `($fetch as Function)(url, { method: 'PATCH', body })`.
 
 ### Composables
 
@@ -75,7 +77,7 @@ composables/
 - Convención de naming:
   - `[entity]Schema` — schema completo (usado en server para validar data de Supabase)
   - `create[Entity]Schema` — declarado explícito (no derivado del base) con los campos del form. Usa `.optional()` en vez de `.nullable()` para compatibilidad con `UForm`/`UInput`. Campos URL opcionales usan `z.preprocess` para convertir `''` a `undefined`.
-  - `update[Entity]Schema` — `.partial().required({ id })`
+  - `update[Entity]Schema` — `create[Entity]Schema.extend({})` (mismos campos, nombre semántico correcto). Si el update diverge del create en el futuro, se extiende acá.
   - `[entity]QueryParamsSchema` — query params para listados (extiende `queryParamsSchema` de `shared`)
   - Tipos inferidos: `type Login = z.infer<typeof loginSchema>` (sin sufijo "Input" ni "Data")
 
@@ -255,11 +257,13 @@ macross-for-progress/
 │   │   │   │   │   ├── BaseTable.vue
 │   │   │   │   │   ├── BasePagination.vue
 │   │   │   │   │   └── BaseFilters.vue
+│   │   │   │   ├── details/
+│   │   │   │   │   └── ExerciseDetail.vue
 │   │   │   │   └── forms/
 │   │   │   │       └── ExerciseForm.vue
 │   │   │   ├── composables/
 │   │   │   │   ├── auth.ts          # useLogin, useLogout
-│   │   │   │   ├── exercise.ts      # useGetExercises, useCreateExercise
+│   │   │   │   ├── exercise.ts      # useGetExercises, useGetExercise, useCreateExercise, useUpdateExercise, useDeleteExercise
 │   │   │   │   ├── user.ts          # useGetMe
 │   │   │   │   └── use-query-state.ts
 │   │   │   ├── layouts/
@@ -273,7 +277,9 @@ macross-for-progress/
 │   │   │   │   │   └── login.vue
 │   │   │   │   ├── exercises/
 │   │   │   │   │   ├── index.vue
-│   │   │   │   │   └── add.vue
+│   │   │   │   │   ├── add.vue
+│   │   │   │   │   └── [slug]/
+│   │   │   │   │       └── edit.vue
 │   │   │   │   └── index.vue
 │   │   │   └── types/
 │   │   │       ├── base-table.ts    # TableAction<T>, ActionType, re-export TableColumn
@@ -285,7 +291,10 @@ macross-for-progress/
 │   │   │   │   │   └── logout.post.ts
 │   │   │   │   ├── exercises/
 │   │   │   │   │   ├── index.get.ts
-│   │   │   │   │   └── index.post.ts
+│   │   │   │   │   ├── index.post.ts
+│   │   │   │   │   ├── [slug].get.ts
+│   │   │   │   │   ├── [slug].patch.ts
+│   │   │   │   │   └── [slug].delete.ts
 │   │   │   │   └── users/
 │   │   │   │       └── me.get.ts
 │   │   │   └── utils/
@@ -337,6 +346,7 @@ Componentes reutilizables en `components/base/`. Config-driven: reciben arrays d
 - Catálogo de defaults por `ActionType` (`view`, `edit`, `delete`, `custom`) con label/icon/color predefinidos.
 - Acciones filtradas por `visible` (soporta `boolean` y `ComputedRef<boolean>` para control por rol).
 - Integra `BasePagination` internamente.
+- Modal de confirmación de delete integrado: cuando una action de tipo `delete` se clickea, `BaseTable` muestra un `UModal` de confirmación antes de ejecutar el `onSelect`. Prop `deleteLabel: (row: T) => string` para mostrar el nombre del item en el modal.
 - Tipos en `app/types/base-table.ts`: `TableAction<T>`, `ActionType`, re-export de `TableColumn`.
 
 ### BasePagination
@@ -372,10 +382,17 @@ Page (orquestador)
 
 - Forms en `components/forms/`. Cada form es reutilizable para create y edit.
 - Usan `UForm` con `:schema` (Zod) y `:state` (reactive). Validación y errores automáticos vía `UFormField` con `name` que matchea keys del schema.
-- Prop `initialValues` opcional para modo edit. Para create se pasa vacío.
-- El form emite `submit` con la data validada. La page decide qué hacer (create o update).
+- Prop `exercise?: Exercise` opcional para modo edit. Para create se pasa vacío. El form usa `exercise` para popular el state inicial.
+- El form emite `submit` con la data validada (tipada como `CreateExercise`). La page decide qué hacer (create o update). Un solo schema de validación en el form (`createExerciseSchema`) — no cambia entre create y edit.
 - Mutations usan `$fetch` → toast de feedback → `refreshNuxtData(key)` → `navigateTo`. Toast después de `navigateTo` para que sobreviva la transición de página.
 - Nuxt config: `components: [{ path: '~/components', pathPrefix: false }]` para auto-importar componentes sin prefijo de carpeta.
+
+### Detalle (read one)
+
+- Detail components en `components/details/`. Cada entidad tiene su propio componente de detalle (ej: `ExerciseDetail.vue`), custom, sin componente base genérico.
+- Reciben la entidad como prop (ej: `exercise: Exercise`).
+- La page hace el fetch con `useGet[Entity](slug)` y pasa la entidad al detail component.
+- Para videos de YouTube: computed que parsea la URL y genera el embed URL. Valida que sea un dominio de YouTube antes de renderizar el iframe.
 
 ## Convenciones de código
 
@@ -401,7 +418,8 @@ Page (orquestador)
 ### Naming
 
 - Composables flat: `useGet[Entity]`, `useCreate[Entity]`, `useUpdate[Entity]`, `useDelete[Entity]`, `useLogin`, `useLogout`, `useGetMe`
-- Server routes por carpeta: `server/api/[recurso]/index.get.ts`, `server/api/[recurso]/index.post.ts`, `server/api/[recurso]/[slug].get.ts`
+- Server routes por carpeta: `server/api/[recurso]/index.get.ts`, `server/api/[recurso]/index.post.ts`, `server/api/[recurso]/[slug].get.ts`, `server/api/[recurso]/[slug].patch.ts`, `server/api/[recurso]/[slug].delete.ts`
+- En DELETE (soft delete): `update({ deleted_at: new Date().toISOString() })` filtrado por slug y `deleted_at is null`. Retorna `{ success: true }`.
 - Schemas Zod: `[entity]Schema`, `create[Entity]Schema`, `update[Entity]Schema`, `[entity]QueryParamsSchema`
 - Tipos inferidos sin sufijo: `Login`, `Exercise`, `CreateExercise` (no `LoginInput`)
 - Componentizar solo cuando se reutilice o la page supere ~100 líneas

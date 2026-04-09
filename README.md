@@ -89,7 +89,7 @@ fix/trainer/auth        ─┘
 
 - Autenticación (login/logout) con Supabase Auth + toasts de feedback
 - Dashboard con perfil del usuario logueado
-- CRUDL de ejercicios (listado paginado server-side, crear)
+- CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI

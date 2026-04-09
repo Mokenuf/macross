@@ -8,6 +8,7 @@ definePageMeta({ layout: 'admin', middleware: 'auth' })
 useHead({ title: 'Ejercicios' })
 
 const { exercises, pagination, loading, page, limit, search } = useGetExercises()
+const { remove } = useDeleteExercise()
 const { data: user } = useGetMe()
 
 const isManager = computed(() => user.value?.role === 'manager')
@@ -33,16 +34,12 @@ const columns: TableColumn<Exercise>[] = [
 const actions: TableAction<Exercise>[] = [
   { type: 'view', href: row => `/exercises/${row.slug}` },
   { type: 'edit', href: row => `/exercises/${row.slug}/edit`, visible: isManager },
-  { type: 'delete', onSelect: row => handleDelete(row.id), visible: isManager },
+  { type: 'delete', onSelect: row => remove(row.slug), visible: isManager },
 ]
 
 function onFilterUpdate({ key, value }: { key: string; value: string | number }) {
   const map: Record<string, Ref | WritableComputedRef<string | number>> = { search }
   if (map[key]) map[key].value = value
-}
-
-function handleDelete(id: string) {
-  console.log('should delete exercise with id', id)
 }
 </script>
 
@@ -69,6 +66,7 @@ function handleDelete(id: string) {
       :data="exercises"
       :loading
       :pagination
+      :delete-label="row => row.name"
       v-model:page="page"
       v-model:limit="limit"
     />

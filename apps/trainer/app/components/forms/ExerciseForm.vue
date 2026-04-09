@@ -52,7 +52,7 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
 
     <div class="flex justify-end gap-3">
       <UButton label="Cancelar" color="neutral" variant="ghost" to="/exercises" />
-      <UButton type="submit" label="Guardar" />
+      <UButton class="cursor-pointer" type="submit" label="Guardar" />
     </div>
   </UForm>
 </template>

@@ -10,6 +10,7 @@ interface BaseTableProps {
   data: T[]
   loading: boolean
   pagination: Pagination
+  deleteLabel?: (row: T) => string
 }
 
 interface BaseTableEmits {
@@ -17,7 +18,7 @@ interface BaseTableEmits {
   'update:limit': [value: number]
 }
 
-const { columns, actions, data, loading, pagination } = defineProps<BaseTableProps>()
+const { columns, actions, data, loading, pagination, deleteLabel } = defineProps<BaseTableProps>()
 
 const emit = defineEmits<BaseTableEmits>()
 
@@ -58,7 +59,11 @@ const allColumns = computed(() => {
                   typeof action.href === 'function' ? action.href(row.original) : action.href
                 navigateTo(url)
               }
-              action.onSelect?.(row.original)
+              if (action.type === 'delete' && action.onSelect) {
+                openDeleteModal(row.original, action.onSelect)
+              } else {
+                action.onSelect?.(row.original)
+              }
             },
           }
         })
@@ -87,6 +92,25 @@ const allColumns = computed(() => {
 
   return [...columns, actionsColumn]
 })
+
+const deleteTarget = ref<T | null>(null)
+const showDeleteModal = ref(false)
+const deleteAction = ref<((row: T) => void) | null>(null)
+
+function openDeleteModal(row: T, onSelect: (row: T) => void) {
+  deleteTarget.value = row
+  deleteAction.value = onSelect
+  showDeleteModal.value = true
+}
+
+function confirmDelete() {
+  if (deleteTarget.value && deleteAction.value) {
+    deleteAction.value(deleteTarget.value)
+  }
+  showDeleteModal.value = false
+  deleteTarget.value = null
+  deleteAction.value = null
+}
 </script>
 
 <template>
@@ -100,5 +124,34 @@ const allColumns = computed(() => {
       @update:page="emit('update:page', $event)"
       @update:limit="emit('update:limit', $event)"
     />
+
+    <UModal v-model:open="showDeleteModal">
+      <template #content>
+        <div class="p-6 space-y-4">
+          <h3 class="text-lg font-semibold">Eliminar registro</h3>
+          <p class="text-sm text-neutral-500">
+            ¿Estás seguro que querés eliminar
+            <strong v-if="deleteTarget && deleteLabel">{{ deleteLabel(deleteTarget as T) }}</strong
+            >?
+          </p>
+          <div class="flex justify-end gap-3">
+            <UButton
+              class="cursor-pointer"
+              label="Cancelar"
+              color="neutral"
+              variant="ghost"
+              @click="showDeleteModal = false"
+            />
+            <UButton
+              class="cursor-pointer"
+              label="Eliminar"
+              color="error"
+              variant="solid"
+              @click="confirmDelete"
+            />
+          </div>
+        </div>
+      </template>
+    </UModal>
   </div>
 </template>
