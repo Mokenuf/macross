@@ -18,6 +18,7 @@ Dos aplicaciones en un mismo monorepo:
 | UI         | NuxtUI v4                               |
 | Backend    | Supabase (Postgres, Auth, Storage, RLS) |
 | Validación | Zod                                     |
+| Testing    | Vitest                                  |
 | Linter     | Oxlint                                  |
 | Formatter  | Oxfmt                                   |
 | Git hooks  | Husky + lint-staged + Commitizen        |
@@ -39,7 +40,6 @@ macross-for-progress/
 ├── .oxfmtrc.json
 ├── turbo.json
 ├── pnpm-workspace.yaml
-├── CLAUDE.md
 └── README.md
 ```
 
@@ -63,6 +63,10 @@ pnpm dev              # Ambas apps en paralelo
 pnpm dev:trainer      # Solo el dashboard
 pnpm dev:client       # Solo la PWA
 pnpm build            # Build de producción
+pnpm test             # Todos los tests (via Turbo)
+pnpm test:shared      # Tests de packages/shared (watch)
+pnpm test:trainer     # Tests de apps/trainer (watch)
+pnpm test:client      # Tests de apps/client (watch)
 pnpm lint             # Oxlint
 pnpm lint:fix         # Oxlint con autofix
 pnpm format           # Oxfmt (write)
@@ -98,6 +102,7 @@ fix/trainer/auth        ─┘
 
 - Schemas Zod compartidos (ejercicios, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
+- Tests unitarios de schemas con Vitest (21 tests: `createExerciseSchema`, `queryParamsSchema`, `exerciseQueryParamsSchema`)
 
 ## Estado
 

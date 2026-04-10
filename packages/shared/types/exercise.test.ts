@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { createExerciseSchema } from './exercise'
+import { createExerciseSchema, exerciseQueryParamsSchema } from './exercise'
 
 describe('createExerciseSchema', () => {
   it('acepta un ejercicio valido con todos los campos', () => {
@@ -42,5 +42,51 @@ describe('createExerciseSchema', () => {
       videoUrl: 'nintendo.com',
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('exerciseQueryParamsSchema', () => {
+  it('aplica sort=createdAt por default', () => {
+    const result = exerciseQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.sort).toBe('createdAt')
+    }
+  })
+
+  it('acepta los valores validos de sort', () => {
+    expect(exerciseQueryParamsSchema.safeParse({ sort: 'name' }).success).toBe(true)
+    expect(exerciseQueryParamsSchema.safeParse({ sort: 'createdAt' }).success).toBe(true)
+    expect(exerciseQueryParamsSchema.safeParse({ sort: 'muscleGroup' }).success).toBe(true)
+  })
+
+  it('rechaza sort fuera del enum', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ sort: 'invalid' })
+    expect(result.success).toBe(false)
+  })
+
+  it('muscleGroup es opcional', () => {
+    const result = exerciseQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.muscleGroup).toBeUndefined()
+    }
+  })
+
+  it('acepta muscleGroup como string', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ muscleGroup: 'Pierna' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.muscleGroup).toBe('Pierna')
+    }
+  })
+
+  it('hereda la coercion de page y limit del schema base', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ page: '2', limit: '50' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.page).toBe(2)
+      expect(result.data.limit).toBe(50)
+    }
   })
 })
