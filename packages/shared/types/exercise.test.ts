@@ -1,0 +1,92 @@
+import { describe, expect, it } from 'vitest'
+
+import { createExerciseSchema, exerciseQueryParamsSchema } from './exercise'
+
+describe('createExerciseSchema', () => {
+  it('acepta un ejercicio valido con todos los campos', () => {
+    const result = createExerciseSchema.safeParse({
+      name: 'Sentadilla',
+      description: 'Description',
+      videoUrl: 'https://youtube.com/watch?v=abc123',
+      muscleGroup: 'Pierna',
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('acepta un ejercicio solo con el name', () => {
+    const result = createExerciseSchema.safeParse({ name: 'Sentadilla' })
+    expect(result.success).toBe(true)
+  })
+
+  it('rechaza si falta el name', () => {
+    const result = createExerciseSchema.safeParse({ description: 'foo' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rechaza si el name es string vacio', () => {
+    const result = createExerciseSchema.safeParse({ name: '' })
+    expect(result.success).toBe(false)
+  })
+
+  it('convierte videoUrl vacio a undefined (preprocess)', () => {
+    const result = createExerciseSchema.safeParse({ name: 'Sentadilla', videoUrl: '' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.videoUrl).toBeUndefined()
+    }
+  })
+
+  it('rechaza videoUrl invalida', () => {
+    const result = createExerciseSchema.safeParse({
+      name: 'Sentadilla',
+      videoUrl: 'nintendo.com',
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('exerciseQueryParamsSchema', () => {
+  it('aplica sort=createdAt por default', () => {
+    const result = exerciseQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.sort).toBe('createdAt')
+    }
+  })
+
+  it('acepta los valores validos de sort', () => {
+    expect(exerciseQueryParamsSchema.safeParse({ sort: 'name' }).success).toBe(true)
+    expect(exerciseQueryParamsSchema.safeParse({ sort: 'createdAt' }).success).toBe(true)
+    expect(exerciseQueryParamsSchema.safeParse({ sort: 'muscleGroup' }).success).toBe(true)
+  })
+
+  it('rechaza sort fuera del enum', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ sort: 'invalid' })
+    expect(result.success).toBe(false)
+  })
+
+  it('muscleGroup es opcional', () => {
+    const result = exerciseQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.muscleGroup).toBeUndefined()
+    }
+  })
+
+  it('acepta muscleGroup como string', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ muscleGroup: 'Pierna' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.muscleGroup).toBe('Pierna')
+    }
+  })
+
+  it('hereda la coercion de page y limit del schema base', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ page: '2', limit: '50' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.page).toBe(2)
+      expect(result.data.limit).toBe(50)
+    }
+  })
+})
