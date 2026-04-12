@@ -25,6 +25,11 @@ const navigation: NavigationMenuItem[] = [
     to: '/exercises',
   },
   {
+    label: 'Grupos Musculares',
+    icon: 'i-lucide-biceps-flexed',
+    to: '/muscle-groups',
+  },
+  {
     label: 'Clientes',
     icon: 'i-lucide-users',
     to: '/clients',

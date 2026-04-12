@@ -8,7 +8,7 @@ describe('createExerciseSchema', () => {
       name: 'Sentadilla',
       description: 'Description',
       videoUrl: 'https://youtube.com/watch?v=abc123',
-      muscleGroup: 'Pierna',
+      muscleGroupIds: ['a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'],
     })
     expect(result.success).toBe(true)
   })
@@ -16,6 +16,14 @@ describe('createExerciseSchema', () => {
   it('acepta un ejercicio solo con el name', () => {
     const result = createExerciseSchema.safeParse({ name: 'Sentadilla' })
     expect(result.success).toBe(true)
+  })
+
+  it('aplica default de muscleGroupIds como array vacio', () => {
+    const result = createExerciseSchema.safeParse({ name: 'Sentadilla' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.muscleGroupIds).toEqual([])
+    }
   })
 
   it('rechaza si falta el name', () => {
@@ -43,6 +51,14 @@ describe('createExerciseSchema', () => {
     })
     expect(result.success).toBe(false)
   })
+
+  it('rechaza muscleGroupIds con uuids invalidos', () => {
+    const result = createExerciseSchema.safeParse({
+      name: 'Sentadilla',
+      muscleGroupIds: ['no-es-uuid'],
+    })
+    expect(result.success).toBe(false)
+  })
 })
 
 describe('exerciseQueryParamsSchema', () => {
@@ -57,28 +73,11 @@ describe('exerciseQueryParamsSchema', () => {
   it('acepta los valores validos de sort', () => {
     expect(exerciseQueryParamsSchema.safeParse({ sort: 'name' }).success).toBe(true)
     expect(exerciseQueryParamsSchema.safeParse({ sort: 'createdAt' }).success).toBe(true)
-    expect(exerciseQueryParamsSchema.safeParse({ sort: 'muscleGroup' }).success).toBe(true)
   })
 
   it('rechaza sort fuera del enum', () => {
     const result = exerciseQueryParamsSchema.safeParse({ sort: 'invalid' })
     expect(result.success).toBe(false)
-  })
-
-  it('muscleGroup es opcional', () => {
-    const result = exerciseQueryParamsSchema.safeParse({})
-    expect(result.success).toBe(true)
-    if (result.success) {
-      expect(result.data.muscleGroup).toBeUndefined()
-    }
-  })
-
-  it('acepta muscleGroup como string', () => {
-    const result = exerciseQueryParamsSchema.safeParse({ muscleGroup: 'Pierna' })
-    expect(result.success).toBe(true)
-    if (result.success) {
-      expect(result.data.muscleGroup).toBe('Pierna')
-    }
   })
 
   it('hereda la coercion de page y limit del schema base', () => {

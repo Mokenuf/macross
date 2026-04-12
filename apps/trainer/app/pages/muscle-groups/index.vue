@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { Exercise } from '@macross/shared'
+import type { MuscleGroup } from '@macross/shared'
 
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Ejercicios' })
+useHead({ title: 'Grupos Musculares' })
 
-const { exercises, pagination, loading, page, limit, search } = useGetExercises()
-const { remove } = useDeleteExercise()
+const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroups()
+const { remove } = useDeleteMuscleGroup()
 const { data: user } = useGetMe()
 
 const isManager = computed(() => user.value?.role === 'manager')
@@ -18,26 +18,18 @@ const filterConfig: Filter[] = [
     type: 'search',
     key: 'search',
     label: 'Buscar',
-    placeholder: 'Buscar ejercicio...',
+    placeholder: 'Buscar grupo muscular...',
     debounce: 300,
   },
 ]
 
 const filterValues = computed(() => ({ search: search.value }))
 
-const columns: TableColumn<Exercise>[] = [
-  { accessorKey: 'name', header: 'Nombre' },
-  {
-    accessorKey: 'muscleGroups',
-    header: 'Grupos Musculares',
-    cell: ({ row }) => row.original.muscleGroups.map(mg => mg.name).join(', '),
-  },
-  { accessorKey: 'description', header: 'Descripción' },
-]
+const columns: TableColumn<MuscleGroup>[] = [{ accessorKey: 'name', header: 'Nombre' }]
 
-const actions: TableAction<Exercise>[] = [
-  { type: 'view', href: row => `/exercises/${row.slug}` },
-  { type: 'edit', href: row => `/exercises/${row.slug}/edit`, visible: isManager },
+const actions: TableAction<MuscleGroup>[] = [
+  { type: 'view', href: row => `/muscle-groups/${row.slug}` },
+  { type: 'edit', href: row => `/muscle-groups/${row.slug}/edit`, visible: isManager },
   { type: 'delete', onSelect: row => remove(row.slug), visible: isManager },
 ]
 
@@ -57,17 +49,17 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number })
       />
       <UButton
         v-if="isManager"
-        label="Agregar Ejercicio"
+        label="Agregar Grupo Muscular"
         icon="i-lucide-plus"
         color="primary"
-        to="/exercises/add"
+        to="/muscle-groups/add"
       />
     </div>
 
     <BaseTable
       :columns
       :actions
-      :data="exercises"
+      :data="muscleGroups"
       :loading
       :pagination
       :delete-label="row => row.name"

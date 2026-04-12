@@ -7,6 +7,10 @@ interface ExerciseDetailProps {
 
 const { exercise } = defineProps<ExerciseDetailProps>()
 
+const muscleGroups = computed<string>(
+  () => exercise.muscleGroups?.map(mg => mg.name).join(', ') ?? '',
+)
+
 const youtubeEmbedUrl = computed(() => {
   if (!exercise.videoUrl) return null
   try {
@@ -24,9 +28,9 @@ const youtubeEmbedUrl = computed(() => {
 
 <template>
   <div class="space-y-6">
-    <div v-if="exercise.muscleGroup">
-      <h3 class="text-sm font-medium text-neutral-500">Grupo muscular</h3>
-      <p class="mt-1">{{ exercise.muscleGroup }}</p>
+    <div v-if="muscleGroups">
+      <h3 class="text-sm font-medium text-neutral-500">Grupos musculares</h3>
+      <p class="mt-1">{{ muscleGroups }}</p>
     </div>
 
     <div v-if="exercise.description">

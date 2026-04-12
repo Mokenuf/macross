@@ -1,4 +1,9 @@
-import { Exercise, exerciseSchema, UpdateExercise, updateExerciseSchema } from '@macross/shared'
+import {
+  exerciseSchema,
+  UpdateExercise,
+  updateExerciseSchema,
+  exerciseWithPivotSchema,
+} from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 
@@ -9,12 +14,7 @@ export default defineEventHandler(async event => {
   const body = await readValidatedBody<UpdateExercise>(event, updateExerciseSchema.parse)
   const client = await serverSupabaseClient(event)
 
-  const newSlug = body.name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+  const newSlug = generateSlug(body.name)
 
   if (newSlug !== slug) {
     const { count } = await client
@@ -29,13 +29,12 @@ export default defineEventHandler(async event => {
       })
   }
 
-  const { data, error } = await client
+  const { data: updatedExercise, error: updateError } = await client
     .from('exercises')
     .update({
       name: body.name,
       description: body.description ?? null,
       video_url: body.videoUrl ?? null,
-      muscle_group: body.muscleGroup ?? null,
       slug: newSlug,
     })
     .eq('slug', slug)
@@ -43,13 +42,42 @@ export default defineEventHandler(async event => {
     .select()
     .single()
 
+  if (updateError || !updatedExercise)
+    throw createError({
+      statusCode: 500,
+      statusMessage: updateError?.message ?? 'Error al actualizar el ejercicio',
+    })
+
+  await client.from('exercise_muscle_groups').delete().eq('exercise_id', updatedExercise.id)
+
+  if (body.muscleGroupIds.length > 0) {
+    const { error: pivotError } = await client.from('exercise_muscle_groups').insert(
+      body.muscleGroupIds.map(id => ({
+        exercise_id: updatedExercise.id,
+        muscle_group_id: id,
+      })),
+    )
+
+    if (pivotError)
+      throw createError({
+        statusCode: 500,
+        statusMessage: pivotError.message ?? 'Error al asignar grupos musculares',
+      })
+  }
+
+  const { data, error } = await client
+    .from('exercises')
+    .select('*, exercise_muscle_groups(muscle_groups(*))')
+    .eq('id', updatedExercise.id)
+    .single()
+
   if (error || !data)
     throw createError({
       statusCode: 500,
-      statusMessage: error?.message ?? 'Error al actualizar el ejercicio',
+      statusMessage: error?.message ?? 'Error al obtener el ejercicio actualizado',
     })
 
-  const exercise = exerciseSchema.parse(toCamelCase<Exercise>(data))
+  const exercise = parsePivot(data, exerciseWithPivotSchema, exerciseSchema, toExercise)
 
   return exercise
 })

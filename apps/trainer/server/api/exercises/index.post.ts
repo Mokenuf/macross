@@ -1,4 +1,9 @@
-import { CreateExercise, createExerciseSchema, Exercise, exerciseSchema } from '@macross/shared'
+import {
+  CreateExercise,
+  createExerciseSchema,
+  exerciseSchema,
+  exerciseWithPivotSchema,
+} from '@macross/shared'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
@@ -9,12 +14,7 @@ export default defineEventHandler(async event => {
   const body = await readValidatedBody<CreateExercise>(event, createExerciseSchema.parse)
   const client = await serverSupabaseClient(event)
 
-  const slug = body.name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+  const slug = generateSlug(body.name)
 
   const { count } = await client
     .from('exercises')
@@ -25,26 +25,52 @@ export default defineEventHandler(async event => {
   if (count && count > 0)
     throw createError({ statusCode: 409, statusMessage: 'Ya existe un ejercicio con este nombre' })
 
-  const { data, error } = await client
+  const { data: insertedExercise, error: insertError } = await client
     .from('exercises')
     .insert({
       trainer_id: user.sub,
       name: body.name,
       description: body.description ?? null,
       video_url: body.videoUrl ?? null,
-      muscle_group: body.muscleGroup ?? null,
       slug,
     })
     .select()
     .single()
 
-  if (error)
+  if (insertError)
     throw createError({
       statusCode: 500,
-      statusMessage: error.message ?? 'Error al crear el ejercicio',
+      statusMessage: insertError.message ?? 'Error al crear el ejercicio',
     })
 
-  const exercise = exerciseSchema.parse(toCamelCase<Exercise>(data))
+  if (body.muscleGroupIds.length > 0) {
+    const { error: pivotError } = await client.from('exercise_muscle_groups').insert(
+      body.muscleGroupIds.map(id => ({
+        exercise_id: insertedExercise.id,
+        muscle_group_id: id,
+      })),
+    )
+
+    if (pivotError)
+      throw createError({
+        statusCode: 500,
+        statusMessage: pivotError.message ?? 'Error al asignar grupos musculares',
+      })
+  }
+
+  const { data, error } = await client
+    .from('exercises')
+    .select('*, exercise_muscle_groups(muscle_groups(*))')
+    .eq('id', insertedExercise.id)
+    .single()
+
+  if (error || !data)
+    throw createError({
+      statusCode: 500,
+      statusMessage: error?.message ?? 'Error al obtener el ejercicio creado',
+    })
+
+  const exercise = parsePivot(data, exerciseWithPivotSchema, exerciseSchema, toExercise)
 
   return exercise
 })
