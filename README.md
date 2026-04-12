@@ -94,15 +94,16 @@ fix/trainer/auth        ─┘
 - Autenticación (login/logout) con Supabase Auth + toasts de feedback
 - Dashboard con perfil del usuario logueado
 - CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
+- CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI
 
 ### Shared
 
-- Schemas Zod compartidos (ejercicios, auth, query params)
+- Schemas Zod compartidos (ejercicios, grupos musculares, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
-- Tests unitarios de schemas con Vitest (21 tests: `createExerciseSchema`, `queryParamsSchema`, `exerciseQueryParamsSchema`)
+- Tests unitarios de schemas con Vitest (29 tests: `createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`)
 
 ## Estado
 

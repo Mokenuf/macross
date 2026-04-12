@@ -1,11 +1,11 @@
 import {
   BaseResponse,
-  Exercise,
-  ExerciseQueryParams,
-  exerciseQueryParamsSchema,
-  exerciseSchema,
-  exerciseWithPivotSchema,
+  MuscleGroup,
+  MuscleGroupQueryParams,
+  muscleGroupQueryParamsSchema,
+  muscleGroupSchema,
 } from '@macross/shared'
+import { z } from 'zod'
 
 import { serverSupabaseClient } from '#supabase/server'
 
@@ -14,10 +14,10 @@ const sortColumnMap: Record<string, string> = {
   createdAt: 'created_at',
 }
 
-export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>> => {
-  const queryParams = await getValidatedQuery<ExerciseQueryParams>(
+export default defineEventHandler(async (event): Promise<BaseResponse<MuscleGroup>> => {
+  const queryParams = await getValidatedQuery<MuscleGroupQueryParams>(
     event,
-    exerciseQueryParamsSchema.parse,
+    muscleGroupQueryParamsSchema.parse,
   )
   const client = await serverSupabaseClient(event)
 
@@ -25,10 +25,9 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
   const to = from + queryParams.limit - 1
 
   let supabaseQuery = client
-    .from('exercises')
-    .select('*, exercise_muscle_groups(muscle_groups!inner(*))', { count: 'exact' })
+    .from('muscle_groups')
+    .select('*', { count: 'exact' })
     .is('deleted_at', null)
-    .is('exercise_muscle_groups.muscle_groups.deleted_at', null)
     .order(sortColumnMap[queryParams.sort] ?? 'created_at', {
       ascending: queryParams.order === 'asc',
     })
@@ -42,11 +41,11 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
   if (error) {
     throw createError({
       statusCode: 500,
-      statusMessage: error.message ?? 'Error al obtener los ejercicios',
+      statusMessage: error.message ?? 'Error al obtener los grupos musculares',
     })
   }
 
-  const rows = parsePivotArray(data ?? [], exerciseWithPivotSchema, exerciseSchema, toExercise)
+  const rows = z.array(muscleGroupSchema).parse(toCamelCase<MuscleGroup[]>(data ?? []))
 
   return {
     rows,

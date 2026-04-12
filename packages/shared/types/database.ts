@@ -55,13 +55,48 @@ export type Database = {
           },
         ]
       }
+      exercise_muscle_groups: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          muscle_group_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          muscle_group_id: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          muscle_group_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'exercise_muscle_groups_exercise_id_fkey'
+            columns: ['exercise_id']
+            isOneToOne: false
+            referencedRelation: 'exercises'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'exercise_muscle_groups_muscle_group_id_fkey'
+            columns: ['muscle_group_id']
+            isOneToOne: false
+            referencedRelation: 'muscle_groups'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       exercises: {
         Row: {
           created_at: string
           deleted_at: string | null
           description: string | null
           id: string
-          muscle_group: string | null
           name: string
           nano_id: string
           slug: string | null
@@ -74,7 +109,6 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           id?: string
-          muscle_group?: string | null
           name: string
           nano_id?: string
           slug?: string | null
@@ -87,7 +121,6 @@ export type Database = {
           deleted_at?: string | null
           description?: string | null
           id?: string
-          muscle_group?: string | null
           name?: string
           nano_id?: string
           slug?: string | null
@@ -104,6 +137,36 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      muscle_groups: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          name: string
+          nano_id: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name: string
+          nano_id?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          nano_id?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       routine_days: {
         Row: {
@@ -372,6 +435,7 @@ export type Database = {
     Functions: {
       generate_nanoid: { Args: { size?: number }; Returns: string }
       get_user_role: { Args: never; Returns: string }
+      is_manager: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

@@ -1,4 +1,4 @@
-import { exerciseSchema, exerciseWithPivotSchema } from '@macross/shared'
+import { muscleGroupSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 
@@ -10,20 +10,19 @@ export default defineEventHandler(async event => {
   const client = await serverSupabaseClient(event)
 
   const { data, error } = await client
-    .from('exercises')
-    .select('*, exercise_muscle_groups(muscle_groups!inner(*))')
+    .from('muscle_groups')
+    .select('*')
     .eq('slug', slug)
     .is('deleted_at', null)
-    .is('exercise_muscle_groups.muscle_groups.deleted_at', null)
     .single()
 
   if (error || !data)
     throw createError({
       statusCode: 500,
-      statusMessage: error?.message ?? 'Error al obtener el ejercicio',
+      statusMessage: error?.message ?? 'Error al obtener el grupo muscular',
     })
 
-  const exercise = parsePivot(data, exerciseWithPivotSchema, exerciseSchema, toExercise)
+  const muscleGroup = muscleGroupSchema.parse(toCamelCase(data))
 
-  return exercise
+  return muscleGroup
 })

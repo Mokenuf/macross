@@ -76,8 +76,8 @@ export function useUpdateExercise() {
 
   async function update(slug: string, input: UpdateExercise) {
     try {
-      await ($fetch as Function)(`/api/exercises/${slug}`, { method: 'PATCH', body: input })
-      await refreshNuxtData(`exercise-${slug}`)
+      await $fetch(`/api/exercises/${slug}`, { method: 'PATCH', body: input })
+      await refreshNuxtData('exercises')
       await navigateTo('/exercises')
       toast.add({ title: 'Ejercicio actualizado', color: 'success' })
     } catch (e) {
@@ -98,7 +98,7 @@ export function useDeleteExercise() {
 
   async function remove(slug: string) {
     try {
-      await ($fetch as Function)(`/api/exercises/${slug}`, { method: 'DELETE' })
+      await $fetch(`/api/exercises/${slug}`, { method: 'DELETE' })
       await refreshNuxtData('exercises')
       toast.add({ title: 'Ejercicio eliminado', color: 'success' })
     } catch (e) {
