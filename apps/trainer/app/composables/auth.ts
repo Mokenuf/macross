@@ -27,7 +27,7 @@ export function useLogout() {
   async function logout() {
     await $fetch('/api/auth/logout', { method: 'POST' })
     toast.add({ title: 'Adios', color: 'success' })
-    await navigateTo('/auth/login')
+    await navigateTo('/auth/login', { external: true })
   }
 
   return { logout }
