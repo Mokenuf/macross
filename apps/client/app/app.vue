@@ -1,5 +1,13 @@
+<script setup lang="ts">
+useHead({
+  titleTemplate: '%s | Macros for progress',
+})
+</script>
+
 <template>
   <UApp>
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </UApp>
 </template>
