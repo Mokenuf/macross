@@ -99,6 +99,11 @@ fix/trainer/auth        ─┘
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI
 
+### Client app
+
+- Scaffolding inicial: autenticación (login/logout) con Supabase Auth + toasts, middlewares `auth` / `guest`, layouts `auth` (centrado) y `default` (mobile-first con header + logout), home placeholder con email del usuario logueado
+- Listo para deploy como demo
+
 ### Shared
 
 - Schemas Zod compartidos (ejercicios, grupos musculares, auth, query params)
