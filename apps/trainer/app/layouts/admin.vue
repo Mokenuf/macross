@@ -2,10 +2,13 @@
 import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
-const user = useSupabaseUser()
+
+const { data: user } = useGetMe()
 
 const avatarText = computed(() => user?.value?.email?.charAt(0).toUpperCase())
 const routeTitle = computed(() => (route.meta.title as string) || 'Dashboard')
+
+const isManager = computed(() => user.value?.role === 'manager')
 
 const { logout } = useLogout()
 
@@ -13,33 +16,52 @@ async function handleLogout() {
   await logout()
 }
 
-const navigation: NavigationMenuItem[] = [
+const navigation = computed<NavigationMenuItem[]>(() => [
   {
     label: 'Dashboard',
     icon: 'i-lucide-layout-dashboard',
     to: '/',
   },
   {
-    label: 'Ejercicios',
-    icon: 'i-lucide-dumbbell',
-    to: '/exercises',
-  },
-  {
-    label: 'Grupos Musculares',
-    icon: 'i-lucide-biceps-flexed',
-    to: '/muscle-groups',
-  },
-  {
-    label: 'Clientes',
-    icon: 'i-lucide-users',
-    to: '/clients',
-  },
-  {
     label: 'Rutinas',
     icon: 'i-lucide-clipboard-list',
     to: '/routines',
   },
-]
+  {
+    label: 'Catálogo',
+    icon: 'i-lucide-book-open',
+    defaultOpen: true,
+    children: [
+      {
+        label: 'Ejercicios',
+        to: '/exercises',
+      },
+      {
+        label: 'Grupos Musculares',
+        to: '/muscle-groups',
+      },
+    ],
+  },
+  {
+    label: 'Usuarios',
+    icon: 'i-lucide-users',
+    defaultOpen: true,
+    children: [
+      {
+        label: 'Clientes',
+        to: '/clients',
+      },
+      ...(isManager.value
+        ? [
+            {
+              label: 'Entrenadores',
+              to: '/trainers',
+            },
+          ]
+        : []),
+    ],
+  },
+])
 </script>
 
 <template>
