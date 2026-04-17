@@ -7,16 +7,7 @@ export default defineNuxtConfig({
   components: [{ path: '~/components', pathPrefix: false }],
   ui: {
     theme: {
-      colors: [
-        'primary',
-        'secondary',
-        'tertiary',
-        'info',
-        'success',
-        'warning',
-        'error',
-        'neutral',
-      ],
+      colors: ['primary', 'secondary', 'info', 'success', 'warning', 'error', 'neutral'],
     },
   },
   supabase: {
