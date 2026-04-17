@@ -95,6 +95,7 @@ fix/trainer/auth        ─┘
 - Dashboard con perfil del usuario logueado
 - CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
 - CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
+- Gestión de entrenadores (server-side): alta por invitación (`inviteUserByEmail`), listado con filtros, edición y soft delete. Solo los managers pueden invitar, editar o eliminar; los managers no pueden ser eliminados. UI pendiente.
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI
@@ -108,7 +109,7 @@ fix/trainer/auth        ─┘
 
 - Schemas Zod compartidos (ejercicios, grupos musculares, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
-- Tests unitarios de schemas con Vitest (29 tests: `createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`)
+- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`)
 
 ## Estado
 

@@ -2,7 +2,7 @@ import { AdminUser, adminUserSchema } from '@macross/shared'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
-export default defineEventHandler(async event => {
+export default defineEventHandler(async (event): Promise<AdminUser> => {
   const loggedUser = await serverSupabaseUser(event)
 
   if (!loggedUser) {

@@ -3,11 +3,13 @@ import {
   UpdateExercise,
   updateExerciseSchema,
   exerciseWithPivotSchema,
+  Exercise,
+  ExerciseWithPivot,
 } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 
-export default defineEventHandler(async event => {
+export default defineEventHandler(async (event): Promise<Exercise> => {
   const slug = getRouterParam(event, 'slug')
   if (!slug) throw createError({ statusCode: 400, statusMessage: 'Slug is required' })
 
@@ -42,11 +44,14 @@ export default defineEventHandler(async event => {
     .select()
     .single()
 
-  if (updateError || !updatedExercise)
+  if (updateError)
     throw createError({
       statusCode: 500,
       statusMessage: updateError?.message ?? 'Error al actualizar el ejercicio',
     })
+
+  if (!updatedExercise)
+    throw createError({ statusCode: 404, statusMessage: 'Ejercicio no encontrado' })
 
   await client.from('exercise_muscle_groups').delete().eq('exercise_id', updatedExercise.id)
 
@@ -71,13 +76,20 @@ export default defineEventHandler(async event => {
     .eq('id', updatedExercise.id)
     .single()
 
-  if (error || !data)
+  if (error)
     throw createError({
       statusCode: 500,
       statusMessage: error?.message ?? 'Error al obtener el ejercicio actualizado',
     })
 
-  const exercise = parsePivot(data, exerciseWithPivotSchema, exerciseSchema, toExercise)
+  if (!data) throw createError({ statusCode: 404, statusMessage: 'Ejercicio no encontrado' })
+
+  const exercise = parsePivot<ExerciseWithPivot, Exercise>(
+    data,
+    exerciseWithPivotSchema,
+    exerciseSchema,
+    toExercise,
+  )
 
   return exercise
 })
