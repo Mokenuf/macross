@@ -5,48 +5,48 @@
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-logo: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: #0a0a0c;
-  --color-surface: #141418;
-  --color-surface-elevated: #1c1c22;
-  --color-foreground: #f1f1f1;
+  --color-background: #0d1117;
+  --color-surface: #161e27;
+  --color-surface-elevated: #202b36;
+  --color-foreground: #e8eaed;
 }
 
 @theme static {
-  --color-brand-50: #fef2f3;
-  --color-brand-100: #fde3e5;
-  --color-brand-200: #fcccd0;
-  --color-brand-300: #f9a8ae;
-  --color-brand-400: #f3767f;
-  --color-brand-500: #e63946;
-  --color-brand-600: #d52d3a;
-  --color-brand-700: #b3222d;
-  --color-brand-800: #942029;
-  --color-brand-900: #7b2128;
-  --color-brand-950: #430c10;
+  --color-macross-primary-50: #f8f7f6;
+  --color-macross-primary-100: #efedeb;
+  --color-macross-primary-200: #dfd7ce;
+  --color-macross-primary-300: #ccb9a3;
+  --color-macross-primary-400: #c09668;
+  --color-macross-primary-500: #a57746;
+  --color-macross-primary-600: #886339;
+  --color-macross-primary-700: #6c4e2d;
+  --color-macross-primary-800: #533c23;
+  --color-macross-primary-900: #3d2c1a;
+  --color-macross-primary-950: #201a13;
 
-  --color-macross-blue-50: #eef6ff;
-  --color-macross-blue-100: #daeaff;
-  --color-macross-blue-200: #bddbff;
-  --color-macross-blue-300: #90c6ff;
-  --color-macross-blue-400: #4a9eff;
-  --color-macross-blue-500: #3584fc;
-  --color-macross-blue-600: #1f64f1;
-  --color-macross-blue-700: #174ede;
-  --color-macross-blue-800: #1940b4;
-  --color-macross-blue-900: #1a3a8e;
-  --color-macross-blue-950: #152556;
+  --color-macross-secondary-50: #f6f8f7;
+  --color-macross-secondary-100: #ebefed;
+  --color-macross-secondary-200: #cedfd6;
+  --color-macross-secondary-300: #a3cdb6;
+  --color-macross-secondary-400: #67c190;
+  --color-macross-secondary-500: #44a672;
+  --color-macross-secondary-600: #388a5e;
+  --color-macross-secondary-700: #2c6d4a;
+  --color-macross-secondary-800: #225339;
+  --color-macross-secondary-900: #193e2a;
+  --color-macross-secondary-950: #132019;
 
-  --color-macross-amber-50: #fef8ec;
-  --color-macross-amber-100: #fbeaca;
-  --color-macross-amber-200: #f7d490;
-  --color-macross-amber-300: #f3b956;
-  --color-macross-amber-400: #f0a030;
-  --color-macross-amber-500: #e97e17;
-  --color-macross-amber-600: #ce5c11;
-  --color-macross-amber-700: #ab3f12;
-  --color-macross-amber-800: #8b3115;
-  --color-macross-amber-900: #732914;
-  --color-macross-amber-950: #421306;
+  --color-macross-gray-50: #f7f7f8;
+  --color-macross-gray-100: #ecedee;
+  --color-macross-gray-200: #d4d5d9;
+  --color-macross-gray-300: #b1b6be;
+  --color-macross-gray-400: #8790a1;
+  --color-macross-gray-500: #677184;
+  --color-macross-gray-600: #555d6d;
+  --color-macross-gray-700: #434a56;
+  --color-macross-gray-800: #333842;
+  --color-macross-gray-900: #262a31;
+  --color-macross-gray-950: #18191b;
 }
 
 @layer base {
