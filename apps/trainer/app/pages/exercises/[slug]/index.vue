@@ -10,9 +10,9 @@ const isManager = computed(() => user.value?.role === 'manager')
 </script>
 
 <template>
-  <div class="w-full max-w-2xl mx-auto py-6">
+  <div class="mx-auto w-full max-w-2xl py-6">
     <div v-if="exercise">
-      <div class="flex items-center justify-between mb-6">
+      <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold">{{ exercise.name }}</h1>
         <UButton
           v-if="isManager"
@@ -24,7 +24,7 @@ const isManager = computed(() => user.value?.role === 'manager')
       <ExerciseDetail :exercise />
     </div>
     <div v-else-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-2" class="animate-spin size-8" />
+      <UIcon name="i-lucide-loader-2" class="size-8 animate-spin" />
     </div>
   </div>
 </template>

@@ -11,8 +11,8 @@ function onSubmit(data: CreateMuscleGroup) {
 </script>
 
 <template>
-  <div class="w-full max-w-2xl mx-auto py-6">
-    <h1 class="text-2xl font-bold mb-6">Agregar Grupo Muscular</h1>
+  <div class="mx-auto w-full max-w-2xl py-6">
+    <h1 class="mb-6 text-2xl font-bold">Agregar Grupo Muscular</h1>
     <MuscleGroupForm @submit="onSubmit" />
   </div>
 </template>

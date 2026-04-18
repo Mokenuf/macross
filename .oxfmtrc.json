@@ -6,5 +6,6 @@
   "printWidth": 100,
   "arrowParens": "avoid",
   "endOfLine": "lf",
-  "sortImports": true
+  "sortImports": true,
+  "sortTailwindcss": true
 }

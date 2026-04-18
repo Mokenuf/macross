@@ -134,7 +134,7 @@ function confirmDelete() {
 
     <UModal v-model:open="showDeleteModal">
       <template #content>
-        <div class="p-6 space-y-4">
+        <div class="space-y-4 p-6">
           <h3 class="text-lg font-semibold">Eliminar registro</h3>
           <p class="text-sm text-neutral-500">
             ¿Estás seguro que querés eliminar
