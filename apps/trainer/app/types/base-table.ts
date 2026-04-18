@@ -7,7 +7,6 @@ export type ActionType = 'view' | 'edit' | 'delete' | 'custom'
 export type ActionColor =
   | 'primary'
   | 'secondary'
-  | 'tertiary'
   | 'info'
   | 'success'
   | 'warning'
@@ -19,7 +18,7 @@ export interface TableAction<T> {
   label?: string
   icon?: string
   color?: ActionColor
-  visible?: ComputedRef<boolean> | boolean
+  visible?: ComputedRef<boolean> | boolean | ((row: T) => boolean)
   href?: ((row: T) => string) | string
   onSelect?: (row: T) => void
   disabled?: ((row: T) => boolean) | boolean

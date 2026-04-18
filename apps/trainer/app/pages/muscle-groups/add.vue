@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { CreateMuscleGroup } from '@macross/shared'
 
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Agregar Grupo Muscular' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Agregar Grupo Muscular' })
 
 const { create } = useCreateMuscleGroup()
 

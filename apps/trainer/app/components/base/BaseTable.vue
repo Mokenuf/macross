@@ -22,6 +22,13 @@ const { columns, actions, data, loading, pagination, deleteLabel } = defineProps
 
 const emit = defineEmits<BaseTableEmits>()
 
+function isActionVisible(action: TableAction<T>, row: T): boolean {
+  const v = action.visible
+  if (typeof v === 'function') return v(row)
+  if (v && typeof v === 'object' && 'value' in v) return toValue(v.value)
+  return v ?? true
+}
+
 const CatalogDefaultActions: Record<
   ActionType,
   { label: string; icon: string; color?: ActionColor }
@@ -41,7 +48,7 @@ const allColumns = computed(() => {
     meta: { class: { td: 'text-right' } },
     cell: ({ row }) => {
       const items: DropdownMenuItem[] = actions
-        .filter(a => a.visible === undefined || toValue(a.visible))
+        .filter(a => isActionVisible(a, row.original))
         .map(action => {
           const defaults = CatalogDefaultActions[action.type]
           return {

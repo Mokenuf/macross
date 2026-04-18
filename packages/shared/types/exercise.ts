@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { muscleGroupSchema } from './muscle-group'
-import { queryParamsSchema } from './query-params'
+import { queryParamsSchema, type BaseFilters } from './query-params'
 
 export const exerciseSchema = z.object({
   id: z.uuid(),
@@ -46,3 +46,7 @@ export type UpdateExercise = z.infer<typeof updateExerciseSchema>
 export type ExerciseWithPivot = z.infer<typeof exerciseWithPivotSchema>
 export type ExerciseQueryParams = z.infer<typeof exerciseQueryParamsSchema>
 export type ExerciseSortOptions = z.infer<typeof exerciseSortSchema>
+
+export type ExerciseFilters = BaseFilters & {
+  sort: ExerciseSortOptions
+}

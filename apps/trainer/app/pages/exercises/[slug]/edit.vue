@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { UpdateExercise } from '@macross/shared'
 
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Editar ejercicio' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Editar ejercicio' })
 
 const route = useRoute()
 const { slug } = route.params

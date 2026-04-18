@@ -7,6 +7,7 @@ const { data: user } = useGetMe()
 
 const avatarText = computed(() => user?.value?.email?.charAt(0).toUpperCase())
 const routeTitle = computed(() => (route.meta.title as string) || 'Dashboard')
+useHead({ title: routeTitle.value })
 
 const isManager = computed(() => user.value?.role === 'manager')
 

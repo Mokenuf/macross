@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { roleEnum } from './enums'
-import { queryParamsSchema } from './query-params'
+import { roleEnum, type Role } from './enums'
+import { queryParamsSchema, type BaseFilters } from './query-params'
 
 export const trainerSchema = z.object({
   id: z.uuid(),
@@ -29,7 +29,7 @@ export const updateTrainerSchema = createTrainerSchema.omit({ email: true }).ext
 export const trainerSortSchema = z.enum(['fullName', 'createdAt'])
 export const trainerQueryParamsSchema = queryParamsSchema.extend({
   sort: trainerSortSchema.default('createdAt'),
-  role: roleEnum.optional(),
+  role: z.preprocess(val => (val === '' ? undefined : val), roleEnum.optional()),
 })
 
 export type Trainer = z.infer<typeof trainerSchema>
@@ -37,3 +37,8 @@ export type CreateTrainer = z.infer<typeof createTrainerSchema>
 export type UpdateTrainer = z.infer<typeof updateTrainerSchema>
 export type TrainerSortOptions = z.infer<typeof trainerSortSchema>
 export type TrainerQueryParams = z.infer<typeof trainerQueryParamsSchema>
+
+export type TrainerFilters = BaseFilters & {
+  role: Role | ''
+  sort: TrainerSortOptions
+}

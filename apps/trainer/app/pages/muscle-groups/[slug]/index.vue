@@ -1,6 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Detalle Grupo Muscular' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Detalle del grupo muscular' })
 
 const route = useRoute()
 const { slug } = route.params

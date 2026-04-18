@@ -1,34 +1,34 @@
-import type {
-  Pagination,
-  BaseResponse,
-  MuscleGroup,
-  MuscleGroupSortOptions,
-  OrderOptions,
-  CreateMuscleGroup,
-  ApiError,
-  UpdateMuscleGroup,
+import {
+  defaultPagination,
+  type ApiError,
+  type BaseResponse,
+  type CreateMuscleGroup,
+  type MuscleGroup,
+  type MuscleGroupFilters,
+  type Pagination,
+  type UpdateMuscleGroup,
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
 export function useGetMuscleGroups() {
-  const page = useQueryState('page', 1)
-  const limit = useQueryState('limit', 20)
-  const search = useQueryState('search', '')
-  const sort = useQueryState<MuscleGroupSortOptions>('sort', 'createdAt')
-  const order = useQueryState<OrderOptions>('order', 'desc')
+  const filters = useQueryFilters<MuscleGroupFilters>({
+    page: 1,
+    limit: 20,
+    search: '',
+    sort: 'createdAt',
+    order: 'desc',
+  })
 
   const { data, pending, refresh, error } = useFetch<BaseResponse<MuscleGroup>>(
     '/api/muscle-groups',
     {
       key: 'muscle-groups',
-      query: { page, limit, search, sort, order },
+      query: filters,
     },
   )
 
   const muscleGroups = computed<MuscleGroup[]>(() => data.value?.rows ?? [])
-  const pagination = computed<Pagination>(
-    () => data.value?.pagination ?? { page: 1, limit: 20, total: 0, totalPages: 1 },
-  )
+  const pagination = computed<Pagination>(() => data.value?.pagination ?? defaultPagination)
 
   return {
     muscleGroups,
@@ -36,11 +36,7 @@ export function useGetMuscleGroups() {
     loading: pending,
     refresh,
     error,
-    page,
-    limit,
-    search,
-    sort,
-    order,
+    ...filters,
   }
 }
 

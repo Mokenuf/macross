@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { CreateExercise } from '@macross/shared'
 
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Agregar ejercicio' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Agregar ejercicio' })
 
 const { create } = useCreateExercise()
 

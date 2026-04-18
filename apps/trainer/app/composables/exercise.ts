@@ -1,31 +1,31 @@
-import type {
-  ApiError,
-  BaseResponse,
-  CreateExercise,
-  Exercise,
-  ExerciseSortOptions,
-  OrderOptions,
-  Pagination,
-  UpdateExercise,
+import {
+  defaultPagination,
+  type ApiError,
+  type BaseResponse,
+  type CreateExercise,
+  type Exercise,
+  type ExerciseFilters,
+  type Pagination,
+  type UpdateExercise,
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
 export function useGetExercises() {
-  const page = useQueryState('page', 1)
-  const limit = useQueryState('limit', 20)
-  const search = useQueryState('search', '')
-  const sort = useQueryState<ExerciseSortOptions>('sort', 'createdAt')
-  const order = useQueryState<OrderOptions>('order', 'desc')
+  const filters = useQueryFilters<ExerciseFilters>({
+    page: 1,
+    limit: 20,
+    search: '',
+    sort: 'createdAt',
+    order: 'desc',
+  })
 
   const { data, pending, refresh, error } = useFetch<BaseResponse<Exercise>>('/api/exercises', {
     key: 'exercises',
-    query: { page, limit, search, sort, order },
+    query: filters,
   })
 
   const exercises = computed<Exercise[]>(() => data.value?.rows ?? [])
-  const pagination = computed<Pagination>(
-    () => data.value?.pagination ?? { page: 1, limit: 20, total: 0, totalPages: 1 },
-  )
+  const pagination = computed<Pagination>(() => data.value?.pagination ?? defaultPagination)
 
   return {
     exercises,
@@ -33,11 +33,7 @@ export function useGetExercises() {
     loading: pending,
     refresh,
     error,
-    page,
-    limit,
-    search,
-    sort,
-    order,
+    ...filters,
   }
 }
 

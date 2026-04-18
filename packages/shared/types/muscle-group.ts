@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { queryParamsSchema } from './query-params'
+import { queryParamsSchema, type BaseFilters } from './query-params'
 
 export const muscleGroupSchema = z.object({
   id: z.uuid(),
@@ -29,3 +29,7 @@ export type CreateMuscleGroup = z.infer<typeof createMuscleGroupSchema>
 export type UpdateMuscleGroup = z.infer<typeof updateMuscleGroupSchema>
 export type MuscleGroupQueryParams = z.infer<typeof muscleGroupQueryParamsSchema>
 export type MuscleGroupSortOptions = z.infer<typeof muscleGroupSortSchema>
+
+export type MuscleGroupFilters = BaseFilters & {
+  sort: MuscleGroupSortOptions
+}

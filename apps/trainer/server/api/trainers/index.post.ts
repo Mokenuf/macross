@@ -1,4 +1,4 @@
-import { CreateTrainer, createTrainerSchema, Trainer, trainerSchema } from '@macross/shared'
+import { CreateTrainer, createTrainerSchema, Roles, Trainer, trainerSchema } from '@macross/shared'
 
 import {
   serverSupabaseClient,
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event): Promise<Trainer> => {
       id: invited.user.id,
       full_name: body.fullName,
       email: body.email,
-      role: 'trainer',
+      role: Roles.trainer,
       phone: body.phone ?? null,
     })
     .select()

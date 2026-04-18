@@ -95,7 +95,7 @@ fix/trainer/auth        ─┘
 - Dashboard con perfil del usuario logueado
 - CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
 - CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
-- Gestión de entrenadores (server-side): alta por invitación (`inviteUserByEmail`), listado con filtros, edición y soft delete. Solo los managers pueden invitar, editar o eliminar; los managers no pueden ser eliminados. UI pendiente.
+- Gestión de entrenadores: alta por invitación (`inviteUserByEmail`), listado con filtros por rol y soft delete, edición y delete condicionados por rol del caller. Solo los managers pueden invitar, editar o eliminar; los managers no pueden ser eliminados. Listado (UI) listo, formularios de alta/edición y detalle pendientes.
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI

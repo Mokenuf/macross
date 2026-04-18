@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { UpdateMuscleGroup } from '@macross/shared'
 
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Editar Grupo Muscular' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Editar Grupo Muscular' })
 
 const route = useRoute()
 const { slug } = route.params
