@@ -1,4 +1,4 @@
-import type { ApiError, Login } from '@macross/shared'
+import type { ApiError, Login, SetPassword } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
 export function useLogin() {
@@ -31,4 +31,24 @@ export function useLogout() {
   }
 
   return { logout }
+}
+
+export function useSetPassword() {
+  const toast = useToast()
+
+  async function setPassword(input: SetPassword) {
+    try {
+      await $fetch('/api/auth/set-password', { method: 'POST', body: input })
+      toast.add({ title: 'Contraseña actualizada', color: 'success' })
+      await navigateTo('/', { external: true })
+    } catch (e) {
+      toast.add({
+        title: 'Error',
+        description: (e as FetchError<ApiError>).data?.statusMessage ?? 'Algo salió mal',
+        color: 'error',
+      })
+    }
+  }
+
+  return { setPassword }
 }
