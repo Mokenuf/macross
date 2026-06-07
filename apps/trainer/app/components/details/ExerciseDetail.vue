@@ -39,10 +39,10 @@ const youtubeEmbedUrl = computed(() => {
     </div>
 
     <div v-if="youtubeEmbedUrl">
-      <h3 class="text-sm font-medium text-neutral-500 mb-2">Video</h3>
+      <h3 class="mb-2 text-sm font-medium text-neutral-500">Video</h3>
       <iframe
         :src="youtubeEmbedUrl"
-        class="w-full aspect-video rounded-lg"
+        class="aspect-video w-full rounded-lg"
         frameborder="0"
         allow="
           accelerometer;

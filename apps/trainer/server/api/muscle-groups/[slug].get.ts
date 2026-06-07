@@ -1,8 +1,8 @@
-import { muscleGroupSchema } from '@macross/shared'
+import { MuscleGroup, muscleGroupSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 
-export default defineEventHandler(async event => {
+export default defineEventHandler(async (event): Promise<MuscleGroup> => {
   const slug = getRouterParam(event, 'slug')
 
   if (!slug) throw createError({ statusCode: 400, statusMessage: 'Slug is required' })
@@ -16,13 +16,15 @@ export default defineEventHandler(async event => {
     .is('deleted_at', null)
     .single()
 
-  if (error || !data)
+  if (error)
     throw createError({
       statusCode: 500,
       statusMessage: error?.message ?? 'Error al obtener el grupo muscular',
     })
 
-  const muscleGroup = muscleGroupSchema.parse(toCamelCase(data))
+  if (!data) throw createError({ statusCode: 404, statusMessage: 'Grupo muscular no encontrado' })
+
+  const muscleGroup = muscleGroupSchema.parse(toCamelCase<MuscleGroup>(data))
 
   return muscleGroup
 })

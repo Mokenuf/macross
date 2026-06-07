@@ -4,8 +4,7 @@ import type { MuscleGroup } from '@macross/shared'
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Grupos Musculares' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Grupos Musculares' })
 
 const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroups()
 const { remove } = useDeleteMuscleGroup()

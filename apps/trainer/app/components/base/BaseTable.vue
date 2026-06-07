@@ -22,6 +22,13 @@ const { columns, actions, data, loading, pagination, deleteLabel } = defineProps
 
 const emit = defineEmits<BaseTableEmits>()
 
+function isActionVisible(action: TableAction<T>, row: T): boolean {
+  const v = action.visible
+  if (typeof v === 'function') return v(row)
+  if (v && typeof v === 'object' && 'value' in v) return toValue(v.value)
+  return v ?? true
+}
+
 const CatalogDefaultActions: Record<
   ActionType,
   { label: string; icon: string; color?: ActionColor }
@@ -41,7 +48,7 @@ const allColumns = computed(() => {
     meta: { class: { td: 'text-right' } },
     cell: ({ row }) => {
       const items: DropdownMenuItem[] = actions
-        .filter(a => a.visible === undefined || toValue(a.visible))
+        .filter(a => isActionVisible(a, row.original))
         .map(action => {
           const defaults = CatalogDefaultActions[action.type]
           return {
@@ -94,22 +101,27 @@ const allColumns = computed(() => {
 })
 
 const deleteTarget = ref<T | null>(null)
+const deleting = ref(false)
 const showDeleteModal = ref(false)
-const deleteAction = ref<((row: T) => void) | null>(null)
+const deleteAction = ref<((row: T) => void | Promise<void>) | null>(null)
 
-function openDeleteModal(row: T, onSelect: (row: T) => void) {
+function openDeleteModal(row: T, onSelect: (row: T) => void | Promise<void>) {
   deleteTarget.value = row
   deleteAction.value = onSelect
   showDeleteModal.value = true
 }
 
-function confirmDelete() {
-  if (deleteTarget.value && deleteAction.value) {
-    deleteAction.value(deleteTarget.value)
+async function confirmDelete() {
+  if (!deleteTarget.value || !deleteAction.value) return
+  deleting.value = true
+  try {
+    await deleteAction.value(deleteTarget.value)
+  } finally {
+    deleting.value = false
+    showDeleteModal.value = false
+    deleteTarget.value = null
+    deleteAction.value = null
   }
-  showDeleteModal.value = false
-  deleteTarget.value = null
-  deleteAction.value = null
 }
 </script>
 
@@ -125,9 +137,9 @@ function confirmDelete() {
       @update:limit="emit('update:limit', $event)"
     />
 
-    <UModal v-model:open="showDeleteModal">
+    <UModal v-model:open="showDeleteModal" :dismissible="!deleting">
       <template #content>
-        <div class="p-6 space-y-4">
+        <div class="space-y-4 p-6">
           <h3 class="text-lg font-semibold">Eliminar registro</h3>
           <p class="text-sm text-neutral-500">
             ¿Estás seguro que querés eliminar
@@ -140,6 +152,7 @@ function confirmDelete() {
               label="Cancelar"
               color="neutral"
               variant="ghost"
+              :disabled="deleting"
               @click="showDeleteModal = false"
             />
             <UButton
@@ -147,6 +160,7 @@ function confirmDelete() {
               label="Eliminar"
               color="error"
               variant="solid"
+              :loading="deleting"
               @click="confirmDelete"
             />
           </div>

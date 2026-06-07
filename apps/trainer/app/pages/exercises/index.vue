@@ -4,8 +4,7 @@ import type { Exercise } from '@macross/shared'
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Ejercicios' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Ejercicios' })
 
 const { exercises, pagination, loading, page, limit, search } = useGetExercises()
 const { remove } = useDeleteExercise()

@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { UpdateMuscleGroup } from '@macross/shared'
 
-definePageMeta({ layout: 'admin', middleware: 'auth' })
-useHead({ title: 'Editar Grupo Muscular' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Editar Grupo Muscular' })
 
 const route = useRoute()
 const { slug } = route.params
 
 const { muscleGroup, loading } = useGetMuscleGroup(String(slug))
-const { update } = useUpdateMuscleGroup()
+const { update, pending } = useUpdateMuscleGroup()
 
 function onSubmit(data: UpdateMuscleGroup) {
   update(String(slug), data)
@@ -16,11 +15,11 @@ function onSubmit(data: UpdateMuscleGroup) {
 </script>
 
 <template>
-  <div class="w-full max-w-2xl mx-auto py-6">
-    <h1 class="text-2xl font-bold mb-6">Editar Grupo Muscular</h1>
-    <MuscleGroupForm v-if="muscleGroup" :muscle-group @submit="onSubmit" />
+  <div class="mx-auto w-full max-w-2xl py-6">
+    <h1 class="mb-6 text-2xl font-bold">Editar Grupo Muscular</h1>
+    <MuscleGroupForm v-if="muscleGroup" :muscle-group :loading="pending" @submit="onSubmit" />
     <div v-else-if="loading" class="flex justify-center py-12">
-      <UIcon name="i-lucide-loader-2" class="animate-spin size-8" />
+      <UIcon name="i-lucide-loader-2" class="size-8 animate-spin" />
     </div>
   </div>
 </template>

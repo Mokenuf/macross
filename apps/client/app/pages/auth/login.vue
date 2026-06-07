@@ -40,8 +40,8 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
 
 <template>
   <div class="w-full max-w-sm p-8">
-    <div class="text-center mb-8">
-      <h1 class="text-2xl font-bold tracking-widest font-logo text-primary uppercase">
+    <div class="mb-8 text-center">
+      <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
         Macros for progress
       </h1>
     </div>

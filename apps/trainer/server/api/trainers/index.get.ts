@@ -1,24 +1,23 @@
 import {
   BaseResponse,
-  Exercise,
-  ExerciseQueryParams,
-  exerciseQueryParamsSchema,
-  exerciseSchema,
-  ExerciseWithPivot,
-  exerciseWithPivotSchema,
+  Trainer,
+  TrainerQueryParams,
+  trainerQueryParamsSchema,
+  trainerSchema,
 } from '@macross/shared'
+import { z } from 'zod'
 
 import { serverSupabaseClient } from '#supabase/server'
 
 const sortColumnMap: Record<string, string> = {
-  name: 'name',
+  fullName: 'full_name',
   createdAt: 'created_at',
 }
 
-export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>> => {
-  const queryParams = await getValidatedQuery<ExerciseQueryParams>(
+export default defineEventHandler(async (event): Promise<BaseResponse<Trainer>> => {
+  const queryParams = await getValidatedQuery<TrainerQueryParams>(
     event,
-    exerciseQueryParamsSchema.parse,
+    trainerQueryParamsSchema.parse,
   )
   const client = await serverSupabaseClient(event)
 
@@ -26,16 +25,20 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
   const to = from + queryParams.limit - 1
 
   let supabaseQuery = client
-    .from('exercises')
-    .select('*, exercise_muscle_groups(muscle_groups!inner(*))', { count: 'exact' })
+    .from('trainers')
+    .select('*', { count: 'exact' })
     .is('deleted_at', null)
-    .is('exercise_muscle_groups.muscle_groups.deleted_at', null)
     .order(sortColumnMap[queryParams.sort] ?? 'created_at', {
       ascending: queryParams.order === 'asc',
     })
     .range(from, to)
   if (queryParams.search) {
-    supabaseQuery = supabaseQuery.ilike('name', `%${queryParams.search}%`)
+    supabaseQuery = supabaseQuery.or(
+      `full_name.ilike.%${queryParams.search}%,email.ilike.%${queryParams.search}%`,
+    )
+  }
+  if (queryParams.role) {
+    supabaseQuery = supabaseQuery.eq('role', queryParams.role)
   }
 
   const { data, error, count } = await supabaseQuery
@@ -43,18 +46,11 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
   if (error) {
     throw createError({
       statusCode: 500,
-      statusMessage: error.message ?? 'Error al obtener los ejercicios',
+      statusMessage: error.message ?? 'Error al obtener los entrenadores',
     })
   }
 
-  if (!data) throw createError({ statusCode: 404, statusMessage: 'Ejercicios no encontrados' })
-
-  const rows = parsePivotArray<ExerciseWithPivot, Exercise>(
-    data ?? [],
-    exerciseWithPivotSchema,
-    exerciseSchema,
-    toExercise,
-  )
+  const rows = z.array(trainerSchema).parse(toCamelCase<Trainer[]>(data ?? []))
 
   return {
     rows,

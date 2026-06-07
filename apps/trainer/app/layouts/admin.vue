@@ -7,6 +7,7 @@ const { data: user } = useGetMe()
 
 const avatarText = computed(() => user?.value?.email?.charAt(0).toUpperCase())
 const routeTitle = computed(() => (route.meta.title as string) || 'Dashboard')
+useHead({ title: routeTitle.value })
 
 const isManager = computed(() => user.value?.role === 'manager')
 
@@ -73,16 +74,16 @@ const navigation = computed<NavigationMenuItem[]>(() => [
           class="font-logo text-primary text-lg font-bold tracking-wide uppercase"
           >Macros for progress</span
         >
-        <span v-else class="text-lg font-bold font-logo text-primary mx-auto">M4P</span>
+        <span v-else class="font-logo text-primary mx-auto text-lg font-bold">M4P</span>
         <UDashboardSidebarCollapse />
       </template>
 
       <UNavigationMenu :items="navigation" orientation="vertical" />
 
       <template #footer="{ collapsed }">
-        <div v-if="!collapsed" class="flex items-center gap-2 w-full">
+        <div v-if="!collapsed" class="flex w-full items-center gap-2">
           <UAvatar :text="avatarText" size="sm" />
-          <span class="text-sm text-muted truncate flex-1">{{ user?.email }}</span>
+          <span class="text-muted flex-1 truncate text-sm">{{ user?.email }}</span>
           <UButton
             icon="i-lucide-log-out"
             variant="ghost"

@@ -10,12 +10,13 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 
 interface ExerciseFormProps {
   exercise?: Exercise
+  loading?: boolean
 }
 interface ExerciseFormEmits {
   submit: [payload: CreateExercise]
 }
 
-const { exercise } = defineProps<ExerciseFormProps>()
+const { exercise, loading = false } = defineProps<ExerciseFormProps>()
 const emit = defineEmits<ExerciseFormEmits>()
 
 const state = reactive<Partial<CreateExercise>>({
@@ -101,7 +102,7 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
 
     <div class="flex justify-end gap-3">
       <UButton label="Cancelar" color="neutral" variant="ghost" to="/exercises" />
-      <UButton class="cursor-pointer" type="submit" label="Guardar" />
+      <UButton class="cursor-pointer" type="submit" label="Guardar" :loading />
     </div>
   </UForm>
 </template>
