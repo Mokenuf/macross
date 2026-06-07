@@ -4,12 +4,13 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 
 interface MuscleGroupFormProps {
   muscleGroup?: MuscleGroup
+  loading?: boolean
 }
 interface MuscleGroupFormEmits {
   submit: [payload: CreateMuscleGroup]
 }
 
-const { muscleGroup } = defineProps<MuscleGroupFormProps>()
+const { muscleGroup, loading = false } = defineProps<MuscleGroupFormProps>()
 const emit = defineEmits<MuscleGroupFormEmits>()
 
 const state = reactive<Partial<CreateMuscleGroup>>({
@@ -29,7 +30,7 @@ function onSubmit(event: FormSubmitEvent<CreateMuscleGroup>) {
 
     <div class="flex justify-end gap-3">
       <UButton label="Cancelar" color="neutral" variant="ghost" to="/muscle-groups" />
-      <UButton class="cursor-pointer" type="submit" label="Guardar" />
+      <UButton class="cursor-pointer" type="submit" label="Guardar" :loading />
     </div>
   </UForm>
 </template>

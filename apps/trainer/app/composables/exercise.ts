@@ -46,9 +46,11 @@ export function useGetExercise(slug: string) {
 }
 
 export function useCreateExercise() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function create(input: CreateExercise) {
+    pending.value = true
     try {
       await $fetch('/api/exercises', { method: 'POST', body: input })
       await refreshNuxtData('exercises')
@@ -61,16 +63,20 @@ export function useCreateExercise() {
           (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo crear el ejercicio',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
 
-  return { create }
+  return { create, pending }
 }
 
 export function useUpdateExercise() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function update(slug: string, input: UpdateExercise) {
+    pending.value = true
     try {
       await $fetch(`/api/exercises/${slug}`, { method: 'PATCH', body: input })
       await refreshNuxtData('exercises')
@@ -83,16 +89,20 @@ export function useUpdateExercise() {
           (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo actualizar el ejercicio',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
 
-  return { update }
+  return { update, pending }
 }
 
 export function useDeleteExercise() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function remove(slug: string) {
+    pending.value = true
     try {
       await $fetch(`/api/exercises/${slug}`, { method: 'DELETE' })
       await refreshNuxtData('exercises')
@@ -104,8 +114,10 @@ export function useDeleteExercise() {
           (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo eliminar el ejercicio',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
 
-  return { remove }
+  return { remove, pending }
 }

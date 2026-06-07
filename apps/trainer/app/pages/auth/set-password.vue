@@ -10,7 +10,8 @@ const currentUser = useSupabaseUser()
 const loading = ref(false)
 
 onMounted(async () => {
-  // Hash already processed, if active sesion does not match with guest (prev sesion in cookies), force local signOut and reset with hash tokens.
+  // detectSessionInUrl is off, so the hash survives until we read it here.
+  // If invite tokens are present they always win over any session in cookies.
   const hash = window.location.hash
   if (!hash.includes('access_token')) return
 
@@ -19,16 +20,14 @@ onMounted(async () => {
   const refreshToken = params.get('refresh_token')
   if (!accessToken || !refreshToken) return
 
-  // Decode JWT payload (just to compare sub)
-  const parts = accessToken.split('.')
-  if (parts.length !== 3 || !parts[1]) return
-  const payload = JSON.parse(atob(parts[1]))
-  const invitedSub = payload.sub as string
+  await supabase.auth.signOut({ scope: 'local' })
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  })
 
-  if (currentUser?.value?.sub !== invitedSub) {
-    await supabase.auth.signOut({ scope: 'local' })
-    await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
-  }
+  // Drop the tokens from the URL so they don't linger in the address bar / history.
+  if (!error) window.history.replaceState(null, '', window.location.pathname)
 })
 
 async function onSubmit(data: SetPassword) {

@@ -20,6 +20,6 @@ export interface TableAction<T> {
   color?: ActionColor
   visible?: ComputedRef<boolean> | boolean | ((row: T) => boolean)
   href?: ((row: T) => string) | string
-  onSelect?: (row: T) => void
+  onSelect?: (row: T) => void | Promise<void>
   disabled?: ((row: T) => boolean) | boolean
 }

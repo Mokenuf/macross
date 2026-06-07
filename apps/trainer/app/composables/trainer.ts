@@ -47,9 +47,11 @@ export function useGetTrainer(nanoId: string) {
 }
 
 export function useCreateTrainer() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function create(input: CreateTrainer) {
+    pending.value = true
     try {
       await $fetch('/api/trainers', { method: 'POST', body: input })
       await refreshNuxtData('trainers')
@@ -66,16 +68,20 @@ export function useCreateTrainer() {
           (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo invitar al entrenador',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
 
-  return { create }
+  return { create, pending }
 }
 
 export function useUpdateTrainer() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function update(nanoId: string, input: UpdateTrainer) {
+    pending.value = true
     try {
       await $fetch(`/api/trainers/${nanoId}`, { method: 'PATCH', body: input })
       await refreshNuxtData('trainers')
@@ -88,16 +94,20 @@ export function useUpdateTrainer() {
           (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo actualizar el entrenador',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
 
-  return { update }
+  return { update, pending }
 }
 
 export function useDeleteTrainer() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function remove(nanoId: string) {
+    pending.value = true
     try {
       await $fetch(`/api/trainers/${nanoId}`, { method: 'DELETE' })
       await refreshNuxtData('trainers')
@@ -109,8 +119,10 @@ export function useDeleteTrainer() {
           (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo eliminar el entrenador',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
 
-  return { remove }
+  return { remove, pending }
 }

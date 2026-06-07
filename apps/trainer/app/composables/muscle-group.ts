@@ -49,9 +49,11 @@ export function useGetMuscleGroup(slug: string) {
 }
 
 export function useCreateMuscleGroup() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function create(input: CreateMuscleGroup) {
+    pending.value = true
     try {
       await $fetch('/api/muscle-groups', { method: 'POST', body: input })
       await refreshNuxtData('muscle-groups')
@@ -64,16 +66,20 @@ export function useCreateMuscleGroup() {
           (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo crear el grupo muscular',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
 
-  return { create }
+  return { create, pending }
 }
 
 export function useUpdateMuscleGroup() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function update(slug: string, input: UpdateMuscleGroup) {
+    pending.value = true
     try {
       await $fetch(`/api/muscle-groups/${slug}`, { method: 'PATCH', body: input })
       await refreshNuxtData('muscle-groups')
@@ -87,15 +93,19 @@ export function useUpdateMuscleGroup() {
           'No se pudo actualizar el grupo muscular',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
-  return { update }
+  return { update, pending }
 }
 
 export function useDeleteMuscleGroup() {
+  const pending = ref(false)
   const toast = useToast()
 
   async function remove(slug: string) {
+    pending.value = true
     try {
       await $fetch(`/api/muscle-groups/${slug}`, { method: 'DELETE' })
       await refreshNuxtData('muscle-groups')
@@ -108,7 +118,9 @@ export function useDeleteMuscleGroup() {
           'No se pudo eliminar el grupo muscular',
         color: 'error',
       })
+    } finally {
+      pending.value = false
     }
   }
-  return { remove }
+  return { remove, pending }
 }

@@ -36,7 +36,7 @@ const filterValues = computed(() => ({ search: search.value, role: role.value })
 
 const UBadge = resolveComponent('UBadge')
 const roleBadge = {
-  [Roles.trainer]: { label: 'Entrenador', color: 'macross-primary' },
+  [Roles.trainer]: { label: 'Entrenador', color: 'primary' },
   [Roles.manager]: { label: 'Manager', color: 'neutral' },
 }
 

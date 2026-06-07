@@ -101,22 +101,27 @@ const allColumns = computed(() => {
 })
 
 const deleteTarget = ref<T | null>(null)
+const deleting = ref(false)
 const showDeleteModal = ref(false)
-const deleteAction = ref<((row: T) => void) | null>(null)
+const deleteAction = ref<((row: T) => void | Promise<void>) | null>(null)
 
-function openDeleteModal(row: T, onSelect: (row: T) => void) {
+function openDeleteModal(row: T, onSelect: (row: T) => void | Promise<void>) {
   deleteTarget.value = row
   deleteAction.value = onSelect
   showDeleteModal.value = true
 }
 
-function confirmDelete() {
-  if (deleteTarget.value && deleteAction.value) {
-    deleteAction.value(deleteTarget.value)
+async function confirmDelete() {
+  if (!deleteTarget.value || !deleteAction.value) return
+  deleting.value = true
+  try {
+    await deleteAction.value(deleteTarget.value)
+  } finally {
+    deleting.value = false
+    showDeleteModal.value = false
+    deleteTarget.value = null
+    deleteAction.value = null
   }
-  showDeleteModal.value = false
-  deleteTarget.value = null
-  deleteAction.value = null
 }
 </script>
 
@@ -132,7 +137,7 @@ function confirmDelete() {
       @update:limit="emit('update:limit', $event)"
     />
 
-    <UModal v-model:open="showDeleteModal">
+    <UModal v-model:open="showDeleteModal" :dismissible="!deleting">
       <template #content>
         <div class="space-y-4 p-6">
           <h3 class="text-lg font-semibold">Eliminar registro</h3>
@@ -147,6 +152,7 @@ function confirmDelete() {
               label="Cancelar"
               color="neutral"
               variant="ghost"
+              :disabled="deleting"
               @click="showDeleteModal = false"
             />
             <UButton
@@ -154,6 +160,7 @@ function confirmDelete() {
               label="Eliminar"
               color="error"
               variant="solid"
+              :loading="deleting"
               @click="confirmDelete"
             />
           </div>

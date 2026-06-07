@@ -9,13 +9,14 @@ import {
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 interface TrainerFormProps {
+  loading?: boolean
   trainer?: Trainer
 }
 interface TrainerFormEmits {
   submit: [payload: CreateTrainer | UpdateTrainer]
 }
 
-const { trainer } = defineProps<TrainerFormProps>()
+const { trainer, loading = false } = defineProps<TrainerFormProps>()
 const emit = defineEmits<TrainerFormEmits>()
 
 const isEdit = computed(() => !!trainer)
@@ -63,6 +64,7 @@ function onSubmit(event: FormSubmitEvent<CreateTrainer | UpdateTrainer>) {
         class="cursor-pointer"
         type="submit"
         :label="isEdit ? 'Guardar cambios' : 'Invitar entrenador'"
+        :loading
       />
     </div>
   </UForm>

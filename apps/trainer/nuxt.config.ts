@@ -18,6 +18,11 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
     types: '@macross/shared/types/database.ts',
+    clientOptions: {
+      auth: {
+        detectSessionInUrl: false,
+      },
+    },
   },
   vite: {
     optimizeDeps: {
