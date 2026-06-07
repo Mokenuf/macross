@@ -94,7 +94,8 @@ fix/trainer/auth        ─┘
 ### Trainer app
 
 - Autenticación (login/logout) con Supabase Auth + toasts de feedback
-- Flow de set-password para nuevos trainers vía link de invite por mail
+- Flow de set-password para nuevos trainers vía link de invite por mail (robusto ante sesiones previas activas en el browser)
+- Estados de loading en todos los botones de submit y en el modal de confirmación de borrado (spinner + bloqueo de doble click)
 - Dashboard con perfil del usuario logueado
 - CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
 - CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
