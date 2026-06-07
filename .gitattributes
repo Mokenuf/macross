@@ -1,0 +1,4 @@
+# Normaliza fin de línea: LF en el working tree para todos los archivos de texto.
+# git detecta binarios automáticamente (text=auto) y no los toca.
+# Resuelve el conflicto CRLF (autocrlf=true en Windows) vs oxfmt (exige LF).
+* text=auto eol=lf

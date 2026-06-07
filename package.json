@@ -23,7 +23,7 @@
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "oxfmt": "^0.43.0",
+    "oxfmt": "^0.52.0",
     "oxlint": "^1.67.0",
     "supabase": "^2.102.0",
     "turbo": "^2.9.16"
