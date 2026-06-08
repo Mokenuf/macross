@@ -36,6 +36,8 @@ macross-for-progress/
 │       └── server/
 ├── packages/
 │   └── shared/           # Tipos y schemas compartidos
+├── supabase/
+│   └── email-templates/  # Copias versionadas de los templates de Supabase Auth
 ├── .oxlintrc.json
 ├── .oxfmtrc.json
 ├── turbo.json
