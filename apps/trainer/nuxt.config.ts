@@ -31,5 +31,6 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     trainerAppUrl: '',
+    clientAppUrl: '',
   },
 })

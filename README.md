@@ -57,7 +57,7 @@ pnpm install
 cp apps/trainer/.env.example apps/trainer/.env
 cp apps/client/.env.example apps/client/.env
 # Completar SUPABASE_URL, SUPABASE_KEY (ambas apps)
-# y NUXT_SUPABASE_SECRET_KEY + NUXT_TRAINER_APP_URL (solo trainer)
+# y NUXT_SUPABASE_SECRET_KEY + NUXT_TRAINER_APP_URL + NUXT_CLIENT_APP_URL (solo trainer)
 ```
 
 ## Comandos
@@ -102,20 +102,22 @@ fix/trainer/auth        ─┘
 - CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
 - CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
 - CRUDL completo de entrenadores: alta por invitación (`inviteUserByEmail`), listado con filtros por rol, detalle, edición y soft delete. Solo los managers pueden invitar, editar o eliminar; los managers no pueden ser eliminados.
+- CRUDL completo de clientes: alta por invitación (mail con set-password en la PWA del cliente), listado con scoping por rol (el trainer ve solo los suyos; el manager, todos con filtro por entrenador), detalle, edición y soft delete. Tanto managers como trainers gestionan clientes. El detalle del entrenador muestra su contador de clientes y un deep-link al listado pre-filtrado.
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI
 
 ### Client app
 
-- Scaffolding inicial: autenticación (login/logout) con Supabase Auth + toasts, middlewares `auth` / `guest`, layouts `auth` (centrado) y `default` (mobile-first con header + logout), home placeholder con email del usuario logueado
+- Autenticación (login/logout) con Supabase Auth + toasts, middlewares `auth` / `guest`, layouts `auth` (centrado) y `default` (mobile-first con header + logout), home placeholder con email del usuario logueado
+- Flow de set-password para clientes nuevos vía link de invite por mail (mismo patrón robusto que trainer: `detectSessionInUrl: false` + procesamiento manual del hash), con card branded en la paleta Macross
 - Listo para deploy como demo
 
 ### Shared
 
-- Schemas Zod compartidos (ejercicios, grupos musculares, entrenadores, auth, query params)
+- Schemas Zod compartidos (ejercicios, grupos musculares, entrenadores, clientes, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
-- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`)
+- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `clientQueryParamsSchema`)
 
 ## Estado
 

@@ -24,7 +24,13 @@ export default defineEventHandler(async (event): Promise<Trainer> => {
 
   if (!data) throw createError({ statusCode: 404, statusMessage: 'Entrenador no encontrado' })
 
-  const trainer = trainerSchema.parse(toCamelCase<Trainer>(data))
+  const { count } = await client
+    .from('clients')
+    .select('*', { count: 'exact', head: true })
+    .eq('trainer_id', data.id)
+    .is('deleted_at', null)
+
+  const trainer = trainerSchema.parse({ ...toCamelCase<Trainer>(data), totalClients: count ?? 0 })
 
   return trainer
 })
