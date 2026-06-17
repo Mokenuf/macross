@@ -3,9 +3,10 @@ import { Roles, type Trainer } from '@macross/shared'
 
 interface TrainerDetailProps {
   trainer: Trainer
+  isManager?: boolean
 }
 
-const { trainer } = defineProps<TrainerDetailProps>()
+const { trainer, isManager = false } = defineProps<TrainerDetailProps>()
 
 const roleLabel = computed(() => (trainer.role === Roles.trainer ? 'Entrenador' : 'Manager'))
 const roleColor = computed(() => (trainer.role === Roles.trainer ? 'primary' : 'neutral'))
@@ -29,6 +30,21 @@ const roleColor = computed(() => (trainer.role === Roles.trainer ? 'primary' : '
     <div v-if="trainer.phone">
       <h3 class="text-sm font-medium text-neutral-500">Teléfono</h3>
       <p class="mt-1">{{ trainer.phone }}</p>
+    </div>
+
+    <div v-if="isManager">
+      <h3 class="text-sm font-medium text-neutral-500">Clientes</h3>
+      <div class="mt-1 flex items-center gap-3">
+        <p>{{ trainer.totalClients ?? 0 }}</p>
+        <UButton
+          v-if="trainer.totalClients"
+          label="Ver clientes"
+          icon="i-lucide-users"
+          variant="subtle"
+          size="xs"
+          :to="`/clients?trainerId=${trainer.id}`"
+        />
+      </div>
     </div>
   </div>
 </template>

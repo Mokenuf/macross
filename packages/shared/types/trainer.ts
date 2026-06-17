@@ -14,6 +14,7 @@ export const trainerSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
+  totalClients: z.number().optional(),
 })
 
 export const createTrainerSchema = z.object({

@@ -3,6 +3,7 @@
 
 @theme {
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-logo: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
 
   --color-background: #0d1117;
   --color-surface: #161e27;

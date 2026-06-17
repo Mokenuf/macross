@@ -21,7 +21,7 @@ const isManager = computed(() => user.value?.role === 'manager')
           :to="`/trainers/${trainer.nanoId}/edit`"
         />
       </div>
-      <TrainerDetail :trainer />
+      <TrainerDetail :trainer :is-manager="isManager" />
     </div>
     <div v-else-if="loading" class="flex justify-center py-12">
       <UIcon name="i-lucide-loader-2" class="size-8 animate-spin" />
