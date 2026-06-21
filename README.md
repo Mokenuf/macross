@@ -17,7 +17,7 @@ Dos aplicaciones en un mismo monorepo:
 | Frontend   | Nuxt 4 × 2 apps                         |
 | UI         | NuxtUI v4                               |
 | Backend    | Supabase (Postgres, Auth, Storage, RLS) |
-| Validación | Zod                                     |
+| Validación | Zod + T3 Env (env vars con `env.ts`)    |
 | Testing    | Vitest                                  |
 | Linter     | Oxlint                                  |
 | Formatter  | Oxfmt                                   |

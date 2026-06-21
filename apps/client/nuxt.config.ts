@@ -1,6 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath } from 'node:url'
 
+import './env'
+
 export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/supabase'],
   alias: {
@@ -25,8 +27,5 @@ export default defineNuxtConfig({
         detectSessionInUrl: false,
       },
     },
-  },
-  runtimeConfig: {
-    clientAppUrl: '',
   },
 })

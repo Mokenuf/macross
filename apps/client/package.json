@@ -13,6 +13,7 @@
     "@macross/shared": "workspace:*",
     "@nuxt/ui": "^4.8.1",
     "@nuxtjs/supabase": "^2.0.9",
+    "@t3-oss/env-nuxt": "^0.13.11",
     "nuxt": "^4.4.6",
     "tailwindcss": "^4.3.0",
     "vue": "^3.5.35",
