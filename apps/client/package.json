@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "cross-env SKIP_ENV_VALIDATION=1 nuxt prepare"
   },
   "dependencies": {
     "@macross/shared": "workspace:*",
@@ -19,5 +19,8 @@
     "vue": "^3.5.35",
     "vue-router": "^5.1.0",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0"
   }
 }

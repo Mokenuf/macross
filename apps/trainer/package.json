@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "cross-env SKIP_ENV_VALIDATION=1 nuxt prepare"
   },
   "dependencies": {
     "@macross/shared": "workspace:*",
@@ -23,6 +23,7 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.111",
     "@vueuse/core": "^14.3.0",
-    "@vueuse/nuxt": "^14.3.0"
+    "@vueuse/nuxt": "^14.3.0",
+    "cross-env": "^10.1.0"
   }
 }
