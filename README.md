@@ -57,7 +57,8 @@ pnpm install
 cp apps/trainer/.env.example apps/trainer/.env
 cp apps/client/.env.example apps/client/.env
 # Completar SUPABASE_URL, SUPABASE_KEY (ambas apps)
-# y NUXT_SUPABASE_SECRET_KEY + NUXT_TRAINER_APP_URL + NUXT_CLIENT_APP_URL (solo trainer)
+# trainer: + NUXT_SUPABASE_SECRET_KEY, NUXT_TRAINER_APP_URL, NUXT_CLIENT_APP_URL (invites)
+# client:  + NUXT_CLIENT_APP_URL (redirectTo del recovery a la propia app)
 ```
 
 ## Comandos
@@ -97,6 +98,7 @@ fix/trainer/auth        ─┘
 
 - Autenticación (login/logout) con Supabase Auth + toasts de feedback
 - Flow de set-password para nuevos trainers vía link de invite por mail (robusto ante sesiones previas activas en el browser)
+- Flow de recuperación de contraseña (forgot-password → mail → reset-password) que empieza y termina en el dashboard del trainer, reutilizando el mismo procesamiento manual del hash que set-password
 - Estados de loading en todos los botones de submit y en el modal de confirmación de borrado (spinner + bloqueo de doble click)
 - Dashboard con perfil del usuario logueado
 - CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
@@ -111,13 +113,14 @@ fix/trainer/auth        ─┘
 
 - Autenticación (login/logout) con Supabase Auth + toasts, middlewares `auth` / `guest`, layouts `auth` (centrado) y `default` (mobile-first con header + logout), home placeholder con email del usuario logueado
 - Flow de set-password para clientes nuevos vía link de invite por mail (mismo patrón robusto que trainer: `detectSessionInUrl: false` + procesamiento manual del hash), con card branded en la paleta Macross
+- Flow de recuperación de contraseña análogo (forgot-password → mail → reset-password) que empieza y termina en la PWA del cliente
 - Listo para deploy como demo
 
 ### Shared
 
 - Schemas Zod compartidos (ejercicios, grupos musculares, entrenadores, clientes, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
-- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `clientQueryParamsSchema`)
+- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `clientQueryParamsSchema`, `loginSchema`, `setPasswordSchema`, `requestPasswordResetSchema`)
 
 ## Estado
 
