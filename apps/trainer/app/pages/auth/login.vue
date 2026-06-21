@@ -54,5 +54,11 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
       :submit="{ label: 'Ingresar', loading, size: 'lg', block: true, class: 'cursor-pointer' }"
       @submit="handleSubmit"
     />
+
+    <div class="mt-4 text-center">
+      <ULink to="/auth/forgot-password" class="hover:text-primary text-sm text-neutral-400">
+        ¿Olvidaste tu contraseña?
+      </ULink>
+    </div>
   </div>
 </template>
