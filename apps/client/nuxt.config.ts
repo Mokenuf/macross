@@ -26,4 +26,7 @@ export default defineNuxtConfig({
       },
     },
   },
+  runtimeConfig: {
+    clientAppUrl: '',
+  },
 })

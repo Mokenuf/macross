@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { loginSchema, type Login } from '@macross/shared'
+import { requestPasswordResetSchema, type RequestPasswordReset } from '@macross/shared'
 import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({
@@ -7,31 +7,20 @@ definePageMeta({
   middleware: 'guest',
 })
 
-useHead({ title: 'Iniciar sesión' })
+useHead({ title: 'Recuperar contraseña' })
 
-const { login } = useLogin()
+const { requestPasswordReset } = useRequestPasswordReset()
 
 const loading = ref(false)
-const error = ref('')
 const fields: AuthFormField[] = [
   { name: 'email', type: 'email', label: 'Email', placeholder: 'Ingresa tu email', required: true },
-  {
-    name: 'password',
-    type: 'password',
-    label: 'Contraseña',
-    placeholder: 'Ingresa tu contraseña',
-    required: true,
-  },
 ]
 
-async function handleSubmit(event: FormSubmitEvent<Login>) {
+async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
   loading.value = true
-  error.value = ''
 
   try {
-    await login(event.data)
-  } catch (e) {
-    error.value = 'Email o contraseña incorrectos'
+    await requestPasswordReset(event.data)
   } finally {
     loading.value = false
   }
@@ -44,19 +33,20 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
       <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
         Macros for progress
       </h1>
+      <p class="mt-1 text-sm text-neutral-400">Recuperar contraseña</p>
     </div>
 
     <UAuthForm
-      :schema="loginSchema"
+      :schema="requestPasswordResetSchema"
       :fields
-      icon="i-lucide-log-in"
-      :submit="{ label: 'Ingresar', loading, size: 'lg', block: true, class: 'cursor-pointer' }"
+      icon="i-lucide-mail"
+      :submit="{ label: 'Enviar link', loading, size: 'lg', block: true, class: 'cursor-pointer' }"
       @submit="handleSubmit"
     />
 
     <div class="mt-4 text-center">
-      <ULink to="/auth/forgot-password" class="hover:text-primary text-muted text-sm">
-        ¿Olvidaste tu contraseña?
+      <ULink to="/auth/login" class="hover:text-primary text-sm text-neutral-400">
+        Volver a iniciar sesión
       </ULink>
     </div>
   </div>

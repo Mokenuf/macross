@@ -15,5 +15,10 @@ export const setPasswordSchema = z
     path: ['confirm'],
   })
 
+export const requestPasswordResetSchema = z.object({
+  email: z.string().email('El email no es válido'),
+})
+
 export type Login = z.infer<typeof loginSchema>
 export type SetPassword = z.infer<typeof setPasswordSchema>
+export type RequestPasswordReset = z.infer<typeof requestPasswordResetSchema>
