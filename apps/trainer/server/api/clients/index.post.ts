@@ -1,3 +1,4 @@
+import { env } from '@@/env'
 import { Client, clientSchema, CreateClient, createClientSchema } from '@macross/shared'
 
 import {
@@ -36,11 +37,10 @@ export default defineEventHandler(async (event): Promise<Client> => {
     throw createError({ statusCode: 409, statusMessage: 'Ya existe un cliente con este email' })
 
   const adminClient = await serverSupabaseServiceRole(event)
-  const config = useRuntimeConfig(event)
 
   const { data: invited, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(
     body.email,
-    { redirectTo: `${config.clientAppUrl}/auth/set-password` },
+    { redirectTo: `${env.NUXT_CLIENT_APP_URL}/auth/set-password` },
   )
   if (inviteError || !invited?.user)
     throw createError({

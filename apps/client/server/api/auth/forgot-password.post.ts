@@ -1,3 +1,4 @@
+import { env } from '@@/env'
 import { RequestPasswordReset, requestPasswordResetSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
@@ -9,7 +10,7 @@ export default defineEventHandler(async event => {
   )
 
   const client = await serverSupabaseClient(event)
-  const redirectTo = `${useRuntimeConfig(event).clientAppUrl}/auth/reset-password`
+  const redirectTo = `${env.NUXT_CLIENT_APP_URL}/auth/reset-password`
 
   const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo })
 
