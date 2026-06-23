@@ -85,7 +85,8 @@ export function useUpdateTrainer() {
     try {
       await $fetch(`/api/trainers/${nanoId}`, { method: 'PATCH', body: input })
       await refreshNuxtData('trainers')
-      navigateTo('/trainers')
+      await refreshNuxtData('me')
+      await navigateTo('/trainers')
       toast.add({ title: 'Entrenador actualizado', color: 'success' })
     } catch (e) {
       toast.add({

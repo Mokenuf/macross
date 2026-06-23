@@ -1,6 +1,12 @@
 {
   "$schema": "https://v2-9-5.turborepo.dev/schema.json",
-  "globalEnv": ["SUPABASE_URL", "SUPABASE_KEY", "SUPABASE_SECRET_KEY", "NUXT_TRAINER_APP_URL"],
+  "globalEnv": [
+    "SUPABASE_URL",
+    "SUPABASE_KEY",
+    "SUPABASE_SECRET_KEY",
+    "NUXT_TRAINER_APP_URL",
+    "NUXT_CLIENT_APP_URL"
+  ],
   "tasks": {
     "dev": {
       "cache": false,
@@ -8,7 +14,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".output/**", ".nuxt/**"]
+      "outputs": [".output/**", ".nuxt/**", ".vercel/output/**"]
     },
     "test": {
       "outputs": []
