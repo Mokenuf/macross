@@ -77,5 +77,10 @@ const age = computed(() =>
       <h3 class="text-sm font-medium text-neutral-500">Equipamiento disponible</h3>
       <p class="mt-1 whitespace-pre-wrap">{{ client.availableEquipment }}</p>
     </div>
+
+    <template v-if="client.notes">
+      <USeparator label="Notas del entrenador" />
+      <p class="whitespace-pre-wrap">{{ client.notes }}</p>
+    </template>
   </div>
 </template>

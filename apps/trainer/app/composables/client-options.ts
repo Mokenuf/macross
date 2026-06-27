@@ -1,6 +1,5 @@
 import { clientGoalEnum, clientLevelEnum, type ClientGoal, type ClientLevel } from '@macross/shared'
 
-// Record tipado por el enum: si se agrega un valor al enum, TS exige el label acá
 const levelLabels: Record<ClientLevel, string> = {
   beginner: 'Principiante',
   intermediate: 'Intermedio',

@@ -37,6 +37,7 @@ const filterConfig = computed<Filter[]>(() => {
       label: 'Entrenador',
       placeholder: 'Filtrar por entrenador',
       options: trainerOptions.value,
+      searchable: true,
     })
   }
   return filters

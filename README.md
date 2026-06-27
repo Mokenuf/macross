@@ -106,7 +106,7 @@ fix/trainer/auth        ─┘
 - CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
 - CRUDL completo de entrenadores: alta por invitación (`inviteUserByEmail`), listado con filtros por rol, detalle, edición y soft delete. Solo los managers pueden invitar, editar o eliminar; los managers no pueden ser eliminados.
 - CRUDL completo de clientes: alta por invitación (mail con set-password en la PWA del cliente), listado con scoping por rol (el trainer ve solo los suyos; el manager, todos con filtro por entrenador), detalle, edición y soft delete. Tanto managers como trainers gestionan clientes. El detalle del entrenador muestra su contador de clientes y un deep-link al listado pre-filtrado.
-- Datos de entrenamiento del cliente: fecha de nacimiento (edad calculada con date-fns), peso, altura, nivel, frecuencia semanal, objetivos (multivaluados), anamnesis (lesiones/restricciones) y equipamiento disponible. Cargables ya en el alta o en edición; enums validados en Zod.
+- Datos de entrenamiento del cliente: fecha de nacimiento (edad calculada con date-fns), peso, altura, nivel, frecuencia semanal, objetivos (multivaluados), anamnesis (lesiones/restricciones) y equipamiento disponible. Cargables ya en el alta o en edición; enums validados en Zod. Notas de seguimiento del entrenador sobre el cliente (solo en edición).
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI

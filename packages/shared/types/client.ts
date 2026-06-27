@@ -20,6 +20,7 @@ export const clientSchema = z.object({
   desiredWeeklyFrequency: z.number().int().nullable(),
   injuries: z.string().nullable(),
   availableEquipment: z.string().nullable(),
+  notes: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
@@ -43,6 +44,7 @@ export const createClientSchema = z.object({
 
 export const updateClientSchema = createClientSchema.omit({ email: true }).extend({
   avatarUrl: z.preprocess(val => (val === '' ? undefined : val), z.url().optional()),
+  notes: z.string().optional(),
 })
 
 export const clientSortSchema = z.enum(['fullName', 'createdAt'])
