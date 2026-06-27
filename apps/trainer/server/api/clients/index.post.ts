@@ -56,6 +56,14 @@ export default defineEventHandler(async (event): Promise<Client> => {
       full_name: body.fullName,
       email: body.email,
       phone: body.phone ?? null,
+      birth_date: body.birthDate ?? null,
+      weight_kg: body.weightKg ?? null,
+      height_cm: body.heightCm ?? null,
+      level: body.level ?? null,
+      goal: body.goal?.length ? body.goal : null,
+      desired_weekly_frequency: body.desiredWeeklyFrequency ?? null,
+      injuries: body.injuries ?? null,
+      available_equipment: body.availableEquipment ?? null,
     })
     .select()
     .single()

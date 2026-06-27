@@ -33,6 +33,8 @@ const trainerOptions = computed(() =>
   (trainersData.value?.rows ?? []).map(t => ({ label: t.fullName, value: t.id })),
 )
 
+const { levelOptions, goalOptions } = useClientOptions()
+
 const isEdit = computed(() => !!client)
 const schema = computed(() => (isEdit.value ? updateClientSchema : createClientSchema))
 
@@ -42,6 +44,14 @@ const state = reactive<Partial<CreateClient & UpdateClient>>({
   phone: client?.phone ?? '',
   trainerId: client?.trainerId ?? undefined,
   avatarUrl: client?.avatarUrl ?? '',
+  birthDate: client?.birthDate ?? undefined,
+  weightKg: client?.weightKg ?? undefined,
+  heightCm: client?.heightCm ?? undefined,
+  level: client?.level ?? undefined,
+  goal: client?.goal ?? [],
+  desiredWeeklyFrequency: client?.desiredWeeklyFrequency ?? undefined,
+  injuries: client?.injuries ?? undefined,
+  availableEquipment: client?.availableEquipment ?? undefined,
 })
 
 function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
@@ -57,7 +67,7 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
     <UFormField v-if="!isEdit" label="Email" name="email" required>
       <UInput v-model="state.email" type="email" placeholder="fran@macross.com" class="w-full" />
     </UFormField>
-    <UFormField v-if="isManager" label="Entrenador" name="trainerId">
+    <UFormField v-if="isManager" label="Entrenador" name="trainerId" required>
       <USelect
         v-model="state.trainerId"
         :items="trainerOptions"
@@ -75,6 +85,62 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
         class="w-full"
       />
     </UFormField>
+
+    <USeparator label="Datos de entrenamiento" />
+
+    <div class="grid grid-cols-2 gap-4">
+      <UFormField label="Fecha de nacimiento" name="birthDate">
+        <UInput v-model="state.birthDate" type="date" class="w-full" />
+      </UFormField>
+      <UFormField label="Frecuencia semanal deseada" name="desiredWeeklyFrequency">
+        <UInput
+          v-model="state.desiredWeeklyFrequency"
+          type="number"
+          min="1"
+          max="7"
+          placeholder="3"
+          class="w-full"
+        />
+      </UFormField>
+      <UFormField label="Peso (kg)" name="weightKg">
+        <UInput v-model="state.weightKg" type="number" step="0.1" placeholder="70" class="w-full" />
+      </UFormField>
+      <UFormField label="Altura (cm)" name="heightCm">
+        <UInput v-model="state.heightCm" type="number" placeholder="175" class="w-full" />
+      </UFormField>
+      <UFormField label="Nivel" name="level">
+        <USelect
+          v-model="state.level"
+          :items="levelOptions"
+          placeholder="Seleccionar nivel"
+          class="w-full"
+        />
+      </UFormField>
+      <UFormField label="Objetivos" name="goal">
+        <USelect
+          v-model="state.goal"
+          :items="goalOptions"
+          multiple
+          placeholder="Seleccionar objetivos"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
+    <UFormField label="Lesiones / restricciones" name="injuries">
+      <UTextarea
+        v-model="state.injuries"
+        placeholder="Ej: Dolor lumbar crónico, no hacer sentadilla profunda"
+        class="w-full"
+      />
+    </UFormField>
+    <UFormField label="Equipamiento disponible" name="availableEquipment">
+      <UTextarea
+        v-model="state.availableEquipment"
+        placeholder="Ej: Mancuernas hasta 20kg, banco plano, barra y discos"
+        class="w-full"
+      />
+    </UFormField>
+
     <div class="flex justify-end gap-3">
       <UButton
         class="cursor-pointer"
