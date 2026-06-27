@@ -40,6 +40,7 @@ function onFilterChange(filter: Filter, value: string | number | undefined | nul
       />
       <USelectMenu
         v-else-if="filter.type === 'select'"
+        class="min-w-40"
         :placeholder="filter.placeholder"
         :items="filter.options"
         value-key="value"

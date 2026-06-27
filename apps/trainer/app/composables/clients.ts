@@ -18,6 +18,7 @@ export function useGetClients() {
     trainerId: '',
     sort: 'createdAt',
     order: 'desc',
+    status: 'active',
   })
 
   const { data, pending, refresh, error } = useFetch<BaseResponse<Client>>('/api/clients', {
@@ -125,4 +126,28 @@ export function useDeleteClient() {
   }
 
   return { remove, pending }
+}
+
+export function useReactivateClient() {
+  const pending = ref(false)
+  const toast = useToast()
+
+  async function reactivate(nanoId: string) {
+    pending.value = true
+    try {
+      await $fetch(`/api/clients/${nanoId}/reactivate`, { method: 'POST' })
+      await refreshNuxtData('clients')
+      toast.add({ title: 'Cliente reactivado', color: 'success' })
+    } catch (e) {
+      toast.add({
+        title: 'Error',
+        description:
+          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo reactivar el cliente',
+      })
+    } finally {
+      pending.value = false
+    }
+  }
+
+  return { reactivate, pending }
 }

@@ -33,11 +33,17 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Client>> =
   let supabaseQuery = client
     .from('clients')
     .select('*, trainer:trainers!trainer_id(id, full_name, nano_id)', { count: 'exact' })
-    .is('deleted_at', null)
     .order(sortColumnMap[queryParams.sort] ?? 'created_at', {
       ascending: queryParams.order === 'asc',
     })
     .range(from, to)
+
+  // Estado derivado del deleted_at: 'all' no filtra, 'active' = vivos, 'deleted' = soft-deleted
+  if (queryParams.status === 'active') {
+    supabaseQuery = supabaseQuery.is('deleted_at', null)
+  } else if (queryParams.status === 'deleted') {
+    supabaseQuery = supabaseQuery.not('deleted_at', 'is', null)
+  }
 
   // Scoping: el trainer solo ve los suyos; el manager puede filtrar por trainer
   if (caller.role === 'trainer') {
