@@ -28,13 +28,20 @@ export default defineEventHandler(async (event): Promise<Client> => {
   if (!trainerId)
     throw createError({ statusCode: 400, statusMessage: 'Debe asignar un entrenador al cliente' })
 
-  const { count } = await client
+  const { data: existing } = await client
     .from('clients')
-    .select('*', { count: 'exact', head: true })
+    .select('deleted_at')
     .eq('email', body.email)
-    .is('deleted_at', null)
-  if (count && count > 0)
-    throw createError({ statusCode: 409, statusMessage: 'Ya existe un cliente con este email' })
+    .maybeSingle()
+  if (existing) {
+    if (!existing.deleted_at)
+      throw createError({ statusCode: 409, statusMessage: 'Ya existe un cliente con este mail' })
+    // El cliente está eliminado pero su auth.users sigue vivo, avisar el estado.
+    throw createError({
+      statusCode: 409,
+      statusMessage: 'Este mail pertenece a un cliente eliminado',
+    })
+  }
 
   const adminClient = await serverSupabaseServiceRole(event)
 
@@ -42,11 +49,14 @@ export default defineEventHandler(async (event): Promise<Client> => {
     body.email,
     { redirectTo: `${env.NUXT_CLIENT_APP_URL}/auth/set-password` },
   )
-  if (inviteError || !invited?.user)
+  if (inviteError || !invited?.user) {
+    if (inviteError?.code === 'email_exists')
+      throw createError({ statusCode: 409, statusMessage: 'Este email ya está registrado' })
     throw createError({
       statusCode: 500,
       statusMessage: inviteError?.message ?? 'Error al invitar al cliente',
     })
+  }
 
   const { data, error } = await adminClient
     .from('clients')
