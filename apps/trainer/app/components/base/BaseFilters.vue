@@ -38,10 +38,12 @@ function onFilterChange(filter: Filter, value: string | number | undefined | nul
         icon="i-lucide-search"
         @update:model-value="onFilterChange(filter, $event)"
       />
-      <USelect
+      <USelectMenu
         v-else-if="filter.type === 'select'"
         :placeholder="filter.placeholder"
         :items="filter.options"
+        value-key="value"
+        :search-input="filter.searchable ? undefined : false"
         :model-value="values[filter.key]"
         @update:model-value="onFilterChange(filter, $event as string)"
       />

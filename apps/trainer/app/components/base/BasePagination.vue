@@ -33,9 +33,11 @@ function onLimitChange(value: AcceptableValue | undefined) {
 
     <div class="flex items-center gap-2">
       <span class="text-sm text-neutral-400">Resultados por página</span>
-      <USelect
+      <USelectMenu
         :model-value="limit"
         :items="limitOptions"
+        value-key="value"
+        :search-input="false"
         @update:model-value="onLimitChange"
         class="cursor-pointer"
         :ui="{ item: 'cursor-pointer' }"

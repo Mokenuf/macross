@@ -24,6 +24,7 @@ export type Database = {
           injuries: string | null
           level: string | null
           nano_id: string
+          notes: string | null
           phone: string | null
           trainer_id: string
           updated_at: string
@@ -44,6 +45,7 @@ export type Database = {
           injuries?: string | null
           level?: string | null
           nano_id?: string
+          notes?: string | null
           phone?: string | null
           trainer_id: string
           updated_at?: string
@@ -64,6 +66,7 @@ export type Database = {
           injuries?: string | null
           level?: string | null
           nano_id?: string
+          notes?: string | null
           phone?: string | null
           trainer_id?: string
           updated_at?: string

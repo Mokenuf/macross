@@ -29,9 +29,19 @@ const { data: trainersData } = useFetch<BaseResponse<Trainer>>('/api/trainers', 
   key: 'trainers-select',
   query: { limit: 100 },
 })
-const trainerOptions = computed(() =>
-  (trainersData.value?.rows ?? []).map(t => ({ label: t.fullName, value: t.id })),
+
+// v-model objeto (no id) para que el label no dependa del fetch (evita el flash del UUID crudo)
+const selectedTrainer = ref<{ id: string; fullName: string } | undefined>(
+  client?.trainer ? { id: client.trainer.id, fullName: client.trainer.fullName } : undefined,
 )
+
+const trainerItems = computed(() => {
+  const fetched = (trainersData.value?.rows ?? []).map(t => ({ id: t.id, fullName: t.fullName }))
+  if (selectedTrainer.value && !fetched.some(t => t.id === selectedTrainer.value!.id)) {
+    fetched.unshift(selectedTrainer.value)
+  }
+  return fetched
+})
 
 const { levelOptions, goalOptions } = useClientOptions()
 
@@ -52,6 +62,11 @@ const state = reactive<Partial<CreateClient & UpdateClient>>({
   desiredWeeklyFrequency: client?.desiredWeeklyFrequency ?? undefined,
   injuries: client?.injuries ?? undefined,
   availableEquipment: client?.availableEquipment ?? undefined,
+  notes: client?.notes ?? undefined,
+})
+
+watch(selectedTrainer, t => {
+  state.trainerId = t?.id
 })
 
 function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
@@ -68,9 +83,11 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
       <UInput v-model="state.email" type="email" placeholder="fran@macross.com" class="w-full" />
     </UFormField>
     <UFormField v-if="isManager" label="Entrenador" name="trainerId" required>
-      <USelect
-        v-model="state.trainerId"
-        :items="trainerOptions"
+      <USelectMenu
+        v-model="selectedTrainer"
+        :items="trainerItems"
+        by="id"
+        label-key="fullName"
         placeholder="Asignar entrenador"
         class="w-full"
       />
@@ -109,18 +126,22 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
         <UInput v-model="state.heightCm" type="number" placeholder="175" class="w-full" />
       </UFormField>
       <UFormField label="Nivel" name="level">
-        <USelect
+        <USelectMenu
           v-model="state.level"
           :items="levelOptions"
+          value-key="value"
+          :search-input="false"
           placeholder="Seleccionar nivel"
           class="w-full"
         />
       </UFormField>
       <UFormField label="Objetivos" name="goal">
-        <USelect
+        <USelectMenu
           v-model="state.goal"
           :items="goalOptions"
+          value-key="value"
           multiple
+          :search-input="false"
           placeholder="Seleccionar objetivos"
           class="w-full"
         />
@@ -140,6 +161,18 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
         class="w-full"
       />
     </UFormField>
+
+    <template v-if="isEdit">
+      <USeparator label="Notas del entrenador" />
+      <UFormField label="Notas de seguimiento" name="notes">
+        <UTextarea
+          v-model="state.notes"
+          :rows="4"
+          placeholder="Observaciones sobre el cliente, evolución, recordatorios..."
+          class="w-full"
+        />
+      </UFormField>
+    </template>
 
     <div class="flex justify-end gap-3">
       <UButton

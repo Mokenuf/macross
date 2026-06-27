@@ -44,6 +44,7 @@ export default defineEventHandler(async (event): Promise<Client> => {
       desired_weekly_frequency: body.desiredWeeklyFrequency ?? null,
       injuries: body.injuries ?? null,
       available_equipment: body.availableEquipment ?? null,
+      notes: body.notes ?? null,
       // Solo el manager puede reasignar el cliente a otro trainer
       ...(isManager && body.trainerId ? { trainer_id: body.trainerId } : {}),
     })
