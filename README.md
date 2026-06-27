@@ -57,7 +57,7 @@ pnpm install
 cp apps/trainer/.env.example apps/trainer/.env
 cp apps/client/.env.example apps/client/.env
 # Completar SUPABASE_URL, SUPABASE_KEY (ambas apps)
-# trainer: + NUXT_SUPABASE_SECRET_KEY, NUXT_TRAINER_APP_URL, NUXT_CLIENT_APP_URL (invites)
+# trainer: + SUPABASE_SECRET_KEY, NUXT_TRAINER_APP_URL, NUXT_CLIENT_APP_URL (invites)
 # client:  + NUXT_CLIENT_APP_URL (redirectTo del recovery a la propia app)
 ```
 

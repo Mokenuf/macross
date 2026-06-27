@@ -26,3 +26,6 @@ dist
 # Claude
 CLAUDE.md
 .claude
+
+# Supabase
+supabase/.temp/

@@ -10,40 +10,64 @@ export type Database = {
     Tables: {
       clients: {
         Row: {
+          available_equipment: string | null
           avatar_url: string | null
+          birth_date: string | null
           created_at: string
           deleted_at: string | null
+          desired_weekly_frequency: number | null
           email: string
           full_name: string
+          goal: string[] | null
+          height_cm: number | null
           id: string
+          injuries: string | null
+          level: string | null
           nano_id: string
           phone: string | null
           trainer_id: string
           updated_at: string
+          weight_kg: number | null
         }
         Insert: {
+          available_equipment?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
           deleted_at?: string | null
+          desired_weekly_frequency?: number | null
           email: string
           full_name: string
+          goal?: string[] | null
+          height_cm?: number | null
           id: string
+          injuries?: string | null
+          level?: string | null
           nano_id?: string
           phone?: string | null
           trainer_id: string
           updated_at?: string
+          weight_kg?: number | null
         }
         Update: {
+          available_equipment?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
           deleted_at?: string | null
+          desired_weekly_frequency?: number | null
           email?: string
           full_name?: string
+          goal?: string[] | null
+          height_cm?: number | null
           id?: string
+          injuries?: string | null
+          level?: string | null
           nano_id?: string
           phone?: string | null
           trainer_id?: string
           updated_at?: string
+          weight_kg?: number | null
         }
         Relationships: [
           {
