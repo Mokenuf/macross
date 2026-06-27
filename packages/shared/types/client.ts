@@ -47,19 +47,24 @@ export const updateClientSchema = createClientSchema.omit({ email: true }).exten
   notes: z.string().optional(),
 })
 
+export const clientStatusSchema = z.enum(['all', 'active', 'deleted']).default('active')
+
 export const clientSortSchema = z.enum(['fullName', 'createdAt'])
 export const clientQueryParamsSchema = queryParamsSchema.extend({
   sort: clientSortSchema.default('createdAt'),
   trainerId: z.preprocess(val => (val === '' ? undefined : val), z.uuid().optional()),
+  status: clientStatusSchema,
 })
 
 export type Client = z.infer<typeof clientSchema>
 export type CreateClient = z.infer<typeof createClientSchema>
 export type UpdateClient = z.infer<typeof updateClientSchema>
+export type ClientStatus = z.infer<typeof clientStatusSchema>
 export type ClientSortOptions = z.infer<typeof clientSortSchema>
 export type ClientQueryParams = z.infer<typeof clientQueryParamsSchema>
 
 export type ClientFilters = BaseFilters & {
   trainerId: string | ''
   sort: ClientSortOptions
+  status: ClientStatus
 }

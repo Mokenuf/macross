@@ -266,4 +266,23 @@ describe('clientQueryParamsSchema', () => {
       expect(result.data.limit).toBe(50)
     }
   })
+
+  it('aplica status=active por default', () => {
+    const result = clientQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.status).toBe('active')
+    }
+  })
+
+  it('acepta los valores validos de status', () => {
+    expect(clientQueryParamsSchema.safeParse({ status: 'all' }).success).toBe(true)
+    expect(clientQueryParamsSchema.safeParse({ status: 'active' }).success).toBe(true)
+    expect(clientQueryParamsSchema.safeParse({ status: 'deleted' }).success).toBe(true)
+  })
+
+  it('rechaza status fuera del enum', () => {
+    const result = clientQueryParamsSchema.safeParse({ status: 'archived' })
+    expect(result.success).toBe(false)
+  })
 })

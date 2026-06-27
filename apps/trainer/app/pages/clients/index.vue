@@ -6,8 +6,9 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Clientes' })
 
-const { clients, pagination, loading, page, limit, search, trainerId } = useGetClients()
+const { clients, pagination, loading, page, limit, search, trainerId, status } = useGetClients()
 const { remove } = useDeleteClient()
+const { reactivate } = useReactivateClient()
 const { data: me } = useGetMe()
 
 const { data: trainersData } = useFetch<BaseResponse<Trainer>>('/api/trainers', {
@@ -29,6 +30,16 @@ const filterConfig = computed<Filter[]>(() => {
       placeholder: 'Buscar cliente...',
       debounce: 300,
     },
+    {
+      type: 'select',
+      key: 'status',
+      label: 'Estado',
+      options: [
+        { label: 'Activos', value: 'active' },
+        { label: 'Eliminados', value: 'deleted' },
+        { label: 'Todos', value: 'all' },
+      ],
+    },
   ]
   if (isManager.value) {
     filters.push({
@@ -43,7 +54,13 @@ const filterConfig = computed<Filter[]>(() => {
   return filters
 })
 
-const filterValues = computed(() => ({ search: search.value, trainerId: trainerId.value }))
+const filterValues = computed(() => ({
+  search: search.value,
+  trainerId: trainerId.value,
+  status: status.value,
+}))
+
+const UBadge = resolveComponent('UBadge')
 
 const columns = computed<TableColumn<Client>[]>(() => {
   const cols: TableColumn<Client>[] = [
@@ -58,6 +75,14 @@ const columns = computed<TableColumn<Client>[]>(() => {
     })
   }
   cols.push({
+    accessorKey: 'deletedAt',
+    header: 'Estado',
+    cell: ({ row }) =>
+      row.original.deletedAt
+        ? h(UBadge, { color: 'error', variant: 'subtle' }, () => 'Eliminado')
+        : h(UBadge, { color: 'success', variant: 'subtle' }, () => 'Activo'),
+  })
+  cols.push({
     accessorKey: 'createdAt',
     header: 'Fecha de creación',
     cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString('es-AR'),
@@ -68,11 +93,22 @@ const columns = computed<TableColumn<Client>[]>(() => {
 const actions: TableAction<Client>[] = [
   { type: 'view', href: row => `/clients/${row.nanoId}` },
   { type: 'edit', href: row => `/clients/${row.nanoId}/edit` },
-  { type: 'delete', onSelect: row => remove(row.nanoId) },
+  { type: 'delete', onSelect: row => remove(row.nanoId), visible: row => !row.deletedAt },
+  {
+    type: 'custom',
+    label: 'Reactivar',
+    icon: 'i-lucide-rotate-ccw',
+    onSelect: row => reactivate(row.nanoId),
+    visible: row => !!row.deletedAt,
+  },
 ]
 
 function onFilterUpdate({ key, value }: { key: string; value: string | number }) {
-  const map: Record<string, Ref | WritableComputedRef<string | number>> = { search, trainerId }
+  const map: Record<string, Ref | WritableComputedRef<string | number>> = {
+    search,
+    trainerId,
+    status,
+  }
   if (map[key]) map[key].value = value
 }
 </script>
