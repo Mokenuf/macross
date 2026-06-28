@@ -1,4 +1,4 @@
-export function useQueryFilters<T extends Record<string, string | number>>(defaults: T) {
+export function useQueryFilters<T extends Record<string, string | number | string[]>>(defaults: T) {
   const entries = Object.entries(defaults).map(
     ([key, value]) => [key, useQueryState(key, value)] as const,
   )

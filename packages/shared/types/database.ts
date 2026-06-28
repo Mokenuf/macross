@@ -82,6 +82,36 @@ export type Database = {
           },
         ]
       }
+      equipment: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          name: string
+          nano_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name: string
+          nano_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          nano_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       exercise_muscle_groups: {
         Row: {
           created_at: string
@@ -123,6 +153,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           description: string | null
+          equipment_id: string | null
           id: string
           name: string
           nano_id: string
@@ -135,6 +166,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           description?: string | null
+          equipment_id?: string | null
           id?: string
           name: string
           nano_id?: string
@@ -147,6 +179,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           description?: string | null
+          equipment_id?: string | null
           id?: string
           name?: string
           nano_id?: string
@@ -156,6 +189,13 @@ export type Database = {
           video_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: 'exercises_equipment_id_fkey'
+            columns: ['equipment_id']
+            isOneToOne: false
+            referencedRelation: 'equipment'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'exercises_trainer_id_fkey'
             columns: ['trainer_id']

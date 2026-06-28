@@ -15,6 +15,7 @@ export interface SelectFilter extends BaseFilter {
   type: 'select'
   options: SelectItem[]
   searchable?: boolean
+  multiple?: boolean
 }
 
 export type Filter = SearchFilter | SelectFilter

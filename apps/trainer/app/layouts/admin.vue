@@ -29,7 +29,7 @@ const navigation = computed<NavigationMenuItem[]>(() => [
     to: '/routines',
   },
   {
-    label: 'Catálogo',
+    label: 'Catálogos',
     icon: 'i-lucide-book-open',
     defaultOpen: true,
     children: [
@@ -40,6 +40,10 @@ const navigation = computed<NavigationMenuItem[]>(() => [
       {
         label: 'Grupos Musculares',
         to: '/muscle-groups',
+      },
+      {
+        label: 'Equipamiento',
+        to: '/equipment',
       },
     ],
   },

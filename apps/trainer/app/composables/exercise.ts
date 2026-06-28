@@ -17,6 +17,8 @@ export function useGetExercises() {
     search: '',
     sort: 'createdAt',
     order: 'desc',
+    equipmentIds: [],
+    muscleGroupIds: [],
   })
 
   const { data, pending, refresh, error } = useFetch<BaseResponse<Exercise>>('/api/exercises', {

@@ -28,9 +28,16 @@ const youtubeEmbedUrl = computed(() => {
 
 <template>
   <div class="space-y-6">
-    <div v-if="muscleGroups">
-      <h3 class="text-sm font-medium text-neutral-500">Grupos musculares</h3>
-      <p class="mt-1">{{ muscleGroups }}</p>
+    <div class="grid grid-cols-2 gap-6">
+      <div v-if="muscleGroups">
+        <h3 class="text-sm font-medium text-neutral-500">Grupos musculares</h3>
+        <p class="mt-1">{{ muscleGroups }}</p>
+      </div>
+
+      <div v-if="exercise.equipment">
+        <h3 class="text-sm font-medium text-neutral-500">Equipamiento</h3>
+        <p class="mt-1">{{ exercise.equipment.name }}</p>
+      </div>
     </div>
 
     <div v-if="exercise.description">
