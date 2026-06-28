@@ -3,10 +3,10 @@ import type { Filter } from '@/types/base-filters'
 
 interface BaseFiltersProps {
   filters: Filter[]
-  values: Record<string, string | number>
+  values: Record<string, string | number | string[]>
 }
 interface BaseFiltersEmits {
-  'update:filters': [payload: { key: string; value: string | number }]
+  'update:filters': [payload: { key: string; value: string | number | string[] }]
 }
 
 const { filters } = defineProps<BaseFiltersProps>()
@@ -14,7 +14,7 @@ const emit = defineEmits<BaseFiltersEmits>()
 
 const debounceTimers: Record<string, ReturnType<typeof setTimeout>> = {}
 
-function onFilterChange(filter: Filter, value: string | number | undefined | null) {
+function onFilterChange(filter: Filter, value: string | number | string[] | undefined | null) {
   if (value === undefined || value === null) return
 
   if (filter.type === 'search' && filter.debounce) {
@@ -44,9 +44,10 @@ function onFilterChange(filter: Filter, value: string | number | undefined | nul
         :placeholder="filter.placeholder"
         :items="filter.options"
         value-key="value"
+        :multiple="filter.multiple"
         :search-input="filter.searchable ? undefined : false"
         :model-value="values[filter.key]"
-        @update:model-value="onFilterChange(filter, $event as string)"
+        @update:model-value="onFilterChange(filter, $event)"
       />
     </template>
   </div>

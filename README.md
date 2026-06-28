@@ -102,8 +102,9 @@ fix/trainer/auth        ─┘
 - Flow de recuperación de contraseña (forgot-password → mail → reset-password) que empieza y termina en el dashboard del trainer, reutilizando el mismo procesamiento manual del hash que set-password
 - Estados de loading en todos los botones de submit y en el modal de confirmación de borrado (spinner + bloqueo de doble click)
 - Dashboard con perfil del usuario logueado
-- CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación)
+- CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación). El listado filtra por grupo muscular y equipamiento, ambos multi-select (OR dentro de cada faceta, AND entre facetas), con los filtros sincronizados a la URL como arrays
 - CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
+- CRUDL completo de equipamiento (catálogo compartido), asociado a ejercicios vía FK simple (un ejercicio tiene un equipamiento). Al eliminar un equipamiento se desasigna de los ejercicios que lo usaban
 - CRUDL completo de entrenadores: alta por invitación (`inviteUserByEmail`), listado con filtros por rol, detalle, edición y soft delete. Solo los managers pueden invitar, editar o eliminar; los managers no pueden ser eliminados.
 - CRUDL completo de clientes: alta por invitación (mail con set-password en la PWA del cliente), listado con scoping por rol (el trainer ve solo los suyos; el manager, todos con filtro por entrenador), detalle, edición y soft delete. Tanto managers como trainers gestionan clientes. El detalle del entrenador muestra su contador de clientes y un deep-link al listado pre-filtrado.
 - Reactivación de clientes eliminados: el listado tiene un filtro de estado (activos / eliminados / todos, default activos) y una columna de estado como badge derivada del soft delete; los clientes eliminados se pueden reactivar (mismo scoping por rol que el borrado). Reinvitar el email de un cliente eliminado devuelve un mensaje claro sugiriendo reactivarlo (en vez del error crudo de Supabase).
@@ -122,9 +123,9 @@ fix/trainer/auth        ─┘
 
 ### Shared
 
-- Schemas Zod compartidos (ejercicios, grupos musculares, entrenadores, clientes, auth, query params)
+- Schemas Zod compartidos (ejercicios, grupos musculares, equipamiento, entrenadores, clientes, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
-- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `updateClientSchema`, `clientQueryParamsSchema`, `loginSchema`, `setPasswordSchema`, `requestPasswordResetSchema`)
+- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createEquipmentSchema`, `equipmentQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `updateClientSchema`, `clientQueryParamsSchema`, `loginSchema`, `setPasswordSchema`, `requestPasswordResetSchema`)
 
 ## Estado
 

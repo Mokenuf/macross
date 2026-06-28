@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { MuscleGroup } from '@macross/shared'
+import type { Equipment } from '@macross/shared'
 
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Grupos Musculares' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Equipamiento' })
 
-const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroups()
-const { remove } = useDeleteMuscleGroup()
+const { equipments, pagination, loading, page, limit, search } = useGetEquipments()
+const { remove } = useDeleteEquipment()
 const { data: user } = useGetMe()
 
 const isManager = computed(() => user.value?.role === 'manager')
@@ -17,18 +17,18 @@ const filterConfig: Filter[] = [
     type: 'search',
     key: 'search',
     label: 'Buscar',
-    placeholder: 'Buscar grupo muscular...',
+    placeholder: 'Buscar equipamiento...',
     debounce: 300,
   },
 ]
 
 const filterValues = computed(() => ({ search: search.value }))
 
-const columns: TableColumn<MuscleGroup>[] = [{ accessorKey: 'name', header: 'Nombre' }]
+const columns: TableColumn<Equipment>[] = [{ accessorKey: 'name', header: 'Nombre' }]
 
-const actions: TableAction<MuscleGroup>[] = [
-  { type: 'view', href: row => `/muscle-groups/${row.slug}` },
-  { type: 'edit', href: row => `/muscle-groups/${row.slug}/edit`, visible: isManager },
+const actions: TableAction<Equipment>[] = [
+  { type: 'view', href: row => `/equipment/${row.slug}` },
+  { type: 'edit', href: row => `/equipment/${row.slug}/edit`, visible: isManager },
   { type: 'delete', onSelect: row => remove(row.slug), visible: isManager },
 ]
 
@@ -48,17 +48,17 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       />
       <UButton
         v-if="isManager"
-        label="Agregar Grupo Muscular"
+        label="Agregar Equipamiento"
         icon="i-lucide-plus"
         color="primary"
-        to="/muscle-groups/add"
+        to="/equipment/add"
       />
     </div>
 
     <BaseTable
       :columns
       :actions
-      :data="muscleGroups"
+      :data="equipments"
       :loading
       :pagination
       :delete-label="row => row.name"

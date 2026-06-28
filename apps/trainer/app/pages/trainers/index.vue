@@ -70,8 +70,11 @@ const actions: TableAction<Trainer>[] = [
   { type: 'delete', onSelect: row => remove(row.nanoId), visible: canDeleteTrainer },
 ]
 
-function onFilterUpdate({ key, value }: { key: string; value: string | number }) {
-  const map: Record<string, Ref | WritableComputedRef<string | number>> = { search, role }
+function onFilterUpdate({ key, value }: { key: string; value: string | number | string[] }) {
+  const map: Record<string, Ref | WritableComputedRef<string | number | string[]>> = {
+    search,
+    role,
+  }
   if (map[key]) map[key].value = value
 }
 </script>

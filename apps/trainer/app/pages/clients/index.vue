@@ -103,8 +103,8 @@ const actions: TableAction<Client>[] = [
   },
 ]
 
-function onFilterUpdate({ key, value }: { key: string; value: string | number }) {
-  const map: Record<string, Ref | WritableComputedRef<string | number>> = {
+function onFilterUpdate({ key, value }: { key: string; value: string | number | string[] }) {
+  const map: Record<string, Ref | WritableComputedRef<string | number | string[]>> = {
     search,
     trainerId,
     status,

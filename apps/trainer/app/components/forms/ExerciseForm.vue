@@ -3,6 +3,7 @@ import {
   type BaseResponse,
   createExerciseSchema,
   type CreateExercise,
+  type Equipment,
   type Exercise,
   type MuscleGroup,
 } from '@macross/shared'
@@ -24,6 +25,7 @@ const state = reactive<Partial<CreateExercise>>({
   description: exercise?.description ?? '',
   videoUrl: exercise?.videoUrl ?? '',
   muscleGroupIds: exercise?.muscleGroups.map(mg => mg.id) ?? [],
+  equipmentId: exercise?.equipment?.id,
 })
 
 const selectedMuscleGroups = ref<MuscleGroup[]>(exercise?.muscleGroups ?? [])
@@ -45,6 +47,29 @@ const items = computed<MuscleGroup[]>(() => {
   return [...muscleGroups.value, ...cachedNotInFetch]
 })
 
+const selectedEquipment = ref<Equipment | undefined>(exercise?.equipment ?? undefined)
+
+const equipmentSearchTerm = ref('')
+const debouncedEquipmentSearch = refDebounced(equipmentSearchTerm, 300)
+
+const { data: equipmentData, pending: equipmentPending } = useLazyFetch<BaseResponse<Equipment>>(
+  '/api/equipment',
+  {
+    query: { search: debouncedEquipmentSearch, limit: 5 },
+  },
+)
+
+const equipmentList = computed<Equipment[]>(() => equipmentData.value?.rows ?? [])
+
+const equipmentItems = computed<Equipment[]>(() => {
+  if (debouncedEquipmentSearch.value || !selectedEquipment.value) return equipmentList.value
+
+  const fetchedIds = new Set(equipmentList.value.map(e => e.id))
+  return fetchedIds.has(selectedEquipment.value.id)
+    ? equipmentList.value
+    : [selectedEquipment.value, ...equipmentList.value]
+})
+
 watch(
   selectedMuscleGroups,
   mgs => {
@@ -52,6 +77,10 @@ watch(
   },
   { deep: true },
 )
+
+watch(selectedEquipment, e => {
+  state.equipmentId = e?.id
+})
 
 function onSubmit(event: FormSubmitEvent<CreateExercise>) {
   emit('submit', event.data)
@@ -88,6 +117,25 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
         clear
         multiple
         placeholder="Seleccioná uno o varios grupos musculares"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField label="Equipamiento" name="equipmentId">
+      <USelectMenu
+        v-model="selectedEquipment"
+        v-model:search-term="equipmentSearchTerm"
+        :search-input="{
+          placeholder: 'Buscar...',
+          icon: 'i-lucide-search',
+        }"
+        :ignore-filter="true"
+        :loading="equipmentPending"
+        :items="equipmentItems"
+        by="id"
+        label-key="name"
+        clear
+        placeholder="Seleccioná el equipamiento"
         class="w-full"
       />
     </UFormField>
