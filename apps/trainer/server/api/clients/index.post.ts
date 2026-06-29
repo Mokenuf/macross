@@ -1,5 +1,6 @@
 import { env } from '@@/env'
-import { Client, clientSchema, CreateClient, createClientSchema } from '@macross/shared'
+import type { Client, CreateClient } from '@macross/shared'
+import { clientSchema, createClientSchema } from '@macross/shared'
 
 import {
   serverSupabaseClient,

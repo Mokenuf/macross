@@ -1,4 +1,5 @@
-import { AdminUser, adminUserSchema } from '@macross/shared'
+import type { AdminUser } from '@macross/shared'
+import { adminUserSchema } from '@macross/shared'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 

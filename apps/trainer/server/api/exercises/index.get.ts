@@ -1,12 +1,10 @@
-import {
+import type {
   BaseResponse,
   Exercise,
   ExerciseQueryParams,
-  exerciseQueryParamsSchema,
-  exerciseSchema,
   ExerciseWithPivot,
-  exerciseWithPivotSchema,
 } from '@macross/shared'
+import { exerciseQueryParamsSchema, exerciseSchema, exerciseWithPivotSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 

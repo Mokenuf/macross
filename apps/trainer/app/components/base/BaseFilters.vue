@@ -65,14 +65,18 @@ function onSearchChange(filter: Filter, value: FilterValue | undefined | null) {
   }
 }
 
-function onSelectChange(filter: Filter, value: FilterValue | undefined | null) {
+// value es `unknown`: el model-value de USelectMenu es AcceptableValue (incluye bigint/boolean),
+// más ancho que FilterValue. Con value-key + nuestras options el valor real siempre es FilterValue.
+function onSelectChange(filter: Filter, value: unknown) {
   if (value === undefined || value === null) return
-  draft[filter.key] = value
+  draft[filter.key] = value as FilterValue
 }
 
 function applyFilters() {
   for (const filter of nonSearchFilters.value) {
-    emit('update:filters', { key: filter.key, value: draft[filter.key] })
+    const value = draft[filter.key]
+    if (value === undefined) continue
+    emit('update:filters', { key: filter.key, value })
   }
 }
 

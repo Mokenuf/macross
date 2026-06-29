@@ -1,4 +1,5 @@
-import { MuscleGroup, muscleGroupSchema } from '@macross/shared'
+import type { MuscleGroup } from '@macross/shared'
+import { muscleGroupSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 

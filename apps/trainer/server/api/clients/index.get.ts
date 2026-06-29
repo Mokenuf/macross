@@ -1,10 +1,5 @@
-import {
-  BaseResponse,
-  Client,
-  ClientQueryParams,
-  clientQueryParamsSchema,
-  clientSchema,
-} from '@macross/shared'
+import type { BaseResponse, Client, ClientQueryParams } from '@macross/shared'
+import { clientQueryParamsSchema, clientSchema } from '@macross/shared'
 import { z } from 'zod'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'

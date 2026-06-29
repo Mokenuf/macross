@@ -1,4 +1,5 @@
-import { Equipment, equipmentSchema } from '@macross/shared'
+import type { Equipment } from '@macross/shared'
+import { equipmentSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 

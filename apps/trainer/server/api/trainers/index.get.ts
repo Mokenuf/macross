@@ -1,10 +1,5 @@
-import {
-  BaseResponse,
-  Trainer,
-  TrainerQueryParams,
-  trainerQueryParamsSchema,
-  trainerSchema,
-} from '@macross/shared'
+import type { BaseResponse, Trainer, TrainerQueryParams } from '@macross/shared'
+import { trainerQueryParamsSchema, trainerSchema } from '@macross/shared'
 import { z } from 'zod'
 
 import { serverSupabaseClient } from '#supabase/server'

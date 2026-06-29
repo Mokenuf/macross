@@ -1,4 +1,4 @@
-import { Client, clientSchema } from '@macross/shared'
+import { type Client, clientSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 
