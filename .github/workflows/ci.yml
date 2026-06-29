@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [development, main]
+  push:
+    branches: [development, main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      # Dummies válidas por formato: el build de Nuxt valida estas env (T3 Env + módulo Supabase).
+      # En build no se conecta a nada, solo necesita que existan y tengan forma de URL/string.
+      SUPABASE_URL: https://example.supabase.co
+      SUPABASE_KEY: dummy-publishable-key
+      SUPABASE_SECRET_KEY: dummy-secret-key
+      NUXT_TRAINER_APP_URL: https://trainer.example.com
+      NUXT_CLIENT_APP_URL: https://client.example.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
