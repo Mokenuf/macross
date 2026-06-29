@@ -4,8 +4,9 @@ import type { Equipment } from '@macross/shared'
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Equipamiento' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'equipment.title' })
 
+const { t } = useI18n()
 const { equipments, pagination, loading, page, limit, search } = useGetEquipmentList()
 const { remove } = useDeleteEquipment()
 const { data: user } = useGetMe()
@@ -16,15 +17,17 @@ const filterConfig: Filter[] = [
   {
     type: 'search',
     key: 'search',
-    label: 'Buscar',
-    placeholder: 'Buscar equipamiento...',
+    label: t('filters.search'),
+    placeholder: t('equipment.filters.searchPlaceholder'),
     debounce: 300,
   },
 ]
 
 const filterValues = computed(() => ({ search: search.value }))
 
-const columns: TableColumn<Equipment>[] = [{ accessorKey: 'name', header: 'Nombre' }]
+const columns = computed<TableColumn<Equipment>[]>(() => [
+  { accessorKey: 'name', header: t('equipment.columns.name') },
+])
 
 const actions: TableAction<Equipment>[] = [
   { type: 'view', href: row => `/equipment/${row.slug}` },
@@ -48,7 +51,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       />
       <UButton
         v-if="isManager"
-        label="Agregar Equipamiento"
+        :label="t('equipment.add')"
         icon="i-lucide-plus"
         color="primary"
         to="/equipment/add"

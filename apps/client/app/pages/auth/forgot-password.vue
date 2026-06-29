@@ -5,15 +5,24 @@ import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
 definePageMeta({
   layout: 'auth',
   middleware: 'guest',
+  title: 'auth.forgotPassword.title',
 })
 
-useHead({ title: 'Recuperar contraseña' })
+const { t } = useI18n()
+
+useHead({ title: t('auth.forgotPassword.title') })
 
 const { requestPasswordReset } = useRequestPasswordReset()
 
 const loading = ref(false)
 const fields: AuthFormField[] = [
-  { name: 'email', type: 'email', label: 'Email', placeholder: 'Ingresa tu email', required: true },
+  {
+    name: 'email',
+    type: 'email',
+    label: t('auth.forgotPassword.email'),
+    placeholder: t('auth.forgotPassword.emailPlaceholder'),
+    required: true,
+  },
 ]
 
 async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
@@ -34,7 +43,7 @@ async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
         <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
           Macros for progress
         </h1>
-        <p class="text-muted mt-2 text-sm">Recuperá el acceso a tu cuenta</p>
+        <p class="text-muted mt-2 text-sm">{{ t('auth.forgotPassword.description') }}</p>
       </div>
 
       <UAuthForm
@@ -42,7 +51,7 @@ async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
         :fields
         icon="i-lucide-mail"
         :submit="{
-          label: 'Enviar link',
+          label: t('auth.forgotPassword.submit'),
           loading,
           size: 'lg',
           block: true,
@@ -53,7 +62,7 @@ async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
 
       <div class="mt-4 text-center">
         <ULink to="/auth/login" class="hover:text-primary text-muted text-sm">
-          Volver a iniciar sesión
+          {{ t('auth.forgotPassword.backToLogin') }}
         </ULink>
       </div>
     </div>

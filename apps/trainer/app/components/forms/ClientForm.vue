@@ -22,6 +22,7 @@ interface ClientFormEmits {
 const { client, loading = false } = defineProps<ClientFormProps>()
 const emit = defineEmits<ClientFormEmits>()
 
+const { t } = useI18n()
 const { data: me } = useGetMe()
 const isManager = computed(() => me.value?.role === Roles.manager)
 
@@ -36,8 +37,8 @@ const selectedTrainer = ref<{ id: string; fullName: string } | undefined>(
 )
 
 const trainerItems = computed(() => {
-  const fetched = (trainersData.value?.rows ?? []).map(t => ({ id: t.id, fullName: t.fullName }))
-  if (selectedTrainer.value && !fetched.some(t => t.id === selectedTrainer.value!.id)) {
+  const fetched = (trainersData.value?.rows ?? []).map(tr => ({ id: tr.id, fullName: tr.fullName }))
+  if (selectedTrainer.value && !fetched.some(tr => tr.id === selectedTrainer.value!.id)) {
     fetched.unshift(selectedTrainer.value)
   }
   return fetched
@@ -65,8 +66,8 @@ const state = reactive<Partial<CreateClient & UpdateClient>>({
   notes: client?.notes ?? undefined,
 })
 
-watch(selectedTrainer, t => {
-  state.trainerId = t?.id
+watch(selectedTrainer, tr => {
+  state.trainerId = tr?.id
 })
 
 function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
@@ -76,99 +77,123 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
 
 <template>
   <UForm :schema :state class="space-y-4" @submit="onSubmit">
-    <UFormField label="Nombre completo" name="fullName" required>
-      <UInput v-model="state.fullName" placeholder="Fran Racciatti" class="w-full" />
+    <UFormField :label="t('clients.form.fullName')" name="fullName" required>
+      <UInput
+        v-model="state.fullName"
+        :placeholder="t('clients.form.fullNamePlaceholder')"
+        class="w-full"
+      />
     </UFormField>
-    <UFormField v-if="!isEdit" label="Email" name="email" required>
-      <UInput v-model="state.email" type="email" placeholder="fran@macross.com" class="w-full" />
+    <UFormField v-if="!isEdit" :label="t('clients.form.email')" name="email" required>
+      <UInput
+        v-model="state.email"
+        type="email"
+        :placeholder="t('clients.form.emailPlaceholder')"
+        class="w-full"
+      />
     </UFormField>
-    <UFormField v-if="isManager" label="Entrenador" name="trainerId" required>
+    <UFormField v-if="isManager" :label="t('clients.form.trainer')" name="trainerId" required>
       <USelectMenu
         v-model="selectedTrainer"
         :items="trainerItems"
         by="id"
         label-key="fullName"
-        placeholder="Asignar entrenador"
+        :placeholder="t('clients.form.trainerPlaceholder')"
         class="w-full"
       />
     </UFormField>
-    <UFormField label="Teléfono" name="phone">
-      <UInput v-model="state.phone" placeholder="+5491112345678" class="w-full" />
+    <UFormField :label="t('clients.form.phone')" name="phone">
+      <UInput
+        v-model="state.phone"
+        :placeholder="t('clients.form.phonePlaceholder')"
+        class="w-full"
+      />
     </UFormField>
-    <UFormField v-if="isEdit" label="URL de avatar" name="avatarUrl">
+    <UFormField v-if="isEdit" :label="t('clients.form.avatarUrl')" name="avatarUrl">
       <UInput
         v-model="state.avatarUrl"
-        placeholder="https://cdn.macross.com/avatar.png"
+        :placeholder="t('clients.form.avatarUrlPlaceholder')"
         class="w-full"
       />
     </UFormField>
 
-    <USeparator label="Datos de entrenamiento" />
+    <USeparator :label="t('clients.form.sections.trainingData')" />
 
     <div class="grid grid-cols-2 gap-4">
-      <UFormField label="Fecha de nacimiento" name="birthDate">
+      <UFormField :label="t('clients.form.birthDate')" name="birthDate">
         <UInput v-model="state.birthDate" type="date" class="w-full" />
       </UFormField>
-      <UFormField label="Frecuencia semanal deseada" name="desiredWeeklyFrequency">
+      <UFormField :label="t('clients.form.desiredWeeklyFrequency')" name="desiredWeeklyFrequency">
         <UInput
           v-model="state.desiredWeeklyFrequency"
           type="number"
           min="1"
           max="7"
-          placeholder="3"
+          :placeholder="t('clients.form.desiredWeeklyFrequencyPlaceholder')"
           class="w-full"
         />
       </UFormField>
-      <UFormField label="Peso (kg)" name="weightKg">
-        <UInput v-model="state.weightKg" type="number" step="0.1" placeholder="70" class="w-full" />
+      <UFormField :label="t('clients.form.weightKg')" name="weightKg">
+        <UInput
+          v-model="state.weightKg"
+          type="number"
+          step="0.1"
+          :placeholder="t('clients.form.weightKgPlaceholder')"
+          class="w-full"
+        />
       </UFormField>
-      <UFormField label="Altura (cm)" name="heightCm">
-        <UInput v-model="state.heightCm" type="number" placeholder="175" class="w-full" />
+      <UFormField :label="t('clients.form.heightCm')" name="heightCm">
+        <UInput
+          v-model="state.heightCm"
+          type="number"
+          :placeholder="t('clients.form.heightCmPlaceholder')"
+          class="w-full"
+        />
       </UFormField>
-      <UFormField label="Nivel" name="level">
+      <UFormField :label="t('clients.form.level')" name="level">
         <USelectMenu
           v-model="state.level"
           :items="levelOptions"
           value-key="value"
           :search-input="false"
-          placeholder="Seleccionar nivel"
+          :placeholder="t('clients.form.levelPlaceholder')"
           class="w-full"
         />
       </UFormField>
-      <UFormField label="Objetivos" name="goal">
+      <UFormField :label="t('clients.form.goals')" name="goal">
         <USelectMenu
           v-model="state.goal"
           :items="goalOptions"
           value-key="value"
           multiple
           :search-input="false"
-          placeholder="Seleccionar objetivos"
+          :placeholder="t('clients.form.goalsPlaceholder')"
           class="w-full"
         />
       </UFormField>
     </div>
-    <UFormField label="Lesiones / restricciones" name="injuries">
+    <UFormField :label="t('clients.form.injuries')" name="injuries">
       <UTextarea
         v-model="state.injuries"
-        placeholder="Ej: Dolor lumbar crónico, no hacer sentadilla profunda"
+        :placeholder="t('clients.form.injuriesPlaceholder')"
         class="w-full"
       />
     </UFormField>
-    <UFormField label="Equipamiento disponible" name="availableEquipment">
+    <UFormField :label="t('clients.form.availableEquipment')" name="availableEquipment">
       <UTextarea
         v-model="state.availableEquipment"
-        placeholder="Ej: Mancuernas hasta 20kg, banco plano, barra y discos"
+        :placeholder="t('clients.form.availableEquipmentPlaceholder')"
         class="w-full"
       />
     </UFormField>
 
     <template v-if="isEdit">
-      <USeparator label="Notas del entrenador" />
-      <UFormField label="Notas de seguimiento" name="notes">
+      <USeparator :label="t('clients.form.sections.trainerNotes')" />
+      <UFormField :label="t('clients.form.notes')" name="notes">
         <UTextarea
           v-model="state.notes"
           :rows="4"
-          placeholder="Observaciones sobre el cliente, evolución, recordatorios..."
+          :placeholder="t('clients.form.notesPlaceholder')"
           class="w-full"
         />
       </UFormField>
@@ -177,7 +202,7 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
     <div class="flex justify-end gap-3">
       <UButton
         class="cursor-pointer"
-        label="Cancelar"
+        :label="t('clients.form.buttons.cancel')"
         color="neutral"
         variant="ghost"
         to="/clients"
@@ -185,7 +210,9 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
       <UButton
         class="cursor-pointer"
         type="submit"
-        :label="isEdit ? 'Guardar cambios' : 'Invitar cliente'"
+        :label="
+          isEdit ? t('clients.form.buttons.saveChanges') : t('clients.form.buttons.inviteClient')
+        "
         :loading
       />
     </div>

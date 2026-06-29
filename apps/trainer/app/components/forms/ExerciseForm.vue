@@ -19,6 +19,7 @@ interface ExerciseFormEmits {
 
 const { exercise, loading = false } = defineProps<ExerciseFormProps>()
 const emit = defineEmits<ExerciseFormEmits>()
+const { t } = useI18n()
 
 const state = reactive<Partial<CreateExercise>>({
   name: exercise?.name ?? '',
@@ -89,24 +90,24 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
 
 <template>
   <UForm :schema="createExerciseSchema" :state class="space-y-4" @submit="onSubmit">
-    <UFormField label="Nombre" name="name" required>
-      <UInput v-model="state.name" placeholder="Ej: Sentadilla búlgara" class="w-full" />
+    <UFormField :label="t('exercises.form.name')" name="name" required>
+      <UInput v-model="state.name" :placeholder="t('exercises.form.nameExample')" class="w-full" />
     </UFormField>
 
-    <UFormField label="Descripción" name="description">
+    <UFormField :label="t('exercises.form.description')" name="description">
       <UTextarea
         v-model="state.description"
-        placeholder="Descripción del ejercicio"
+        :placeholder="t('exercises.form.descriptionPlaceholder')"
         class="w-full"
       />
     </UFormField>
 
-    <UFormField label="Grupo muscular" name="muscleGroupIds">
+    <UFormField :label="t('exercises.form.muscleGroup')" name="muscleGroupIds">
       <USelectMenu
         v-model="selectedMuscleGroups"
         v-model:search-term="muscleGroupsSearchTerm"
         :search-input="{
-          placeholder: 'Buscar...',
+          placeholder: t('exercises.filters.searchPlaceholder'),
           icon: 'i-lucide-search',
         }"
         :ignore-filter="true"
@@ -116,17 +117,17 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
         label-key="name"
         clear
         multiple
-        placeholder="Seleccioná uno o varios grupos musculares"
+        :placeholder="t('exercises.form.muscleGroupPlaceholder')"
         class="w-full"
       />
     </UFormField>
 
-    <UFormField label="Equipamiento" name="equipmentId">
+    <UFormField :label="t('exercises.form.equipment')" name="equipmentId">
       <USelectMenu
         v-model="selectedEquipment"
         v-model:search-term="equipmentSearchTerm"
         :search-input="{
-          placeholder: 'Buscar...',
+          placeholder: t('exercises.filters.searchPlaceholder'),
           icon: 'i-lucide-search',
         }"
         :ignore-filter="true"
@@ -135,22 +136,27 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
         by="id"
         label-key="name"
         clear
-        placeholder="Seleccioná el equipamiento"
+        :placeholder="t('exercises.form.equipmentPlaceholder')"
         class="w-full"
       />
     </UFormField>
 
-    <UFormField label="URL del video" name="videoUrl">
+    <UFormField :label="t('exercises.form.videoUrl')" name="videoUrl">
       <UInput
         v-model="state.videoUrl"
-        placeholder="Ej: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        :placeholder="t('exercises.form.videoUrlExample')"
         class="w-full"
       />
     </UFormField>
 
     <div class="flex justify-end gap-3">
-      <UButton label="Cancelar" color="neutral" variant="ghost" to="/exercises" />
-      <UButton class="cursor-pointer" type="submit" label="Guardar" :loading />
+      <UButton
+        :label="t('common.actions.cancel')"
+        color="neutral"
+        variant="ghost"
+        to="/exercises"
+      />
+      <UButton class="cursor-pointer" type="submit" :label="t('common.actions.save')" :loading />
     </div>
   </UForm>
 </template>

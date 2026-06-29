@@ -18,8 +18,8 @@ export const trainerSchema = z.object({
 })
 
 export const createTrainerSchema = z.object({
-  fullName: z.string().min(1, 'El nombre es requerido'),
-  email: z.email('El email no es valido'),
+  fullName: z.string().min(1),
+  email: z.email(),
   phone: z.string().optional(),
 })
 

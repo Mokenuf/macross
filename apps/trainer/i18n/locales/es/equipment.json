@@ -1,0 +1,31 @@
+{
+  "equipment": {
+    "title": "Equipamiento",
+    "add": "Agregar Equipamiento",
+    "search": "Buscar equipamiento...",
+    "columns": {
+      "name": "Nombre"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar equipamiento..."
+    },
+    "form": {
+      "name": "Nombre",
+      "nameExample": "Ej: Mancuerna"
+    },
+    "detail": {},
+    "pages": {
+      "add": "Agregar Equipamiento",
+      "edit": "Editar Equipamiento",
+      "detail": "Detalle del equipamiento"
+    },
+    "toasts": {
+      "created": "Equipamiento creado",
+      "updated": "Equipamiento actualizado",
+      "deleted": "Equipamiento eliminado",
+      "createError": "No se pudo crear el equipamiento",
+      "updateError": "No se pudo actualizar el equipamiento",
+      "deleteError": "No se pudo eliminar el equipamiento"
+    }
+  }
+}

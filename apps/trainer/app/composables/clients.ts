@@ -48,6 +48,7 @@ export function useGetClient(nanoId: string) {
 }
 
 export function useCreateClient() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -58,15 +59,15 @@ export function useCreateClient() {
       await refreshNuxtData('clients')
       await navigateTo('/clients')
       toast.add({
-        title: 'Cliente invitado',
-        description: `Mail enviado a ${input.email}`,
+        title: t('clients.toasts.invited'),
+        description: t('clients.toasts.invitedDescription', { email: input.email }),
         color: 'success',
       })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('clients.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo invitar al cliente',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('clients.toasts.errorInviting'),
         color: 'error',
       })
     } finally {
@@ -78,6 +79,7 @@ export function useCreateClient() {
 }
 
 export function useUpdateClient() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -87,12 +89,12 @@ export function useUpdateClient() {
       await $fetch(`/api/clients/${nanoId}`, { method: 'PATCH', body: input })
       await refreshNuxtData('clients')
       navigateTo('/clients')
-      toast.add({ title: 'Cliente actualizado', color: 'success' })
+      toast.add({ title: t('clients.toasts.updated'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('clients.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo actualizar el cliente',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('clients.toasts.errorUpdating'),
         color: 'error',
       })
     } finally {
@@ -104,6 +106,7 @@ export function useUpdateClient() {
 }
 
 export function useDeleteClient() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -112,12 +115,12 @@ export function useDeleteClient() {
     try {
       await $fetch(`/api/clients/${nanoId}`, { method: 'DELETE' })
       await refreshNuxtData('clients')
-      toast.add({ title: 'Cliente eliminado', color: 'success' })
+      toast.add({ title: t('clients.toasts.deleted'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('clients.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo eliminar el cliente',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('clients.toasts.errorDeleting'),
         color: 'error',
       })
     } finally {
@@ -129,6 +132,7 @@ export function useDeleteClient() {
 }
 
 export function useReactivateClient() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -137,12 +141,12 @@ export function useReactivateClient() {
     try {
       await $fetch(`/api/clients/${nanoId}/reactivate`, { method: 'POST' })
       await refreshNuxtData('clients')
-      toast.add({ title: 'Cliente reactivado', color: 'success' })
+      toast.add({ title: t('clients.toasts.reactivated'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('clients.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo reactivar el cliente',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('clients.toasts.errorReactivating'),
       })
     } finally {
       pending.value = false

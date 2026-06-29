@@ -5,9 +5,14 @@ const route = useRoute()
 
 const { data: user } = useGetMe()
 
+const { t, te } = useI18n()
+
 const avatarText = computed(() => user?.value?.email?.charAt(0).toUpperCase())
-const routeTitle = computed(() => (route.meta.title as string) || 'Dashboard')
-useHead({ title: routeTitle.value })
+const routeTitle = computed(() => {
+  const title = route.meta.title as string | undefined
+  return title && te(title) ? t(title) : (title ?? t('nav.dashboard'))
+})
+useHead({ title: routeTitle })
 
 const isManager = computed(() => user.value?.role === 'manager')
 
@@ -19,47 +24,47 @@ async function handleLogout() {
 
 const navigation = computed<NavigationMenuItem[]>(() => [
   {
-    label: 'Dashboard',
+    label: t('nav.dashboard'),
     icon: 'i-lucide-layout-dashboard',
     to: '/',
   },
   {
-    label: 'Rutinas',
+    label: t('nav.routines'),
     icon: 'i-lucide-clipboard-list',
     to: '/routines',
   },
   {
-    label: 'Catálogos',
+    label: t('nav.catalog'),
     icon: 'i-lucide-book-open',
     defaultOpen: true,
     children: [
       {
-        label: 'Ejercicios',
+        label: t('nav.exercises'),
         to: '/exercises',
       },
       {
-        label: 'Grupos Musculares',
+        label: t('nav.muscleGroups'),
         to: '/muscle-groups',
       },
       {
-        label: 'Equipamiento',
+        label: t('nav.equipment'),
         to: '/equipment',
       },
     ],
   },
   {
-    label: 'Usuarios',
+    label: t('nav.users'),
     icon: 'i-lucide-users',
     defaultOpen: true,
     children: [
       {
-        label: 'Clientes',
+        label: t('nav.clients'),
         to: '/clients',
       },
       ...(isManager.value
         ? [
             {
-              label: 'Entrenadores',
+              label: t('nav.trainers'),
               to: '/trainers',
             },
           ]
@@ -105,7 +110,11 @@ const navigation = computed<NavigationMenuItem[]>(() => [
 
     <UDashboardPanel>
       <template #header>
-        <UDashboardNavbar :title="routeTitle" />
+        <UDashboardNavbar :title="routeTitle">
+          <template #right>
+            <LanguageSwitcher />
+          </template>
+        </UDashboardNavbar>
       </template>
 
       <template #body>

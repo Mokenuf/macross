@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { SetPassword } from '@macross/shared'
 
-definePageMeta({ layout: 'auth', title: 'Restablecer contraseña' })
+definePageMeta({ layout: 'auth', title: 'auth.resetPassword.title' })
 
+const { t } = useI18n()
 const { setPassword } = useSetPassword()
 const supabase = useSupabaseClient()
 
@@ -41,8 +42,8 @@ async function onSubmit(data: SetPassword) {
 
 <template>
   <div class="w-full max-w-md">
-    <h1 class="mb-6 text-2xl font-bold">Restablecer contraseña</h1>
-    <p class="mb-6 text-sm text-neutral-500">Elegí una nueva contraseña para tu cuenta.</p>
+    <h1 class="mb-6 text-2xl font-bold">{{ t('auth.resetPassword.title') }}</h1>
+    <p class="mb-6 text-sm text-neutral-500">{{ t('auth.resetPassword.description') }}</p>
     <SetPasswordForm :loading @submit="onSubmit" />
   </div>
 </template>

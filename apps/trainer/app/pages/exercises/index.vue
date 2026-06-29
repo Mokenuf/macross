@@ -4,7 +4,8 @@ import type { BaseResponse, Equipment, Exercise, MuscleGroup } from '@macross/sh
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Ejercicios' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'exercises.title' })
+const { t } = useI18n()
 
 const { exercises, pagination, loading, page, limit, search, equipmentIds, muscleGroupIds } =
   useGetExerciseList()
@@ -33,15 +34,15 @@ const filterConfig = computed<Filter[]>(() => [
   {
     type: 'search',
     key: 'search',
-    label: 'Buscar',
-    placeholder: 'Buscar ejercicio...',
+    label: t('filters.search'),
+    placeholder: t('exercises.search'),
     debounce: 300,
   },
   {
     type: 'select',
     key: 'muscleGroupIds',
-    label: 'Grupo muscular',
-    placeholder: 'Filtrar por grupo muscular',
+    label: t('exercises.filters.muscleGroup'),
+    placeholder: t('exercises.filters.muscleGroupPlaceholder'),
     options: muscleGroupOptions.value,
     searchable: true,
     multiple: true,
@@ -49,8 +50,8 @@ const filterConfig = computed<Filter[]>(() => [
   {
     type: 'select',
     key: 'equipmentIds',
-    label: 'Equipamiento',
-    placeholder: 'Filtrar por equipamiento',
+    label: t('exercises.filters.equipment'),
+    placeholder: t('exercises.filters.equipmentPlaceholder'),
     options: equipmentOptions.value,
     searchable: true,
     multiple: true,
@@ -63,20 +64,20 @@ const filterValues = computed(() => ({
   equipmentIds: equipmentIds.value,
 }))
 
-const columns: TableColumn<Exercise>[] = [
-  { accessorKey: 'name', header: 'Nombre' },
+const columns = computed<TableColumn<Exercise>[]>(() => [
+  { accessorKey: 'name', header: t('exercises.columns.name') },
   {
     accessorKey: 'muscleGroups',
-    header: 'Grupos Musculares',
+    header: t('exercises.columns.muscleGroups'),
     cell: ({ row }) => row.original.muscleGroups.map(mg => mg.name).join(', '),
   },
   {
     accessorKey: 'equipment',
-    header: 'Equipamiento',
+    header: t('exercises.columns.equipment'),
     cell: ({ row }) => row.original.equipment?.name ?? '—',
   },
-  { accessorKey: 'description', header: 'Descripción' },
-]
+  { accessorKey: 'description', header: t('exercises.columns.description') },
+])
 
 const actions: TableAction<Exercise>[] = [
   { type: 'view', href: row => `/exercises/${row.slug}` },
@@ -104,7 +105,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       />
       <UButton
         v-if="isManager"
-        label="Agregar Ejercicio"
+        :label="t('exercises.add')"
         icon="i-lucide-plus"
         color="primary"
         to="/exercises/add"

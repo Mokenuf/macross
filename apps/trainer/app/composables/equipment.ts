@@ -46,6 +46,7 @@ export function useGetEquipment(slug: string) {
 }
 
 export function useCreateEquipment() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -55,12 +56,12 @@ export function useCreateEquipment() {
       await $fetch('/api/equipment', { method: 'POST', body: input })
       await refreshNuxtData('equipment')
       await navigateTo('/equipment')
-      toast.add({ title: 'Equipamiento creado', color: 'success' })
+      toast.add({ title: t('equipment.toasts.created'), color: 'success' })
     } catch (e) {
       toast.add({
         title: 'Error',
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo crear el equipamiento',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('equipment.toasts.createError'),
         color: 'error',
       })
     } finally {
@@ -72,6 +73,7 @@ export function useCreateEquipment() {
 }
 
 export function useUpdateEquipment() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -81,13 +83,12 @@ export function useUpdateEquipment() {
       await $fetch(`/api/equipment/${slug}`, { method: 'PATCH', body: input })
       await refreshNuxtData('equipment')
       await navigateTo('/equipment')
-      toast.add({ title: 'Equipamiento actualizado', color: 'success' })
+      toast.add({ title: t('equipment.toasts.updated'), color: 'success' })
     } catch (e) {
       toast.add({
         title: 'Error',
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ??
-          'No se pudo actualizar el equipamiento',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('equipment.toasts.updateError'),
         color: 'error',
       })
     } finally {
@@ -98,6 +99,7 @@ export function useUpdateEquipment() {
 }
 
 export function useDeleteEquipment() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -106,12 +108,12 @@ export function useDeleteEquipment() {
     try {
       await $fetch(`/api/equipment/${slug}`, { method: 'DELETE' })
       await refreshNuxtData('equipment')
-      toast.add({ title: 'Equipamiento eliminado', color: 'success' })
+      toast.add({ title: t('equipment.toasts.deleted'), color: 'success' })
     } catch (e) {
       toast.add({
         title: 'Error',
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo eliminar el equipamiento',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('equipment.toasts.deleteError'),
         color: 'error',
       })
     } finally {

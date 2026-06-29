@@ -10,6 +10,8 @@ interface MuscleGroupFormEmits {
   submit: [payload: CreateMuscleGroup]
 }
 
+const { t } = useI18n()
+
 const { muscleGroup, loading = false } = defineProps<MuscleGroupFormProps>()
 const emit = defineEmits<MuscleGroupFormEmits>()
 
@@ -24,13 +26,22 @@ function onSubmit(event: FormSubmitEvent<CreateMuscleGroup>) {
 
 <template>
   <UForm :schema="createMuscleGroupSchema" :state class="space-y-4" @submit="onSubmit">
-    <UFormField label="Nombre" name="name" required>
-      <UInput v-model="state.name" placeholder="Ej: Pecho" class="w-full" />
+    <UFormField :label="t('muscle-groups.form.name')" name="name" required>
+      <UInput
+        v-model="state.name"
+        :placeholder="t('muscle-groups.form.namePlaceholder')"
+        class="w-full"
+      />
     </UFormField>
 
     <div class="flex justify-end gap-3">
-      <UButton label="Cancelar" color="neutral" variant="ghost" to="/muscle-groups" />
-      <UButton class="cursor-pointer" type="submit" label="Guardar" :loading />
+      <UButton
+        :label="t('common.actions.cancel')"
+        color="neutral"
+        variant="ghost"
+        to="/muscle-groups"
+      />
+      <UButton class="cursor-pointer" type="submit" :label="t('common.actions.save')" :loading />
     </div>
   </UForm>
 </template>

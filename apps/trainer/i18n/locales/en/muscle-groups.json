@@ -1,0 +1,30 @@
+{
+  "muscle-groups": {
+    "title": "Muscle Groups",
+    "add": "Add Muscle Group",
+    "columns": {
+      "name": "Name"
+    },
+    "filters": {
+      "placeholder": "Search muscle group..."
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "E.g.: Chest"
+    },
+    "detail": {
+      "title": "Muscle Group Details"
+    },
+    "edit": {
+      "title": "Edit Muscle Group"
+    },
+    "toasts": {
+      "created": "Muscle group created",
+      "updated": "Muscle group updated",
+      "deleted": "Muscle group deleted",
+      "createError": "Could not create muscle group",
+      "updateError": "Could not update muscle group",
+      "deleteError": "Could not delete muscle group"
+    }
+  }
+}

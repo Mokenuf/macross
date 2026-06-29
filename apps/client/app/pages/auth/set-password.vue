@@ -2,9 +2,11 @@
 import { setPasswordSchema, type SetPassword } from '@macross/shared'
 import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
 
-definePageMeta({ layout: 'auth' })
+definePageMeta({ layout: 'auth', title: 'auth.setPassword.title' })
 
-useHead({ title: 'Establecer contraseña' })
+const { t } = useI18n()
+
+useHead({ title: t('auth.setPassword.title') })
 
 const { setPassword } = useSetPassword()
 const supabase = useSupabaseClient()
@@ -14,15 +16,15 @@ const fields: AuthFormField[] = [
   {
     name: 'password',
     type: 'password',
-    label: 'Contraseña',
-    placeholder: 'Mínimo 8 caracteres',
+    label: t('auth.setPassword.password'),
+    placeholder: t('auth.setPassword.passwordPlaceholder'),
     required: true,
   },
   {
     name: 'confirm',
     type: 'password',
-    label: 'Repetir contraseña',
-    placeholder: 'Repetí tu contraseña',
+    label: t('auth.setPassword.confirm'),
+    placeholder: t('auth.setPassword.confirmPlaceholder'),
     required: true,
   },
 ]
@@ -65,7 +67,7 @@ async function onSubmit(event: FormSubmitEvent<SetPassword>) {
         <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
           Macros for progress
         </h1>
-        <p class="text-muted mt-2 text-sm">Creá tu contraseña para empezar a entrenar</p>
+        <p class="text-muted mt-2 text-sm">{{ t('auth.setPassword.description') }}</p>
       </div>
 
       <UAuthForm
@@ -73,7 +75,7 @@ async function onSubmit(event: FormSubmitEvent<SetPassword>) {
         :fields
         icon="i-lucide-lock"
         :submit="{
-          label: 'Guardar contraseña',
+          label: t('auth.setPassword.submit'),
           loading,
           size: 'lg',
           block: true,

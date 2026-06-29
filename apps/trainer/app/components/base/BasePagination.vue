@@ -14,6 +14,8 @@ interface BasePaginationEmits {
 const { page, limit, total } = defineProps<BasePaginationProps>()
 const emit = defineEmits<BasePaginationEmits>()
 
+const { t } = useI18n()
+
 const limitOptions: SelectItem[] = [
   { label: '20', value: 20 },
   { label: '50', value: 50 },
@@ -32,7 +34,7 @@ function onLimitChange(value: AcceptableValue | undefined) {
     <UPagination :page :items-per-page="limit" :total @update:page="emit('update:page', $event)" />
 
     <div class="flex items-center gap-2">
-      <span class="text-sm text-neutral-400">Resultados por página</span>
+      <span class="text-sm text-neutral-400">{{ t('common.pagination.perPage') }}</span>
       <USelectMenu
         :model-value="limit"
         :items="limitOptions"
