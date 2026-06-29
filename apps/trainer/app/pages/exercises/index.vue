@@ -7,7 +7,7 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Ejercicios' })
 
 const { exercises, pagination, loading, page, limit, search, equipmentIds, muscleGroupIds } =
-  useGetExercises()
+  useGetExerciseList()
 const { remove } = useDeleteExercise()
 const { data: user } = useGetMe()
 

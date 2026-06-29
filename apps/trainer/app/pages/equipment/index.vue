@@ -6,7 +6,7 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Equipamiento' })
 
-const { equipments, pagination, loading, page, limit, search } = useGetEquipments()
+const { equipments, pagination, loading, page, limit, search } = useGetEquipmentList()
 const { remove } = useDeleteEquipment()
 const { data: user } = useGetMe()
 

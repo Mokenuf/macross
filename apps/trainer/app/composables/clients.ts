@@ -10,7 +10,7 @@ import {
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
-export function useGetClients() {
+export function useGetClientList() {
   const filters = useQueryFilters<ClientFilters>({
     page: 1,
     limit: 20,
