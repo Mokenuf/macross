@@ -7,6 +7,7 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.title' })
 
 const { t } = useI18n()
+const { localizedName } = useLocalizedName()
 const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroupList()
 const { remove } = useDeleteMuscleGroup()
 const { data: user } = useGetMe()
@@ -26,7 +27,7 @@ const filterConfig = computed<Filter[]>(() => [
 const filterValues = computed(() => ({ search: search.value }))
 
 const columns = computed<TableColumn<MuscleGroup>[]>(() => [
-  { accessorKey: 'name', header: t('muscle-groups.columns.name') },
+  { id: 'name', header: t('muscle-groups.columns.name'), accessorFn: row => localizedName(row) },
 ])
 
 const actions: TableAction<MuscleGroup>[] = [
@@ -64,7 +65,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       :data="muscleGroups"
       :loading
       :pagination
-      :delete-label="row => row.name"
+      :delete-label="row => localizedName(row)"
       v-model:page="page"
       v-model:limit="limit"
     />

@@ -9,8 +9,10 @@
       "placeholder": "Buscar grupo muscular..."
     },
     "form": {
-      "name": "Nombre",
-      "namePlaceholder": "Ej: Pecho"
+      "nameEs": "Nombre (ES)",
+      "nameEn": "Nombre (EN)",
+      "nameEsPlaceholder": "Ej: Pecho",
+      "nameEnPlaceholder": "Ej: Chest"
     },
     "detail": {
       "title": "Detalle del grupo muscular"

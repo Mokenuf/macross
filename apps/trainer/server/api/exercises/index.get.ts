@@ -11,7 +11,7 @@ import {
 import { serverSupabaseClient } from '#supabase/server'
 
 const sortColumnMap: Record<string, string> = {
-  name: 'name',
+  name: 'name_es',
   createdAt: 'created_at',
 }
 
@@ -54,7 +54,9 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
     })
     .range(from, to)
   if (queryParams.search) {
-    supabaseQuery = supabaseQuery.ilike('name', `%${queryParams.search}%`)
+    supabaseQuery = supabaseQuery.or(
+      `name_es.ilike.%${queryParams.search}%,name_en.ilike.%${queryParams.search}%`,
+    )
   }
   if (queryParams.equipmentIds.length > 0) {
     supabaseQuery = supabaseQuery.in('equipment_id', queryParams.equipmentIds)

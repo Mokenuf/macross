@@ -2,6 +2,7 @@
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.detail.title' })
 
 const { t } = useI18n()
+const { localizedName } = useLocalizedName()
 const route = useRoute()
 const { slug } = route.params
 
@@ -14,7 +15,7 @@ const isManager = computed(() => user.value?.role === 'manager')
   <div class="mx-auto w-full max-w-2xl py-6">
     <div v-if="muscleGroup">
       <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold">{{ muscleGroup.name }}</h1>
+        <h1 class="text-2xl font-bold">{{ localizedName(muscleGroup) }}</h1>
         <UButton
           v-if="isManager"
           icon="i-lucide-pencil"

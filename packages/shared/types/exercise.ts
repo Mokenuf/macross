@@ -7,8 +7,10 @@ import { queryParamsSchema, type BaseFilters } from './query-params'
 export const exerciseSchema = z.object({
   id: z.uuid(),
   trainerId: z.uuid(),
-  name: z.string(),
-  description: z.string().nullable(),
+  nameEs: z.string(),
+  nameEn: z.string().nullable(),
+  descriptionEs: z.string().nullable(),
+  descriptionEn: z.string().nullable(),
   videoUrl: z.url().nullable(),
   muscleGroups: z.array(muscleGroupSchema),
   equipment: equipmentSchema.nullable(),
@@ -20,8 +22,10 @@ export const exerciseSchema = z.object({
 })
 
 export const createExerciseSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().optional(),
+  nameEs: z.string().min(1),
+  nameEn: z.string().min(1),
+  descriptionEs: z.string().optional(),
+  descriptionEn: z.string().optional(),
   videoUrl: z.preprocess(val => (val === '' ? undefined : val), z.url().optional()),
   muscleGroupIds: z.array(z.uuid()).optional().default([]),
   equipmentId: z.uuid().optional(),

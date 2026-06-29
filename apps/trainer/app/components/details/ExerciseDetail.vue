@@ -7,10 +7,13 @@ interface ExerciseDetailProps {
 
 const { exercise } = defineProps<ExerciseDetailProps>()
 const { t } = useI18n()
+const { localizedName, localizedText } = useLocalizedName()
 
 const muscleGroups = computed<string>(
-  () => exercise.muscleGroups?.map(mg => mg.name).join(', ') ?? '',
+  () => exercise.muscleGroups?.map(mg => localizedName(mg)).join(', ') ?? '',
 )
+
+const description = computed(() => localizedText(exercise.descriptionEs, exercise.descriptionEn))
 
 const youtubeEmbedUrl = computed(() => {
   if (!exercise.videoUrl) return null
@@ -39,13 +42,13 @@ const youtubeEmbedUrl = computed(() => {
 
       <div v-if="exercise.equipment">
         <h3 class="text-sm font-medium text-neutral-500">{{ t('exercises.detail.equipment') }}</h3>
-        <p class="mt-1">{{ exercise.equipment.name }}</p>
+        <p class="mt-1">{{ localizedName(exercise.equipment) }}</p>
       </div>
     </div>
 
-    <div v-if="exercise.description">
+    <div v-if="description">
       <h3 class="text-sm font-medium text-neutral-500">{{ t('exercises.detail.description') }}</h3>
-      <p class="mt-1 whitespace-pre-line">{{ exercise.description }}</p>
+      <p class="mt-1 whitespace-pre-line">{{ description }}</p>
     </div>
 
     <div v-if="youtubeEmbedUrl">

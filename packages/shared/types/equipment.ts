@@ -4,7 +4,8 @@ import { queryParamsSchema, type BaseFilters } from './query-params'
 
 export const equipmentSchema = z.object({
   id: z.uuid(),
-  name: z.string(),
+  nameEs: z.string(),
+  nameEn: z.string().nullable(),
   slug: z.string(),
   nanoId: z.string(),
   createdAt: z.string(),
@@ -13,7 +14,8 @@ export const equipmentSchema = z.object({
 })
 
 export const createEquipmentSchema = z.object({
-  name: z.string().min(1),
+  nameEs: z.string().min(1),
+  nameEn: z.string().min(1),
 })
 
 export const updateEquipmentSchema = createEquipmentSchema.extend({})

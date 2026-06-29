@@ -14,8 +14,12 @@ const { t } = useI18n()
 const { equipment, loading = false } = defineProps<EquipmentFormProps>()
 const emit = defineEmits<EquipmentFormEmits>()
 
+const form = useTemplateRef('form')
+useRevalidateOnLocale(() => form.value)
+
 const state = reactive<Partial<CreateEquipment>>({
-  name: equipment?.name ?? '',
+  nameEs: equipment?.nameEs ?? '',
+  nameEn: equipment?.nameEn ?? '',
 })
 
 function onSubmit(event: FormSubmitEvent<CreateEquipment>) {
@@ -24,9 +28,21 @@ function onSubmit(event: FormSubmitEvent<CreateEquipment>) {
 </script>
 
 <template>
-  <UForm :schema="createEquipmentSchema" :state class="space-y-4" @submit="onSubmit">
-    <UFormField :label="t('equipment.form.name')" name="name" required>
-      <UInput v-model="state.name" :placeholder="t('equipment.form.nameExample')" class="w-full" />
+  <UForm ref="form" :schema="createEquipmentSchema" :state class="space-y-4" @submit="onSubmit">
+    <UFormField :label="t('equipment.form.nameEs')" name="nameEs" required>
+      <UInput
+        v-model="state.nameEs"
+        :placeholder="t('equipment.form.nameEsExample')"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField :label="t('equipment.form.nameEn')" name="nameEn" required>
+      <UInput
+        v-model="state.nameEn"
+        :placeholder="t('equipment.form.nameEnExample')"
+        class="w-full"
+      />
     </UFormField>
 
     <div class="flex justify-end gap-3">

@@ -9,8 +9,10 @@
       "placeholder": "Search muscle group..."
     },
     "form": {
-      "name": "Name",
-      "namePlaceholder": "E.g.: Chest"
+      "nameEs": "Name (ES)",
+      "nameEn": "Name (EN)",
+      "nameEsPlaceholder": "E.g.: Pecho",
+      "nameEnPlaceholder": "E.g.: Chest"
     },
     "detail": {
       "title": "Muscle Group Details"

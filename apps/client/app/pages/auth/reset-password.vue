@@ -11,6 +11,9 @@ useHead({ title: t('auth.resetPassword.title') })
 const { setPassword } = useSetPassword()
 const supabase = useSupabaseClient()
 
+const authForm = useTemplateRef('authForm')
+useRevalidateOnLocale(() => authForm.value?.formRef ?? null)
+
 const loading = ref(false)
 const fields: AuthFormField[] = [
   {
@@ -71,6 +74,7 @@ async function onSubmit(event: FormSubmitEvent<SetPassword>) {
       </div>
 
       <UAuthForm
+        ref="authForm"
         :schema="setPasswordSchema"
         :fields
         icon="i-lucide-lock"

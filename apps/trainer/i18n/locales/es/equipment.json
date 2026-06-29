@@ -10,8 +10,10 @@
       "searchPlaceholder": "Buscar equipamiento..."
     },
     "form": {
-      "name": "Nombre",
-      "nameExample": "Ej: Mancuerna"
+      "nameEs": "Nombre (ES)",
+      "nameEn": "Nombre (EN)",
+      "nameEsExample": "Ej: Mancuerna",
+      "nameEnExample": "Ej: Dumbbell"
     },
     "detail": {},
     "pages": {
