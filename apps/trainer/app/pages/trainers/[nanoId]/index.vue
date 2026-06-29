@@ -1,5 +1,7 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Detalle del entrenador' })
+const { t } = useI18n()
+
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'trainers.detail.title' })
 
 const route = useRoute()
 const { nanoId } = route.params
@@ -17,7 +19,7 @@ const isManager = computed(() => user.value?.role === 'manager')
         <UButton
           v-if="isManager"
           icon="i-lucide-pencil"
-          label="Editar"
+          :label="t('common.actions.edit')"
           :to="`/trainers/${trainer.nanoId}/edit`"
         />
       </div>

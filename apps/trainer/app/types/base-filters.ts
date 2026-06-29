@@ -14,6 +14,9 @@ export interface SearchFilter extends BaseFilter {
 export interface SelectFilter extends BaseFilter {
   type: 'select'
   options: SelectItem[]
+  searchable?: boolean
+  multiple?: boolean
+  default?: string | string[] // valor al que "Limpiar filtros" resetea (ej: status → 'active')
 }
 
 export type Filter = SearchFilter | SelectFilter

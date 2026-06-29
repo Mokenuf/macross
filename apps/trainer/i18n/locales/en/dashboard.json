@@ -1,0 +1,10 @@
+{
+  "dashboard": {
+    "greeting": "Hi, {name}",
+    "welcome": "Welcome to the Macros for progress panel.",
+    "roles": {
+      "manager": "Manager",
+      "trainer": "Trainer"
+    }
+  }
+}

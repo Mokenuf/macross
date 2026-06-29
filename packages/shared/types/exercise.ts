@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { equipmentSchema } from './equipment'
 import { muscleGroupSchema } from './muscle-group'
 import { queryParamsSchema, type BaseFilters } from './query-params'
 
@@ -10,6 +11,7 @@ export const exerciseSchema = z.object({
   description: z.string().nullable(),
   videoUrl: z.url().nullable(),
   muscleGroups: z.array(muscleGroupSchema),
+  equipment: equipmentSchema.nullable(),
   slug: z.string(),
   nanoId: z.string(),
   createdAt: z.string(),
@@ -18,10 +20,11 @@ export const exerciseSchema = z.object({
 })
 
 export const createExerciseSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido'),
+  name: z.string().min(1),
   description: z.string().optional(),
   videoUrl: z.preprocess(val => (val === '' ? undefined : val), z.url().optional()),
   muscleGroupIds: z.array(z.uuid()).optional().default([]),
+  equipmentId: z.uuid().optional(),
 })
 
 export const updateExerciseSchema = createExerciseSchema.extend({})
@@ -36,8 +39,15 @@ export const exerciseWithPivotSchema = exerciseSchema.omit({ muscleGroups: true 
 
 export const exerciseSortSchema = z.enum(['name', 'createdAt'])
 
+const idArrayParam = z.preprocess(
+  val => (val === undefined || val === '' ? [] : Array.isArray(val) ? val : [val]),
+  z.array(z.uuid()),
+)
+
 export const exerciseQueryParamsSchema = queryParamsSchema.extend({
   sort: exerciseSortSchema.default('createdAt'),
+  equipmentIds: idArrayParam,
+  muscleGroupIds: idArrayParam,
 })
 
 export type Exercise = z.infer<typeof exerciseSchema>
@@ -49,4 +59,6 @@ export type ExerciseSortOptions = z.infer<typeof exerciseSortSchema>
 
 export type ExerciseFilters = BaseFilters & {
   sort: ExerciseSortOptions
+  equipmentIds: string[]
+  muscleGroupIds: string[]
 }

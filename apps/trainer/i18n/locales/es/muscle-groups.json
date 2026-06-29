@@ -1,0 +1,30 @@
+{
+  "muscle-groups": {
+    "title": "Grupos Musculares",
+    "add": "Agregar Grupo Muscular",
+    "columns": {
+      "name": "Nombre"
+    },
+    "filters": {
+      "placeholder": "Buscar grupo muscular..."
+    },
+    "form": {
+      "name": "Nombre",
+      "namePlaceholder": "Ej: Pecho"
+    },
+    "detail": {
+      "title": "Detalle del grupo muscular"
+    },
+    "edit": {
+      "title": "Editar Grupo Muscular"
+    },
+    "toasts": {
+      "created": "Grupo muscular creado",
+      "updated": "Grupo muscular actualizado",
+      "deleted": "Grupo muscular eliminado",
+      "createError": "No se pudo crear el grupo muscular",
+      "updateError": "No se pudo actualizar el grupo muscular",
+      "deleteError": "No se pudo eliminar el grupo muscular"
+    }
+  }
+}

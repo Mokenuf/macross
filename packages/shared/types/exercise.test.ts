@@ -88,4 +88,47 @@ describe('exerciseQueryParamsSchema', () => {
       expect(result.data.limit).toBe(50)
     }
   })
+
+  it('aplica array vacio por default a equipmentIds y muscleGroupIds', () => {
+    const result = exerciseQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.equipmentIds).toEqual([])
+      expect(result.data.muscleGroupIds).toEqual([])
+    }
+  })
+
+  it('convierte string vacio a array vacio (preprocess)', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ equipmentIds: '', muscleGroupIds: '' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.equipmentIds).toEqual([])
+      expect(result.data.muscleGroupIds).toEqual([])
+    }
+  })
+
+  it('envuelve un uuid suelto en array (preprocess)', () => {
+    const result = exerciseQueryParamsSchema.safeParse({
+      muscleGroupIds: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.muscleGroupIds).toEqual(['a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'])
+    }
+  })
+
+  it('acepta un array de uuids', () => {
+    const result = exerciseQueryParamsSchema.safeParse({
+      equipmentIds: [
+        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        'b1ffdc88-8d1a-4af7-aa5c-5aa8ac270b22',
+      ],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rechaza un array con uuid invalido', () => {
+    const result = exerciseQueryParamsSchema.safeParse({ equipmentIds: ['no-es-uuid'] })
+    expect(result.success).toBe(false)
+  })
 })

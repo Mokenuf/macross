@@ -19,5 +19,20 @@ export default defineEventHandler(async event => {
     })
   }
 
+  // El auth.users del cliente soft-deleted sigue vivo hay que bloquearlo.
+  const { data: profile } = await client
+    .from('clients')
+    .select('deleted_at')
+    .eq('id', data.user.id)
+    .maybeSingle()
+
+  if (!profile || profile.deleted_at) {
+    await client.auth.signOut()
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Tu cuenta está desactivada. Contactá a tu entrenador.',
+    })
+  }
+
   return { user: data.user, session: data.session }
 })

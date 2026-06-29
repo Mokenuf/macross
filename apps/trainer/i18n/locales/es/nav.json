@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "routines": "Rutinas",
+    "catalog": "Catálogos",
+    "exercises": "Ejercicios",
+    "muscleGroups": "Grupos Musculares",
+    "equipment": "Equipamiento",
+    "users": "Usuarios",
+    "clients": "Clientes",
+    "trainers": "Entrenadores",
+    "logout": "Cerrar sesión"
+  }
+}

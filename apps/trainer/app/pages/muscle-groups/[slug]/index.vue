@@ -1,6 +1,7 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Detalle del grupo muscular' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.detail.title' })
 
+const { t } = useI18n()
 const route = useRoute()
 const { slug } = route.params
 
@@ -17,7 +18,7 @@ const isManager = computed(() => user.value?.role === 'manager')
         <UButton
           v-if="isManager"
           icon="i-lucide-pencil"
-          label="Editar"
+          :label="t('common.actions.edit')"
           :to="`/muscle-groups/${muscleGroup.slug}/edit`"
         />
       </div>

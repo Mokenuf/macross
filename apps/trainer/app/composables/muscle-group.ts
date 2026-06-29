@@ -10,7 +10,7 @@ import {
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
-export function useGetMuscleGroups() {
+export function useGetMuscleGroupList() {
   const filters = useQueryFilters<MuscleGroupFilters>({
     page: 1,
     limit: 20,
@@ -49,6 +49,7 @@ export function useGetMuscleGroup(slug: string) {
 }
 
 export function useCreateMuscleGroup() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -58,12 +59,12 @@ export function useCreateMuscleGroup() {
       await $fetch('/api/muscle-groups', { method: 'POST', body: input })
       await refreshNuxtData('muscle-groups')
       await navigateTo('/muscle-groups')
-      toast.add({ title: 'Grupo muscular creado', color: 'success' })
+      toast.add({ title: t('muscle-groups.toasts.created'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo crear el grupo muscular',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('muscle-groups.toasts.createError'),
         color: 'error',
       })
     } finally {
@@ -75,6 +76,7 @@ export function useCreateMuscleGroup() {
 }
 
 export function useUpdateMuscleGroup() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -84,13 +86,12 @@ export function useUpdateMuscleGroup() {
       await $fetch(`/api/muscle-groups/${slug}`, { method: 'PATCH', body: input })
       await refreshNuxtData('muscle-groups')
       await navigateTo('/muscle-groups')
-      toast.add({ title: 'Grupo muscular actualizado', color: 'success' })
+      toast.add({ title: t('muscle-groups.toasts.updated'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ??
-          'No se pudo actualizar el grupo muscular',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('muscle-groups.toasts.updateError'),
         color: 'error',
       })
     } finally {
@@ -101,6 +102,7 @@ export function useUpdateMuscleGroup() {
 }
 
 export function useDeleteMuscleGroup() {
+  const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
@@ -109,13 +111,12 @@ export function useDeleteMuscleGroup() {
     try {
       await $fetch(`/api/muscle-groups/${slug}`, { method: 'DELETE' })
       await refreshNuxtData('muscle-groups')
-      toast.add({ title: 'Grupo muscular eliminado', color: 'success' })
+      toast.add({ title: t('muscle-groups.toasts.deleted'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ??
-          'No se pudo eliminar el grupo muscular',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('muscle-groups.toasts.deleteError'),
         color: 'error',
       })
     } finally {

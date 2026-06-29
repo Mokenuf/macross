@@ -10,6 +10,7 @@ interface SetPasswordFormEmits {
   submit: [payload: SetPassword]
 }
 
+const { t } = useI18n()
 const { loading } = defineProps<SetPasswordFormProps>()
 const emit = defineEmits<SetPasswordFormEmits>()
 
@@ -22,14 +23,14 @@ function onSubmit(event: FormSubmitEvent<SetPassword>) {
 
 <template>
   <UForm :schema="setPasswordSchema" :state class="space-y-4" @submit="onSubmit">
-    <UFormField label="Contraseña" name="password" required>
+    <UFormField :label="t('auth.setPassword.passwordLabel')" name="password" required>
       <UInput v-model="state.password" type="password" class="w-full" />
     </UFormField>
 
-    <UFormField label="Repetir contraseña" name="confirm" required>
+    <UFormField :label="t('auth.setPassword.confirmPasswordLabel')" name="confirm" required>
       <UInput v-model="state.confirm" type="password" class="w-full" />
     </UFormField>
 
-    <UButton type="submit" label="Guardar" :loading block />
+    <UButton type="submit" :label="t('common.actions.save')" :loading block />
   </UForm>
 </template>

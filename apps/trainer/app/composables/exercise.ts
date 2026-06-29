@@ -10,13 +10,15 @@ import {
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
-export function useGetExercises() {
+export function useGetExerciseList() {
   const filters = useQueryFilters<ExerciseFilters>({
     page: 1,
     limit: 20,
     search: '',
     sort: 'createdAt',
     order: 'desc',
+    equipmentIds: [],
+    muscleGroupIds: [],
   })
 
   const { data, pending, refresh, error } = useFetch<BaseResponse<Exercise>>('/api/exercises', {
@@ -48,6 +50,7 @@ export function useGetExercise(slug: string) {
 export function useCreateExercise() {
   const pending = ref(false)
   const toast = useToast()
+  const { t } = useI18n()
 
   async function create(input: CreateExercise) {
     pending.value = true
@@ -55,12 +58,12 @@ export function useCreateExercise() {
       await $fetch('/api/exercises', { method: 'POST', body: input })
       await refreshNuxtData('exercises')
       await navigateTo('/exercises')
-      toast.add({ title: 'Ejercicio creado', color: 'success' })
+      toast.add({ title: t('exercises.toasts.created'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo crear el ejercicio',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('exercises.toasts.createError'),
         color: 'error',
       })
     } finally {
@@ -74,6 +77,7 @@ export function useCreateExercise() {
 export function useUpdateExercise() {
   const pending = ref(false)
   const toast = useToast()
+  const { t } = useI18n()
 
   async function update(slug: string, input: UpdateExercise) {
     pending.value = true
@@ -81,12 +85,12 @@ export function useUpdateExercise() {
       await $fetch(`/api/exercises/${slug}`, { method: 'PATCH', body: input })
       await refreshNuxtData('exercises')
       await navigateTo('/exercises')
-      toast.add({ title: 'Ejercicio actualizado', color: 'success' })
+      toast.add({ title: t('exercises.toasts.updated'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo actualizar el ejercicio',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('exercises.toasts.updateError'),
         color: 'error',
       })
     } finally {
@@ -100,18 +104,19 @@ export function useUpdateExercise() {
 export function useDeleteExercise() {
   const pending = ref(false)
   const toast = useToast()
+  const { t } = useI18n()
 
   async function remove(slug: string) {
     pending.value = true
     try {
       await $fetch(`/api/exercises/${slug}`, { method: 'DELETE' })
       await refreshNuxtData('exercises')
-      toast.add({ title: 'Ejercicio eliminado', color: 'success' })
+      toast.add({ title: t('exercises.toasts.deleted'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo eliminar el ejercicio',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('exercises.toasts.deleteError'),
         color: 'error',
       })
     } finally {

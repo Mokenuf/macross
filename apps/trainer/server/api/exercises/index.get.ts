@@ -22,13 +22,32 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
   )
   const client = await serverSupabaseClient(event)
 
+  // Filtrar el embed recortaría muscleGroups a solo los grupos filtrados y rompería el count: en su
+  // lugar traemos los exercise_id que pegan a cualquiera (OR) y filtramos el query con .in('id', ...).
+  let muscleGroupExerciseIds: string[] | null = null
+  if (queryParams.muscleGroupIds.length > 0) {
+    const { data: pivotRows, error: pivotError } = await client
+      .from('exercise_muscle_groups')
+      .select('exercise_id')
+      .in('muscle_group_id', queryParams.muscleGroupIds)
+
+    if (pivotError)
+      throw createError({
+        statusCode: 500,
+        statusMessage: pivotError.message ?? 'Error al filtrar por grupo muscular',
+      })
+
+    muscleGroupExerciseIds = [...new Set((pivotRows ?? []).map(r => r.exercise_id))]
+  }
+
   const from = (queryParams.page - 1) * queryParams.limit
   const to = from + queryParams.limit - 1
 
   let supabaseQuery = client
     .from('exercises')
-    .select('*, exercise_muscle_groups(muscle_groups!inner(*))', { count: 'exact' })
+    .select('*, equipment(*), exercise_muscle_groups(muscle_groups!inner(*))', { count: 'exact' })
     .is('deleted_at', null)
+    .is('equipment.deleted_at', null)
     .is('exercise_muscle_groups.muscle_groups.deleted_at', null)
     .order(sortColumnMap[queryParams.sort] ?? 'created_at', {
       ascending: queryParams.order === 'asc',
@@ -36,6 +55,12 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
     .range(from, to)
   if (queryParams.search) {
     supabaseQuery = supabaseQuery.ilike('name', `%${queryParams.search}%`)
+  }
+  if (queryParams.equipmentIds.length > 0) {
+    supabaseQuery = supabaseQuery.in('equipment_id', queryParams.equipmentIds)
+  }
+  if (muscleGroupExerciseIds !== null) {
+    supabaseQuery = supabaseQuery.in('id', muscleGroupExerciseIds)
   }
 
   const { data, error, count } = await supabaseQuery

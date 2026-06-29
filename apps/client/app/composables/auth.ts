@@ -3,16 +3,17 @@ import type { FetchError } from 'ofetch'
 
 export function useLogin() {
   const toast = useToast()
+  const { t } = useI18n()
 
   async function login(input: Login) {
     try {
       await $fetch('/api/auth/login', { method: 'POST', body: input })
-      toast.add({ title: 'Bienvenido', color: 'success' })
+      toast.add({ title: t('auth.toasts.loginSuccess'), color: 'success' })
       await navigateTo('/', { external: true })
     } catch (e) {
       toast.add({
-        title: 'Error',
-        description: (e as FetchError<ApiError>).data?.statusMessage ?? 'Algo salió mal',
+        title: t('auth.toasts.error'),
+        description: (e as FetchError<ApiError>).data?.statusMessage ?? t('auth.errors.generic'),
         color: 'error',
       })
     }
@@ -23,10 +24,11 @@ export function useLogin() {
 
 export function useLogout() {
   const toast = useToast()
+  const { t } = useI18n()
 
   async function logout() {
     await $fetch('/api/auth/logout', { method: 'POST' })
-    toast.add({ title: 'Adios', color: 'success' })
+    toast.add({ title: t('auth.toasts.logoutSuccess'), color: 'success' })
     await navigateTo('/auth/login', { external: true })
   }
 
@@ -35,20 +37,20 @@ export function useLogout() {
 
 export function useRequestPasswordReset() {
   const toast = useToast()
+  const { t } = useI18n()
 
   async function requestPasswordReset(input: RequestPasswordReset) {
     try {
       await $fetch('/api/auth/forgot-password', { method: 'POST', body: input })
       toast.add({
-        title: 'Revisá tu correo',
-        description:
-          'Si el email está registrado, te enviamos un link para restablecer tu contraseña.',
+        title: t('auth.toasts.passwordResetRequested'),
+        description: t('auth.toasts.passwordResetDescription'),
         color: 'success',
       })
     } catch (e) {
       toast.add({
-        title: 'Error',
-        description: (e as FetchError<ApiError>).data?.statusMessage ?? 'Algo salió mal',
+        title: t('auth.toasts.error'),
+        description: (e as FetchError<ApiError>).data?.statusMessage ?? t('auth.errors.generic'),
         color: 'error',
       })
     }
@@ -59,16 +61,17 @@ export function useRequestPasswordReset() {
 
 export function useSetPassword() {
   const toast = useToast()
+  const { t } = useI18n()
 
   async function setPassword(input: SetPassword) {
     try {
       await $fetch('/api/auth/set-password', { method: 'POST', body: input })
-      toast.add({ title: 'Contraseña actualizada', color: 'success' })
+      toast.add({ title: t('auth.toasts.passwordUpdated'), color: 'success' })
       await navigateTo('/', { external: true })
     } catch (e) {
       toast.add({
-        title: 'Error',
-        description: (e as FetchError<ApiError>).data?.statusMessage ?? 'Algo salió mal',
+        title: t('auth.toasts.error'),
+        description: (e as FetchError<ApiError>).data?.statusMessage ?? t('auth.errors.generic'),
         color: 'error',
       })
     }

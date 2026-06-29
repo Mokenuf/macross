@@ -1,0 +1,51 @@
+{
+  "exercises": {
+    "title": "Exercises",
+    "add": "Add Exercise",
+    "search": "Search exercise...",
+    "columns": {
+      "name": "Name",
+      "muscleGroups": "Muscle Groups",
+      "equipment": "Equipment",
+      "description": "Description"
+    },
+    "filters": {
+      "muscleGroup": "Muscle group",
+      "muscleGroupPlaceholder": "Filter by muscle group",
+      "equipment": "Equipment",
+      "equipmentPlaceholder": "Filter by equipment",
+      "searchPlaceholder": "Search..."
+    },
+    "form": {
+      "name": "Name",
+      "nameExample": "E.g: Bulgarian squat",
+      "description": "Description",
+      "descriptionPlaceholder": "Exercise description",
+      "muscleGroup": "Muscle group",
+      "muscleGroupPlaceholder": "Select one or more muscle groups",
+      "equipment": "Equipment",
+      "equipmentPlaceholder": "Select the equipment",
+      "videoUrl": "Video URL",
+      "videoUrlExample": "E.g: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    },
+    "detail": {
+      "muscleGroups": "Muscle groups",
+      "equipment": "Equipment",
+      "description": "Description",
+      "video": "Video"
+    },
+    "pages": {
+      "add": "Add exercise",
+      "edit": "Edit exercise",
+      "detail": "Exercise detail"
+    },
+    "toasts": {
+      "created": "Exercise created",
+      "updated": "Exercise updated",
+      "deleted": "Exercise deleted",
+      "createError": "Could not create exercise",
+      "updateError": "Could not update exercise",
+      "deleteError": "Could not delete exercise"
+    }
+  }
+}

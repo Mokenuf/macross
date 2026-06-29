@@ -5,21 +5,30 @@ import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
 definePageMeta({
   layout: 'auth',
   middleware: 'guest',
+  title: 'auth.login.title',
 })
 
-useHead({ title: 'Iniciar sesión' })
+const { t } = useI18n()
+
+useHead({ title: t('auth.login.title') })
 
 const { login } = useLogin()
 
 const loading = ref(false)
 const error = ref('')
 const fields: AuthFormField[] = [
-  { name: 'email', type: 'email', label: 'Email', placeholder: 'Ingresa tu email', required: true },
+  {
+    name: 'email',
+    type: 'email',
+    label: t('auth.login.email'),
+    placeholder: t('auth.login.emailPlaceholder'),
+    required: true,
+  },
   {
     name: 'password',
     type: 'password',
-    label: 'Contraseña',
-    placeholder: 'Ingresa tu contraseña',
+    label: t('auth.login.password'),
+    placeholder: t('auth.login.passwordPlaceholder'),
     required: true,
   },
 ]
@@ -31,7 +40,7 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
   try {
     await login(event.data)
   } catch (e) {
-    error.value = 'Email o contraseña incorrectos'
+    error.value = t('auth.errors.invalidCredentials')
   } finally {
     loading.value = false
   }
@@ -50,13 +59,19 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
       :schema="loginSchema"
       :fields
       icon="i-lucide-log-in"
-      :submit="{ label: 'Ingresar', loading, size: 'lg', block: true, class: 'cursor-pointer' }"
+      :submit="{
+        label: t('auth.login.submit'),
+        loading,
+        size: 'lg',
+        block: true,
+        class: 'cursor-pointer',
+      }"
       @submit="handleSubmit"
     />
 
     <div class="mt-4 text-center">
       <ULink to="/auth/forgot-password" class="hover:text-primary text-muted text-sm">
-        ¿Olvidaste tu contraseña?
+        {{ t('auth.login.forgotPassword') }}
       </ULink>
     </div>
   </div>

@@ -32,6 +32,7 @@ export default defineEventHandler(async event => {
       name: body.name,
       description: body.description ?? null,
       video_url: body.videoUrl ?? null,
+      equipment_id: body.equipmentId ?? null,
       slug,
     })
     .select()
@@ -60,7 +61,7 @@ export default defineEventHandler(async event => {
 
   const { data, error } = await client
     .from('exercises')
-    .select('*, exercise_muscle_groups(muscle_groups(*))')
+    .select('*, equipment(*), exercise_muscle_groups(muscle_groups(*))')
     .eq('id', insertedExercise.id)
     .single()
 

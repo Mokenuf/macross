@@ -1,38 +1,83 @@
 <script setup lang="ts">
-import type { Exercise } from '@macross/shared'
+import type { BaseResponse, Equipment, Exercise, MuscleGroup } from '@macross/shared'
 
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Ejercicios' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'exercises.title' })
+const { t } = useI18n()
 
-const { exercises, pagination, loading, page, limit, search } = useGetExercises()
+const { exercises, pagination, loading, page, limit, search, equipmentIds, muscleGroupIds } =
+  useGetExerciseList()
 const { remove } = useDeleteExercise()
 const { data: user } = useGetMe()
 
+const { data: muscleGroupsData } = useFetch<BaseResponse<MuscleGroup>>('/api/muscle-groups', {
+  key: 'muscle-groups-select',
+  query: { limit: 100 },
+})
+const { data: equipmentData } = useFetch<BaseResponse<Equipment>>('/api/equipment', {
+  key: 'equipment-select',
+  query: { limit: 100 },
+})
+
 const isManager = computed(() => user.value?.role === 'manager')
 
-const filterConfig: Filter[] = [
+const muscleGroupOptions = computed(() =>
+  (muscleGroupsData.value?.rows ?? []).map(mg => ({ label: mg.name, value: mg.id })),
+)
+const equipmentOptions = computed(() =>
+  (equipmentData.value?.rows ?? []).map(e => ({ label: e.name, value: e.id })),
+)
+
+const filterConfig = computed<Filter[]>(() => [
   {
     type: 'search',
     key: 'search',
-    label: 'Buscar',
-    placeholder: 'Buscar ejercicio...',
+    label: t('filters.search'),
+    placeholder: t('exercises.search'),
     debounce: 300,
   },
-]
+  {
+    type: 'select',
+    key: 'muscleGroupIds',
+    label: t('exercises.filters.muscleGroup'),
+    placeholder: t('exercises.filters.muscleGroupPlaceholder'),
+    options: muscleGroupOptions.value,
+    searchable: true,
+    multiple: true,
+  },
+  {
+    type: 'select',
+    key: 'equipmentIds',
+    label: t('exercises.filters.equipment'),
+    placeholder: t('exercises.filters.equipmentPlaceholder'),
+    options: equipmentOptions.value,
+    searchable: true,
+    multiple: true,
+  },
+])
 
-const filterValues = computed(() => ({ search: search.value }))
+const filterValues = computed(() => ({
+  search: search.value,
+  muscleGroupIds: muscleGroupIds.value,
+  equipmentIds: equipmentIds.value,
+}))
 
-const columns: TableColumn<Exercise>[] = [
-  { accessorKey: 'name', header: 'Nombre' },
+const columns = computed<TableColumn<Exercise>[]>(() => [
+  { accessorKey: 'name', header: t('exercises.columns.name') },
   {
     accessorKey: 'muscleGroups',
-    header: 'Grupos Musculares',
+    header: t('exercises.columns.muscleGroups'),
     cell: ({ row }) => row.original.muscleGroups.map(mg => mg.name).join(', '),
   },
-  { accessorKey: 'description', header: 'Descripción' },
-]
+  {
+    accessorKey: 'equipment',
+    header: t('exercises.columns.equipment'),
+    cell: ({ row }) => row.original.equipment?.name ?? '—',
+  },
+  { accessorKey: 'description', header: t('exercises.columns.description') },
+])
 
 const actions: TableAction<Exercise>[] = [
   { type: 'view', href: row => `/exercises/${row.slug}` },
@@ -40,15 +85,19 @@ const actions: TableAction<Exercise>[] = [
   { type: 'delete', onSelect: row => remove(row.slug), visible: isManager },
 ]
 
-function onFilterUpdate({ key, value }: { key: string; value: string | number }) {
-  const map: Record<string, Ref | WritableComputedRef<string | number>> = { search }
+function onFilterUpdate({ key, value }: { key: string; value: string | number | string[] }) {
+  const map: Record<string, Ref | WritableComputedRef<string | number | string[]>> = {
+    search,
+    muscleGroupIds,
+    equipmentIds,
+  }
   if (map[key]) map[key].value = value
 }
 </script>
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between">
+    <div class="flex items-end justify-between">
       <BaseFilters
         :filters="filterConfig"
         :values="filterValues"
@@ -56,7 +105,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number })
       />
       <UButton
         v-if="isManager"
-        label="Agregar Ejercicio"
+        :label="t('exercises.add')"
         icon="i-lucide-plus"
         color="primary"
         to="/exercises/add"

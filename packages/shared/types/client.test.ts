@@ -125,6 +125,89 @@ describe('updateClientSchema', () => {
     })
     expect(result.success).toBe(false)
   })
+
+  it('acepta los campos de entrenamiento validos', () => {
+    const result = updateClientSchema.safeParse({
+      fullName: 'Fran Racciatti',
+      birthDate: '1995-03-15',
+      weightKg: 72.5,
+      heightCm: 178,
+      level: 'intermediate',
+      goal: ['hypertrophy', 'strength'],
+      desiredWeeklyFrequency: 4,
+      injuries: 'Dolor lumbar',
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('convierte level "" a undefined via preprocess', () => {
+    const result = updateClientSchema.safeParse({ fullName: 'Fran', level: '' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.level).toBeUndefined()
+    }
+  })
+
+  it('acepta goal como array de multiples objetivos', () => {
+    const result = updateClientSchema.safeParse({
+      fullName: 'Fran',
+      goal: ['hypertrophy', 'fat_loss'],
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.goal).toEqual(['hypertrophy', 'fat_loss'])
+    }
+  })
+
+  it('rechaza level fuera del enum', () => {
+    const result = updateClientSchema.safeParse({ fullName: 'Fran', level: 'experto' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rechaza goal con un valor fuera del enum', () => {
+    const result = updateClientSchema.safeParse({ fullName: 'Fran', goal: ['volumen'] })
+    expect(result.success).toBe(false)
+  })
+
+  it('rechaza goal si no es un array', () => {
+    const result = updateClientSchema.safeParse({ fullName: 'Fran', goal: 'hypertrophy' })
+    expect(result.success).toBe(false)
+  })
+
+  it('coerciona weightKg y heightCm de string a number', () => {
+    const result = updateClientSchema.safeParse({
+      fullName: 'Fran',
+      weightKg: '72.5',
+      heightCm: '178',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.weightKg).toBe(72.5)
+      expect(result.data.heightCm).toBe(178)
+    }
+  })
+
+  it('rechaza weightKg negativo o cero', () => {
+    expect(updateClientSchema.safeParse({ fullName: 'Fran', weightKg: -5 }).success).toBe(false)
+    expect(updateClientSchema.safeParse({ fullName: 'Fran', weightKg: 0 }).success).toBe(false)
+  })
+
+  it('coerciona desiredWeeklyFrequency de string a number', () => {
+    const result = updateClientSchema.safeParse({ fullName: 'Fran', desiredWeeklyFrequency: '4' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.desiredWeeklyFrequency).toBe(4)
+    }
+  })
+
+  it('rechaza desiredWeeklyFrequency fuera del rango 1-7', () => {
+    expect(
+      updateClientSchema.safeParse({ fullName: 'Fran', desiredWeeklyFrequency: 0 }).success,
+    ).toBe(false)
+    expect(
+      updateClientSchema.safeParse({ fullName: 'Fran', desiredWeeklyFrequency: 8 }).success,
+    ).toBe(false)
+  })
 })
 
 describe('clientQueryParamsSchema', () => {
@@ -182,5 +265,24 @@ describe('clientQueryParamsSchema', () => {
       expect(result.data.page).toBe(2)
       expect(result.data.limit).toBe(50)
     }
+  })
+
+  it('aplica status=active por default', () => {
+    const result = clientQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.status).toBe('active')
+    }
+  })
+
+  it('acepta los valores validos de status', () => {
+    expect(clientQueryParamsSchema.safeParse({ status: 'all' }).success).toBe(true)
+    expect(clientQueryParamsSchema.safeParse({ status: 'active' }).success).toBe(true)
+    expect(clientQueryParamsSchema.safeParse({ status: 'deleted' }).success).toBe(true)
+  })
+
+  it('rechaza status fuera del enum', () => {
+    const result = clientQueryParamsSchema.safeParse({ status: 'archived' })
+    expect(result.success).toBe(false)
   })
 })

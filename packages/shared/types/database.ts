@@ -10,40 +10,67 @@ export type Database = {
     Tables: {
       clients: {
         Row: {
+          available_equipment: string | null
           avatar_url: string | null
+          birth_date: string | null
           created_at: string
           deleted_at: string | null
+          desired_weekly_frequency: number | null
           email: string
           full_name: string
+          goal: string[] | null
+          height_cm: number | null
           id: string
+          injuries: string | null
+          level: string | null
           nano_id: string
+          notes: string | null
           phone: string | null
           trainer_id: string
           updated_at: string
+          weight_kg: number | null
         }
         Insert: {
+          available_equipment?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
           deleted_at?: string | null
+          desired_weekly_frequency?: number | null
           email: string
           full_name: string
+          goal?: string[] | null
+          height_cm?: number | null
           id: string
+          injuries?: string | null
+          level?: string | null
           nano_id?: string
+          notes?: string | null
           phone?: string | null
           trainer_id: string
           updated_at?: string
+          weight_kg?: number | null
         }
         Update: {
+          available_equipment?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
           deleted_at?: string | null
+          desired_weekly_frequency?: number | null
           email?: string
           full_name?: string
+          goal?: string[] | null
+          height_cm?: number | null
           id?: string
+          injuries?: string | null
+          level?: string | null
           nano_id?: string
+          notes?: string | null
           phone?: string | null
           trainer_id?: string
           updated_at?: string
+          weight_kg?: number | null
         }
         Relationships: [
           {
@@ -54,6 +81,36 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      equipment: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          name: string
+          nano_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name: string
+          nano_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          name?: string
+          nano_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       exercise_muscle_groups: {
         Row: {
@@ -96,6 +153,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           description: string | null
+          equipment_id: string | null
           id: string
           name: string
           nano_id: string
@@ -108,6 +166,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           description?: string | null
+          equipment_id?: string | null
           id?: string
           name: string
           nano_id?: string
@@ -120,6 +179,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           description?: string | null
+          equipment_id?: string | null
           id?: string
           name?: string
           nano_id?: string
@@ -129,6 +189,13 @@ export type Database = {
           video_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: 'exercises_equipment_id_fkey'
+            columns: ['equipment_id']
+            isOneToOne: false
+            referencedRelation: 'equipment'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'exercises_trainer_id_fkey'
             columns: ['trainer_id']
