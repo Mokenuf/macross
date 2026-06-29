@@ -40,7 +40,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between">
+    <div class="flex items-end justify-between">
       <BaseFilters
         :filters="filterConfig"
         :values="filterValues"

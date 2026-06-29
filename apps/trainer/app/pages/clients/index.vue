@@ -34,6 +34,7 @@ const filterConfig = computed<Filter[]>(() => {
       type: 'select',
       key: 'status',
       label: 'Estado',
+      default: 'active',
       options: [
         { label: 'Activos', value: 'active' },
         { label: 'Eliminados', value: 'deleted' },
@@ -115,7 +116,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-center justify-between">
+    <div class="flex items-end justify-between">
       <BaseFilters
         :filters="filterConfig"
         :values="filterValues"
