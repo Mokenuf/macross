@@ -5,39 +5,50 @@ import { createExerciseSchema, exerciseQueryParamsSchema } from './exercise'
 describe('createExerciseSchema', () => {
   it('acepta un ejercicio valido con todos los campos', () => {
     const result = createExerciseSchema.safeParse({
-      name: 'Sentadilla',
-      description: 'Description',
+      nameEs: 'Sentadilla',
+      nameEn: 'Squat',
+      descriptionEs: 'Descripcion',
+      descriptionEn: 'Description',
       videoUrl: 'https://youtube.com/watch?v=abc123',
       muscleGroupIds: ['a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'],
     })
     expect(result.success).toBe(true)
   })
 
-  it('acepta un ejercicio solo con el name', () => {
-    const result = createExerciseSchema.safeParse({ name: 'Sentadilla' })
+  it('acepta un ejercicio solo con los names requeridos', () => {
+    const result = createExerciseSchema.safeParse({ nameEs: 'Sentadilla', nameEn: 'Squat' })
     expect(result.success).toBe(true)
   })
 
   it('aplica default de muscleGroupIds como array vacio', () => {
-    const result = createExerciseSchema.safeParse({ name: 'Sentadilla' })
+    const result = createExerciseSchema.safeParse({ nameEs: 'Sentadilla', nameEn: 'Squat' })
     expect(result.success).toBe(true)
     if (result.success) {
       expect(result.data.muscleGroupIds).toEqual([])
     }
   })
 
-  it('rechaza si falta el name', () => {
-    const result = createExerciseSchema.safeParse({ description: 'foo' })
+  it('rechaza si falta el nameEs', () => {
+    const result = createExerciseSchema.safeParse({ nameEn: 'Squat' })
     expect(result.success).toBe(false)
   })
 
-  it('rechaza si el name es string vacio', () => {
-    const result = createExerciseSchema.safeParse({ name: '' })
+  it('rechaza si falta el nameEn', () => {
+    const result = createExerciseSchema.safeParse({ nameEs: 'Sentadilla' })
     expect(result.success).toBe(false)
+  })
+
+  it('rechaza si algun name es string vacio', () => {
+    expect(createExerciseSchema.safeParse({ nameEs: '', nameEn: 'Squat' }).success).toBe(false)
+    expect(createExerciseSchema.safeParse({ nameEs: 'Sentadilla', nameEn: '' }).success).toBe(false)
   })
 
   it('convierte videoUrl vacio a undefined (preprocess)', () => {
-    const result = createExerciseSchema.safeParse({ name: 'Sentadilla', videoUrl: '' })
+    const result = createExerciseSchema.safeParse({
+      nameEs: 'Sentadilla',
+      nameEn: 'Squat',
+      videoUrl: '',
+    })
     expect(result.success).toBe(true)
     if (result.success) {
       expect(result.data.videoUrl).toBeUndefined()
@@ -46,7 +57,8 @@ describe('createExerciseSchema', () => {
 
   it('rechaza videoUrl invalida', () => {
     const result = createExerciseSchema.safeParse({
-      name: 'Sentadilla',
+      nameEs: 'Sentadilla',
+      nameEn: 'Squat',
       videoUrl: 'nintendo.com',
     })
     expect(result.success).toBe(false)
@@ -54,7 +66,8 @@ describe('createExerciseSchema', () => {
 
   it('rechaza muscleGroupIds con uuids invalidos', () => {
     const result = createExerciseSchema.safeParse({
-      name: 'Sentadilla',
+      nameEs: 'Sentadilla',
+      nameEn: 'Squat',
       muscleGroupIds: ['no-es-uuid'],
     })
     expect(result.success).toBe(false)

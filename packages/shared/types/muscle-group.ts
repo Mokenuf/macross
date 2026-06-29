@@ -4,7 +4,8 @@ import { queryParamsSchema, type BaseFilters } from './query-params'
 
 export const muscleGroupSchema = z.object({
   id: z.uuid(),
-  name: z.string(),
+  nameEs: z.string(),
+  nameEn: z.string().nullable(),
   slug: z.string(),
   nanoId: z.string(),
   createdAt: z.string(),
@@ -13,7 +14,8 @@ export const muscleGroupSchema = z.object({
 })
 
 export const createMuscleGroupSchema = z.object({
-  name: z.string().min(1),
+  nameEs: z.string().min(1),
+  nameEn: z.string().min(1),
 })
 
 export const updateMuscleGroupSchema = createMuscleGroupSchema.extend({})

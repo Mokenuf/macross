@@ -3,19 +3,24 @@ import { describe, expect, it } from 'vitest'
 import { createEquipmentSchema, equipmentQueryParamsSchema } from './equipment'
 
 describe('createEquipmentSchema', () => {
-  it('acepta un equipamiento valido', () => {
-    const result = createEquipmentSchema.safeParse({ name: 'Mancuerna' })
+  it('acepta un equipamiento valido con nombre es y en', () => {
+    const result = createEquipmentSchema.safeParse({ nameEs: 'Mancuerna', nameEn: 'Dumbbell' })
     expect(result.success).toBe(true)
   })
 
-  it('rechaza si falta el name', () => {
-    const result = createEquipmentSchema.safeParse({})
+  it('rechaza si falta el nameEs', () => {
+    const result = createEquipmentSchema.safeParse({ nameEn: 'Dumbbell' })
     expect(result.success).toBe(false)
   })
 
-  it('rechaza si el name es string vacio', () => {
-    const result = createEquipmentSchema.safeParse({ name: '' })
+  it('rechaza si falta el nameEn', () => {
+    const result = createEquipmentSchema.safeParse({ nameEs: 'Mancuerna' })
     expect(result.success).toBe(false)
+  })
+
+  it('rechaza si algun nombre es string vacio', () => {
+    expect(createEquipmentSchema.safeParse({ nameEs: '', nameEn: 'Dumbbell' }).success).toBe(false)
+    expect(createEquipmentSchema.safeParse({ nameEs: 'Mancuerna', nameEn: '' }).success).toBe(false)
   })
 })
 

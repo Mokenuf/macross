@@ -76,9 +76,10 @@ pnpm test:client      # Tests de apps/client (watch)
 pnpm db:generate      # Regenera los tipos de Supabase tras una migración
 pnpm lint             # Oxlint
 pnpm lint:fix         # Oxlint con autofix
+pnpm typecheck        # Type-check (vue-tsc en apps, tsc en shared) vía Turbo
 pnpm format           # Oxfmt (write)
 pnpm format:check     # Oxfmt (check)
-pnpm check            # Lint + format check
+pnpm check            # Lint + format check + typecheck
 pnpm commit           # Commit con Commitizen
 ```
 
@@ -113,7 +114,8 @@ fix/trainer/auth        ─┘
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI
-- Interfaz bilingüe español/inglés con selector de idioma (banderas) que persiste la elección; sin prefijo de idioma en la URL. Incluye los mensajes de validación de los formularios (i18n nativa de Zod v4) y fechas localizadas. El idioma se detecta del browser en la primera visita
+- Interfaz bilingüe español/inglés con selector de idioma (banderas) que persiste la elección; sin prefijo de idioma en la URL. Incluye los mensajes de validación de los formularios (i18n nativa de Zod v4, que se re-traducen al cambiar de idioma con un error visible) y fechas localizadas. El idioma se detecta del browser en la primera visita
+- Contenido de catálogo bilingüe: los ejercicios, grupos musculares y equipamiento se cargan en español **e** inglés (nombre en ambos idiomas, descripción opcional); el listado, el detalle y los selects muestran el idioma activo (con fallback a español). La búsqueda matchea en cualquiera de los dos idiomas. Lo per-cliente (notas, lesiones) queda en un solo idioma a propósito
 
 ### Client app
 
@@ -121,7 +123,7 @@ fix/trainer/auth        ─┘
 - Flow de set-password para clientes nuevos vía link de invite por mail (mismo patrón robusto que trainer: `detectSessionInUrl: false` + procesamiento manual del hash), con card branded en la paleta Macross
 - Flow de recuperación de contraseña análogo (forgot-password → mail → reset-password) que empieza y termina en la PWA del cliente
 - Bloqueo de login para cuentas desactivadas: un cliente con soft delete no puede iniciar sesión (el server route lo detecta tras el signin y cierra la sesión con un mensaje claro)
-- Interfaz bilingüe español/inglés con selector de idioma (banderas), mismo patrón que el dashboard
+- Interfaz bilingüe español/inglés con selector de idioma (banderas), mismo patrón que el dashboard (mensajes de validación incluidos, que se re-traducen al cambiar de idioma)
 - Listo para deploy como demo
 
 ### Shared

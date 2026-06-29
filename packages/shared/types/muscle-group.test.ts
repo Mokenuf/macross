@@ -3,19 +3,24 @@ import { describe, expect, it } from 'vitest'
 import { createMuscleGroupSchema, muscleGroupQueryParamsSchema } from './muscle-group'
 
 describe('createMuscleGroupSchema', () => {
-  it('acepta un grupo muscular valido', () => {
-    const result = createMuscleGroupSchema.safeParse({ name: 'Pecho' })
+  it('acepta un grupo muscular valido con nombre es y en', () => {
+    const result = createMuscleGroupSchema.safeParse({ nameEs: 'Pecho', nameEn: 'Chest' })
     expect(result.success).toBe(true)
   })
 
-  it('rechaza si falta el name', () => {
-    const result = createMuscleGroupSchema.safeParse({})
+  it('rechaza si falta el nameEs', () => {
+    const result = createMuscleGroupSchema.safeParse({ nameEn: 'Chest' })
     expect(result.success).toBe(false)
   })
 
-  it('rechaza si el name es string vacio', () => {
-    const result = createMuscleGroupSchema.safeParse({ name: '' })
+  it('rechaza si falta el nameEn', () => {
+    const result = createMuscleGroupSchema.safeParse({ nameEs: 'Pecho' })
     expect(result.success).toBe(false)
+  })
+
+  it('rechaza si algun nombre es string vacio', () => {
+    expect(createMuscleGroupSchema.safeParse({ nameEs: '', nameEn: 'Chest' }).success).toBe(false)
+    expect(createMuscleGroupSchema.safeParse({ nameEs: 'Pecho', nameEn: '' }).success).toBe(false)
   })
 })
 

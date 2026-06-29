@@ -1,11 +1,5 @@
-import {
-  exerciseSchema,
-  UpdateExercise,
-  updateExerciseSchema,
-  exerciseWithPivotSchema,
-  Exercise,
-  ExerciseWithPivot,
-} from '@macross/shared'
+import type { UpdateExercise, Exercise, ExerciseWithPivot } from '@macross/shared'
+import { exerciseSchema, updateExerciseSchema, exerciseWithPivotSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 
@@ -16,7 +10,7 @@ export default defineEventHandler(async (event): Promise<Exercise> => {
   const body = await readValidatedBody<UpdateExercise>(event, updateExerciseSchema.parse)
   const client = await serverSupabaseClient(event)
 
-  const newSlug = generateSlug(body.name)
+  const newSlug = generateSlug(body.nameEs)
 
   if (newSlug !== slug) {
     const { count } = await client
@@ -34,8 +28,10 @@ export default defineEventHandler(async (event): Promise<Exercise> => {
   const { data: updatedExercise, error: updateError } = await client
     .from('exercises')
     .update({
-      name: body.name,
-      description: body.description ?? null,
+      name_es: body.nameEs,
+      name_en: body.nameEn,
+      description_es: body.descriptionEs ?? null,
+      description_en: body.descriptionEn ?? null,
       video_url: body.videoUrl ?? null,
       equipment_id: body.equipmentId ?? null,
       slug: newSlug,

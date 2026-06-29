@@ -1,5 +1,5 @@
 import { env } from '@@/env'
-import { RequestPasswordReset, requestPasswordResetSchema } from '@macross/shared'
+import { type RequestPasswordReset, requestPasswordResetSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 

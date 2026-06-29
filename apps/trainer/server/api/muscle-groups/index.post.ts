@@ -1,4 +1,5 @@
-import { CreateMuscleGroup, createMuscleGroupSchema, muscleGroupSchema } from '@macross/shared'
+import type { CreateMuscleGroup } from '@macross/shared'
+import { createMuscleGroupSchema, muscleGroupSchema } from '@macross/shared'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
@@ -9,7 +10,7 @@ export default defineEventHandler(async event => {
   const body = await readValidatedBody<CreateMuscleGroup>(event, createMuscleGroupSchema.parse)
   const client = await serverSupabaseClient(event)
 
-  const slug = generateSlug(body.name)
+  const slug = generateSlug(body.nameEs)
 
   const { count } = await client
     .from('muscle_groups')
@@ -26,7 +27,8 @@ export default defineEventHandler(async event => {
   const { data, error } = await client
     .from('muscle_groups')
     .insert({
-      name: body.name,
+      name_es: body.nameEs,
+      name_en: body.nameEn,
       slug,
     })
     .select()

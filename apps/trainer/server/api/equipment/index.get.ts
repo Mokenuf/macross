@@ -1,16 +1,11 @@
-import {
-  BaseResponse,
-  Equipment,
-  EquipmentQueryParams,
-  equipmentQueryParamsSchema,
-  equipmentSchema,
-} from '@macross/shared'
+import type { BaseResponse, Equipment, EquipmentQueryParams } from '@macross/shared'
+import { equipmentQueryParamsSchema, equipmentSchema } from '@macross/shared'
 import { z } from 'zod'
 
 import { serverSupabaseClient } from '#supabase/server'
 
 const sortColumnMap: Record<string, string> = {
-  name: 'name',
+  name: 'name_es',
   createdAt: 'created_at',
 }
 
@@ -33,7 +28,9 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Equipment>
     })
     .range(from, to)
   if (queryParams.search) {
-    supabaseQuery = supabaseQuery.ilike('name', `%${queryParams.search}%`)
+    supabaseQuery = supabaseQuery.or(
+      `name_es.ilike.%${queryParams.search}%,name_en.ilike.%${queryParams.search}%`,
+    )
   }
 
   const { data, error, count } = await supabaseQuery

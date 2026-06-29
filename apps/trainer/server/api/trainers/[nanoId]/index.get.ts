@@ -1,4 +1,5 @@
-import { Trainer, trainerSchema } from '@macross/shared'
+import type { Trainer } from '@macross/shared'
+import { trainerSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 

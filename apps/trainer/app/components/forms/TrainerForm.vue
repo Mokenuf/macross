@@ -21,6 +21,9 @@ const emit = defineEmits<TrainerFormEmits>()
 
 const { t } = useI18n()
 
+const form = useTemplateRef('form')
+useRevalidateOnLocale(() => form.value)
+
 const isEdit = computed(() => !!trainer)
 const schema = computed(() => (isEdit.value ? updateTrainerSchema : createTrainerSchema))
 
@@ -37,7 +40,7 @@ function onSubmit(event: FormSubmitEvent<CreateTrainer | UpdateTrainer>) {
 </script>
 
 <template>
-  <UForm :schema :state class="space-y-4" @submit="onSubmit">
+  <UForm ref="form" :schema :state class="space-y-4" @submit="onSubmit">
     <UFormField :label="t('trainers.form.fullNameLabel')" name="fullName" required>
       <UInput
         v-model="state.fullName"

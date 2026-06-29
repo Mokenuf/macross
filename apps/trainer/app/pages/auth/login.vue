@@ -11,6 +11,9 @@ definePageMeta({
 const { t } = useI18n()
 const { login } = useLogin()
 
+const authForm = useTemplateRef('authForm')
+useRevalidateOnLocale(() => authForm.value?.formRef ?? null)
+
 const loading = ref(false)
 const error = ref('')
 const fields = computed<AuthFormField[]>(() => [
@@ -54,6 +57,7 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
     </div>
 
     <UAuthForm
+      ref="authForm"
       :schema="loginSchema"
       :fields
       icon="i-lucide-log-in"

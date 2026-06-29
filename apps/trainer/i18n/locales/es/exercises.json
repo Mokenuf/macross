@@ -17,10 +17,14 @@
       "searchPlaceholder": "Buscar..."
     },
     "form": {
-      "name": "Nombre",
-      "nameExample": "Ej: Sentadilla búlgara",
-      "description": "Descripción",
-      "descriptionPlaceholder": "Descripción del ejercicio",
+      "nameEs": "Nombre (ES)",
+      "nameEn": "Nombre (EN)",
+      "nameEsExample": "Ej: Sentadilla búlgara",
+      "nameEnExample": "Ej: Bulgarian split squat",
+      "descriptionEs": "Descripción (ES)",
+      "descriptionEn": "Descripción (EN)",
+      "descriptionEsPlaceholder": "Descripción del ejercicio",
+      "descriptionEnPlaceholder": "Exercise description",
       "muscleGroup": "Grupo muscular",
       "muscleGroupPlaceholder": "Seleccioná uno o varios grupos musculares",
       "equipment": "Equipamiento",
