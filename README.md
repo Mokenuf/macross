@@ -23,6 +23,7 @@ Dos aplicaciones en un mismo monorepo:
 | Linter     | Oxlint                                  |
 | Formatter  | Oxfmt                                   |
 | Git hooks  | Husky + lint-staged + Commitizen        |
+| CI         | GitHub Actions                          |
 
 ## Estructura
 
