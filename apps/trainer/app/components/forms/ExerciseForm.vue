@@ -19,15 +19,22 @@ interface ExerciseFormEmits {
 
 const { exercise, loading = false } = defineProps<ExerciseFormProps>()
 const emit = defineEmits<ExerciseFormEmits>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const state = reactive<Partial<CreateExercise>>({
-  name: exercise?.name ?? '',
-  description: exercise?.description ?? '',
+  nameEs: exercise?.nameEs ?? '',
+  nameEn: exercise?.nameEn ?? '',
+  descriptionEs: exercise?.descriptionEs ?? '',
+  descriptionEn: exercise?.descriptionEn ?? '',
   videoUrl: exercise?.videoUrl ?? '',
   muscleGroupIds: exercise?.muscleGroups.map(mg => mg.id) ?? [],
   equipmentId: exercise?.equipment?.id,
 })
+
+const nameKey = computed(() => (locale.value === 'en' ? 'nameEn' : 'nameEs'))
+
+const form = useTemplateRef('form')
+useRevalidateOnLocale(() => form.value)
 
 const selectedMuscleGroups = ref<MuscleGroup[]>(exercise?.muscleGroups ?? [])
 
@@ -89,15 +96,35 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
 </script>
 
 <template>
-  <UForm :schema="createExerciseSchema" :state class="space-y-4" @submit="onSubmit">
-    <UFormField :label="t('exercises.form.name')" name="name" required>
-      <UInput v-model="state.name" :placeholder="t('exercises.form.nameExample')" class="w-full" />
+  <UForm ref="form" :schema="createExerciseSchema" :state class="space-y-4" @submit="onSubmit">
+    <UFormField :label="t('exercises.form.nameEs')" name="nameEs" required>
+      <UInput
+        v-model="state.nameEs"
+        :placeholder="t('exercises.form.nameEsExample')"
+        class="w-full"
+      />
     </UFormField>
 
-    <UFormField :label="t('exercises.form.description')" name="description">
+    <UFormField :label="t('exercises.form.nameEn')" name="nameEn" required>
+      <UInput
+        v-model="state.nameEn"
+        :placeholder="t('exercises.form.nameEnExample')"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField :label="t('exercises.form.descriptionEs')" name="descriptionEs">
       <UTextarea
-        v-model="state.description"
-        :placeholder="t('exercises.form.descriptionPlaceholder')"
+        v-model="state.descriptionEs"
+        :placeholder="t('exercises.form.descriptionEsPlaceholder')"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField :label="t('exercises.form.descriptionEn')" name="descriptionEn">
+      <UTextarea
+        v-model="state.descriptionEn"
+        :placeholder="t('exercises.form.descriptionEnPlaceholder')"
         class="w-full"
       />
     </UFormField>
@@ -114,7 +141,7 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
         :loading="pending"
         :items
         by="id"
-        label-key="name"
+        :label-key="nameKey"
         clear
         multiple
         :placeholder="t('exercises.form.muscleGroupPlaceholder')"
@@ -134,7 +161,7 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
         :loading="equipmentPending"
         :items="equipmentItems"
         by="id"
-        label-key="name"
+        :label-key="nameKey"
         clear
         :placeholder="t('exercises.form.equipmentPlaceholder')"
         class="w-full"

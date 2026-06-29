@@ -87,7 +87,8 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
-          name: string
+          name_en: string | null
+          name_es: string
           nano_id: string | null
           slug: string
           updated_at: string
@@ -96,7 +97,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          name: string
+          name_en?: string | null
+          name_es: string
           nano_id?: string | null
           slug: string
           updated_at?: string
@@ -105,7 +107,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          name?: string
+          name_en?: string | null
+          name_es?: string
           nano_id?: string | null
           slug?: string
           updated_at?: string
@@ -152,10 +155,12 @@ export type Database = {
         Row: {
           created_at: string
           deleted_at: string | null
-          description: string | null
+          description_en: string | null
+          description_es: string | null
           equipment_id: string | null
           id: string
-          name: string
+          name_en: string | null
+          name_es: string
           nano_id: string
           slug: string | null
           trainer_id: string
@@ -165,10 +170,12 @@ export type Database = {
         Insert: {
           created_at?: string
           deleted_at?: string | null
-          description?: string | null
+          description_en?: string | null
+          description_es?: string | null
           equipment_id?: string | null
           id?: string
-          name: string
+          name_en?: string | null
+          name_es: string
           nano_id?: string
           slug?: string | null
           trainer_id: string
@@ -178,10 +185,12 @@ export type Database = {
         Update: {
           created_at?: string
           deleted_at?: string | null
-          description?: string | null
+          description_en?: string | null
+          description_es?: string | null
           equipment_id?: string | null
           id?: string
-          name?: string
+          name_en?: string | null
+          name_es?: string
           nano_id?: string
           slug?: string | null
           trainer_id?: string
@@ -210,7 +219,8 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           id: string
-          name: string
+          name_en: string | null
+          name_es: string
           nano_id: string
           slug: string
           updated_at: string
@@ -219,7 +229,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          name: string
+          name_en?: string | null
+          name_es: string
           nano_id?: string
           slug: string
           updated_at?: string
@@ -228,7 +239,8 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           id?: string
-          name?: string
+          name_en?: string | null
+          name_es?: string
           nano_id?: string
           slug?: string
           updated_at?: string

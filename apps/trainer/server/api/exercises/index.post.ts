@@ -14,7 +14,7 @@ export default defineEventHandler(async event => {
   const body = await readValidatedBody<CreateExercise>(event, createExerciseSchema.parse)
   const client = await serverSupabaseClient(event)
 
-  const slug = generateSlug(body.name)
+  const slug = generateSlug(body.nameEs)
 
   const { count } = await client
     .from('exercises')
@@ -29,8 +29,10 @@ export default defineEventHandler(async event => {
     .from('exercises')
     .insert({
       trainer_id: user.sub,
-      name: body.name,
-      description: body.description ?? null,
+      name_es: body.nameEs,
+      name_en: body.nameEn,
+      description_es: body.descriptionEs ?? null,
+      description_en: body.descriptionEn ?? null,
       video_url: body.videoUrl ?? null,
       equipment_id: body.equipmentId ?? null,
       slug,

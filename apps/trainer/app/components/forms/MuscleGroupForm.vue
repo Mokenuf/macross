@@ -15,8 +15,12 @@ const { t } = useI18n()
 const { muscleGroup, loading = false } = defineProps<MuscleGroupFormProps>()
 const emit = defineEmits<MuscleGroupFormEmits>()
 
+const form = useTemplateRef('form')
+useRevalidateOnLocale(() => form.value)
+
 const state = reactive<Partial<CreateMuscleGroup>>({
-  name: muscleGroup?.name ?? '',
+  nameEs: muscleGroup?.nameEs ?? '',
+  nameEn: muscleGroup?.nameEn ?? '',
 })
 
 function onSubmit(event: FormSubmitEvent<CreateMuscleGroup>) {
@@ -25,11 +29,19 @@ function onSubmit(event: FormSubmitEvent<CreateMuscleGroup>) {
 </script>
 
 <template>
-  <UForm :schema="createMuscleGroupSchema" :state class="space-y-4" @submit="onSubmit">
-    <UFormField :label="t('muscle-groups.form.name')" name="name" required>
+  <UForm ref="form" :schema="createMuscleGroupSchema" :state class="space-y-4" @submit="onSubmit">
+    <UFormField :label="t('muscle-groups.form.nameEs')" name="nameEs" required>
       <UInput
-        v-model="state.name"
-        :placeholder="t('muscle-groups.form.namePlaceholder')"
+        v-model="state.nameEs"
+        :placeholder="t('muscle-groups.form.nameEsPlaceholder')"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField :label="t('muscle-groups.form.nameEn')" name="nameEn" required>
+      <UInput
+        v-model="state.nameEn"
+        :placeholder="t('muscle-groups.form.nameEnPlaceholder')"
         class="w-full"
       />
     </UFormField>

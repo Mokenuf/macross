@@ -14,6 +14,9 @@ const { t } = useI18n()
 const { loading } = defineProps<SetPasswordFormProps>()
 const emit = defineEmits<SetPasswordFormEmits>()
 
+const form = useTemplateRef('form')
+useRevalidateOnLocale(() => form.value)
+
 const state = reactive<Partial<SetPassword>>({ password: '', confirm: '' })
 
 function onSubmit(event: FormSubmitEvent<SetPassword>) {
@@ -22,7 +25,7 @@ function onSubmit(event: FormSubmitEvent<SetPassword>) {
 </script>
 
 <template>
-  <UForm :schema="setPasswordSchema" :state class="space-y-4" @submit="onSubmit">
+  <UForm ref="form" :schema="setPasswordSchema" :state class="space-y-4" @submit="onSubmit">
     <UFormField :label="t('auth.setPassword.passwordLabel')" name="password" required>
       <UInput v-model="state.password" type="password" class="w-full" />
     </UFormField>

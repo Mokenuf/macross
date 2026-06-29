@@ -7,6 +7,7 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'equipment.title' })
 
 const { t } = useI18n()
+const { localizedName } = useLocalizedName()
 const { equipments, pagination, loading, page, limit, search } = useGetEquipmentList()
 const { remove } = useDeleteEquipment()
 const { data: user } = useGetMe()
@@ -26,7 +27,7 @@ const filterConfig: Filter[] = [
 const filterValues = computed(() => ({ search: search.value }))
 
 const columns = computed<TableColumn<Equipment>[]>(() => [
-  { accessorKey: 'name', header: t('equipment.columns.name') },
+  { id: 'name', header: t('equipment.columns.name'), accessorFn: row => localizedName(row) },
 ])
 
 const actions: TableAction<Equipment>[] = [
@@ -64,7 +65,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       :data="equipments"
       :loading
       :pagination
-      :delete-label="row => row.name"
+      :delete-label="row => localizedName(row)"
       v-model:page="page"
       v-model:limit="limit"
     />

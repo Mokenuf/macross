@@ -6,6 +6,7 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'exercises.title' })
 const { t } = useI18n()
+const { localizedName, localizedText } = useLocalizedName()
 
 const { exercises, pagination, loading, page, limit, search, equipmentIds, muscleGroupIds } =
   useGetExerciseList()
@@ -24,10 +25,10 @@ const { data: equipmentData } = useFetch<BaseResponse<Equipment>>('/api/equipmen
 const isManager = computed(() => user.value?.role === 'manager')
 
 const muscleGroupOptions = computed(() =>
-  (muscleGroupsData.value?.rows ?? []).map(mg => ({ label: mg.name, value: mg.id })),
+  (muscleGroupsData.value?.rows ?? []).map(mg => ({ label: localizedName(mg), value: mg.id })),
 )
 const equipmentOptions = computed(() =>
-  (equipmentData.value?.rows ?? []).map(e => ({ label: e.name, value: e.id })),
+  (equipmentData.value?.rows ?? []).map(e => ({ label: localizedName(e), value: e.id })),
 )
 
 const filterConfig = computed<Filter[]>(() => [
@@ -65,18 +66,22 @@ const filterValues = computed(() => ({
 }))
 
 const columns = computed<TableColumn<Exercise>[]>(() => [
-  { accessorKey: 'name', header: t('exercises.columns.name') },
+  { id: 'name', header: t('exercises.columns.name'), accessorFn: row => localizedName(row) },
   {
-    accessorKey: 'muscleGroups',
+    id: 'muscleGroups',
     header: t('exercises.columns.muscleGroups'),
-    cell: ({ row }) => row.original.muscleGroups.map(mg => mg.name).join(', '),
+    accessorFn: row => row.muscleGroups.map(mg => localizedName(mg)).join(', '),
   },
   {
-    accessorKey: 'equipment',
+    id: 'equipment',
     header: t('exercises.columns.equipment'),
-    cell: ({ row }) => row.original.equipment?.name ?? '—',
+    accessorFn: row => (row.equipment ? localizedName(row.equipment) : '—'),
   },
-  { accessorKey: 'description', header: t('exercises.columns.description') },
+  {
+    id: 'description',
+    header: t('exercises.columns.description'),
+    accessorFn: row => localizedText(row.descriptionEs, row.descriptionEn) ?? '—',
+  },
 ])
 
 const actions: TableAction<Exercise>[] = [
@@ -118,7 +123,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       :data="exercises"
       :loading
       :pagination
-      :delete-label="row => row.name"
+      :delete-label="row => localizedName(row)"
       v-model:page="page"
       v-model:limit="limit"
     />

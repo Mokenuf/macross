@@ -10,8 +10,10 @@
       "searchPlaceholder": "Search equipment..."
     },
     "form": {
-      "name": "Name",
-      "nameExample": "E.g.: Dumbbell"
+      "nameEs": "Name (ES)",
+      "nameEn": "Name (EN)",
+      "nameEsExample": "E.g.: Mancuerna",
+      "nameEnExample": "E.g.: Dumbbell"
     },
     "detail": {},
     "pages": {

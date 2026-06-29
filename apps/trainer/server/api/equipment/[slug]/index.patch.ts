@@ -9,7 +9,7 @@ export default defineEventHandler(async (event): Promise<Equipment> => {
   const body = await readValidatedBody<UpdateEquipment>(event, updateEquipmentSchema.parse)
   const client = await serverSupabaseClient(event)
 
-  const newSlug = generateSlug(body.name)
+  const newSlug = generateSlug(body.nameEs)
 
   if (newSlug !== slug) {
     const { count } = await client
@@ -27,7 +27,8 @@ export default defineEventHandler(async (event): Promise<Equipment> => {
   const { data, error } = await client
     .from('equipment')
     .update({
-      name: body.name,
+      name_es: body.nameEs,
+      name_en: body.nameEn,
       slug: newSlug,
     })
     .eq('slug', slug)

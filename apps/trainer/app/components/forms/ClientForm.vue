@@ -46,6 +46,9 @@ const trainerItems = computed(() => {
 
 const { levelOptions, goalOptions } = useClientOptions()
 
+const form = useTemplateRef('form')
+useRevalidateOnLocale(() => form.value)
+
 const isEdit = computed(() => !!client)
 const schema = computed(() => (isEdit.value ? updateClientSchema : createClientSchema))
 
@@ -76,7 +79,7 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
 </script>
 
 <template>
-  <UForm :schema :state class="space-y-4" @submit="onSubmit">
+  <UForm ref="form" :schema :state class="space-y-4" @submit="onSubmit">
     <UFormField :label="t('clients.form.fullName')" name="fullName" required>
       <UInput
         v-model="state.fullName"

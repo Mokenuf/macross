@@ -14,6 +14,9 @@ useHead({ title: t('auth.forgotPassword.title') })
 
 const { requestPasswordReset } = useRequestPasswordReset()
 
+const authForm = useTemplateRef('authForm')
+useRevalidateOnLocale(() => authForm.value?.formRef ?? null)
+
 const loading = ref(false)
 const fields: AuthFormField[] = [
   {
@@ -47,6 +50,7 @@ async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
       </div>
 
       <UAuthForm
+        ref="authForm"
         :schema="requestPasswordResetSchema"
         :fields
         icon="i-lucide-mail"
