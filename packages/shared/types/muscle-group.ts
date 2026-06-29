@@ -13,7 +13,7 @@ export const muscleGroupSchema = z.object({
 })
 
 export const createMuscleGroupSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido'),
+  name: z.string().min(1),
 })
 
 export const updateMuscleGroupSchema = createMuscleGroupSchema.extend({})

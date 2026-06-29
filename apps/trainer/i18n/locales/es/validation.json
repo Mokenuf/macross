@@ -1,0 +1,8 @@
+{
+  "validation": {
+    "required": "Campo requerido",
+    "email": "Email inválido",
+    "minLength": "Mínimo {min} caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden"
+  }
+}

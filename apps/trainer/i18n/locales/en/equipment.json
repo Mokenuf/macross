@@ -1,0 +1,31 @@
+{
+  "equipment": {
+    "title": "Equipment",
+    "add": "Add Equipment",
+    "search": "Search equipment...",
+    "columns": {
+      "name": "Name"
+    },
+    "filters": {
+      "searchPlaceholder": "Search equipment..."
+    },
+    "form": {
+      "name": "Name",
+      "nameExample": "E.g.: Dumbbell"
+    },
+    "detail": {},
+    "pages": {
+      "add": "Add Equipment",
+      "edit": "Edit Equipment",
+      "detail": "Equipment details"
+    },
+    "toasts": {
+      "created": "Equipment created",
+      "updated": "Equipment updated",
+      "deleted": "Equipment deleted",
+      "createError": "Could not create equipment",
+      "updateError": "Could not update equipment",
+      "deleteError": "Could not delete equipment"
+    }
+  }
+}

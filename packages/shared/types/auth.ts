@@ -1,22 +1,22 @@
 import { z } from 'zod'
 
 export const loginSchema = z.object({
-  email: z.string().email('El email no es válido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  email: z.string().email(),
+  password: z.string().min(6),
 })
 
 export const setPasswordSchema = z
   .object({
-    password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
+    password: z.string().min(8),
     confirm: z.string(),
   })
   .refine(data => data.password === data.confirm, {
-    message: 'Las contraseñas no coinciden',
     path: ['confirm'],
+    params: { i18nKey: 'passwordMismatch' },
   })
 
 export const requestPasswordResetSchema = z.object({
-  email: z.string().email('El email no es válido'),
+  email: z.string().email(),
 })
 
 export type Login = z.infer<typeof loginSchema>

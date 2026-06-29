@@ -10,8 +10,11 @@
     "postinstall": "cross-env SKIP_ENV_VALIDATION=1 nuxt prepare"
   },
   "dependencies": {
+    "@iconify-json/circle-flags": "^1.2.10",
+    "@iconify-json/lucide": "^1.2.111",
     "@macross/shared": "workspace:*",
     "@nuxt/ui": "^4.8.1",
+    "@nuxtjs/i18n": "^10.4.0",
     "@nuxtjs/supabase": "^2.0.9",
     "@t3-oss/env-nuxt": "^0.13.11",
     "nuxt": "^4.4.6",

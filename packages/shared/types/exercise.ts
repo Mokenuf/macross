@@ -20,7 +20,7 @@ export const exerciseSchema = z.object({
 })
 
 export const createExerciseSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido'),
+  name: z.string().min(1),
   description: z.string().optional(),
   videoUrl: z.preprocess(val => (val === '' ? undefined : val), z.url().optional()),
   muscleGroupIds: z.array(z.uuid()).optional().default([]),

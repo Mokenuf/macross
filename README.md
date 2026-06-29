@@ -18,6 +18,7 @@ Dos aplicaciones en un mismo monorepo:
 | UI         | NuxtUI v4                               |
 | Backend    | Supabase (Postgres, Auth, Storage, RLS) |
 | Validación | Zod + T3 Env (env vars con `env.ts`)    |
+| i18n       | `@nuxtjs/i18n` (es/en, ambas apps)      |
 | Testing    | Vitest                                  |
 | Linter     | Oxlint                                  |
 | Formatter  | Oxfmt                                   |
@@ -112,6 +113,7 @@ fix/trainer/auth        ─┘
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI
+- Interfaz bilingüe español/inglés con selector de idioma (banderas) que persiste la elección; sin prefijo de idioma en la URL. Incluye los mensajes de validación de los formularios (i18n nativa de Zod v4) y fechas localizadas. El idioma se detecta del browser en la primera visita
 
 ### Client app
 
@@ -119,12 +121,14 @@ fix/trainer/auth        ─┘
 - Flow de set-password para clientes nuevos vía link de invite por mail (mismo patrón robusto que trainer: `detectSessionInUrl: false` + procesamiento manual del hash), con card branded en la paleta Macross
 - Flow de recuperación de contraseña análogo (forgot-password → mail → reset-password) que empieza y termina en la PWA del cliente
 - Bloqueo de login para cuentas desactivadas: un cliente con soft delete no puede iniciar sesión (el server route lo detecta tras el signin y cierra la sesión con un mensaje claro)
+- Interfaz bilingüe español/inglés con selector de idioma (banderas), mismo patrón que el dashboard
 - Listo para deploy como demo
 
 ### Shared
 
 - Schemas Zod compartidos (ejercicios, grupos musculares, equipamiento, entrenadores, clientes, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
+- Error map de Zod para i18n de los mensajes de validación (override de los comunes + locale nativo de Zod v4 para el resto)
 - Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createEquipmentSchema`, `equipmentQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `updateClientSchema`, `clientQueryParamsSchema`, `loginSchema`, `setPasswordSchema`, `requestPasswordResetSchema`)
 
 ## Estado

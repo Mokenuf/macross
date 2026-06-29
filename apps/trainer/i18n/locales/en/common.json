@@ -1,0 +1,34 @@
+{
+  "common": {
+    "actions": {
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View",
+      "save": "Save",
+      "cancel": "Cancel",
+      "back": "Back",
+      "confirm": "Confirm",
+      "more": "Action"
+    },
+    "table": {
+      "empty": "No results",
+      "loading": "Loading..."
+    },
+    "pagination": {
+      "perPage": "Results per page"
+    },
+    "toasts": {
+      "error": "Error"
+    },
+    "confirmDelete": {
+      "title": "Delete record",
+      "message": "Are you sure you want to delete {name}?"
+    },
+    "status": {
+      "active": "Active",
+      "deleted": "Deleted"
+    },
+    "empty": "—"
+  }
+}

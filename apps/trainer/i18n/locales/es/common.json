@@ -1,0 +1,34 @@
+{
+  "common": {
+    "actions": {
+      "add": "Agregar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "view": "Ver",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "back": "Volver",
+      "confirm": "Confirmar",
+      "more": "Acción"
+    },
+    "table": {
+      "empty": "No hay resultados",
+      "loading": "Cargando..."
+    },
+    "pagination": {
+      "perPage": "Resultados por página"
+    },
+    "toasts": {
+      "error": "Error"
+    },
+    "confirmDelete": {
+      "title": "Eliminar registro",
+      "message": "¿Estás seguro que querés eliminar {name}?"
+    },
+    "status": {
+      "active": "Activo",
+      "deleted": "Eliminado"
+    },
+    "empty": "—"
+  }
+}

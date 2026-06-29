@@ -1,0 +1,65 @@
+{
+  "trainers": {
+    "title": "Trainers",
+    "search": {
+      "label": "Search",
+      "placeholder": "Search trainer..."
+    },
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "createdAt": "Created at"
+    },
+    "filters": {
+      "roleLabel": "Role",
+      "rolePlaceholder": "Select role",
+      "roleOptions": {
+        "trainer": "Trainer",
+        "manager": "Manager"
+      }
+    },
+    "roleBadges": {
+      "trainer": "Trainer",
+      "manager": "Manager"
+    },
+    "add": {
+      "title": "Add Trainer",
+      "heading": "Invite Trainer"
+    },
+    "detail": {
+      "title": "Trainer Detail",
+      "roleTrainer": "Trainer",
+      "roleManager": "Manager",
+      "email": "Email",
+      "phone": "Phone",
+      "clients": "Clients",
+      "viewClients": "View clients"
+    },
+    "edit": {
+      "title": "Edit trainer",
+      "heading": "Edit trainer"
+    },
+    "form": {
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "Sebastián Censi",
+      "emailLabel": "Email",
+      "emailPlaceholder": "seba{'@'}macross.com",
+      "phoneLabel": "Phone",
+      "phonePlaceholder": "+5491112345678",
+      "avatarUrlLabel": "Avatar URL",
+      "avatarUrlPlaceholder": "https://cdn.macross.com/avatar.png",
+      "saveChanges": "Save changes",
+      "inviteTrainer": "Invite trainer"
+    },
+    "toasts": {
+      "created": "Trainer invited",
+      "createdMessage": "Email sent to {email}",
+      "updated": "Trainer updated",
+      "deleted": "Trainer deleted",
+      "createError": "Could not invite trainer",
+      "updateError": "Could not update trainer",
+      "deleteError": "Could not delete trainer"
+    }
+  }
+}

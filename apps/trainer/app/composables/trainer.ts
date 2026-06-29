@@ -49,6 +49,7 @@ export function useGetTrainer(nanoId: string) {
 export function useCreateTrainer() {
   const pending = ref(false)
   const toast = useToast()
+  const { t } = useI18n()
 
   async function create(input: CreateTrainer) {
     pending.value = true
@@ -57,15 +58,15 @@ export function useCreateTrainer() {
       await refreshNuxtData('trainers')
       await navigateTo('/trainers')
       toast.add({
-        title: 'Entrenador invitado',
-        description: `Mail enviado a ${input.email}`,
+        title: t('trainers.toasts.created'),
+        description: t('trainers.toasts.createdMessage', { email: input.email }),
         color: 'success',
       })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo invitar al entrenador',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('trainers.toasts.createError'),
         color: 'error',
       })
     } finally {
@@ -79,6 +80,7 @@ export function useCreateTrainer() {
 export function useUpdateTrainer() {
   const pending = ref(false)
   const toast = useToast()
+  const { t } = useI18n()
 
   async function update(nanoId: string, input: UpdateTrainer) {
     pending.value = true
@@ -87,12 +89,12 @@ export function useUpdateTrainer() {
       await refreshNuxtData('trainers')
       await refreshNuxtData('me')
       await navigateTo('/trainers')
-      toast.add({ title: 'Entrenador actualizado', color: 'success' })
+      toast.add({ title: t('trainers.toasts.updated'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo actualizar el entrenador',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('trainers.toasts.updateError'),
         color: 'error',
       })
     } finally {
@@ -106,18 +108,19 @@ export function useUpdateTrainer() {
 export function useDeleteTrainer() {
   const pending = ref(false)
   const toast = useToast()
+  const { t } = useI18n()
 
   async function remove(nanoId: string) {
     pending.value = true
     try {
       await $fetch(`/api/trainers/${nanoId}`, { method: 'DELETE' })
       await refreshNuxtData('trainers')
-      toast.add({ title: 'Entrenador eliminado', color: 'success' })
+      toast.add({ title: t('trainers.toasts.deleted'), color: 'success' })
     } catch (e) {
       toast.add({
-        title: 'Error',
+        title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? 'No se pudo eliminar el entrenador',
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('trainers.toasts.deleteError'),
         color: 'error',
       })
     } finally {

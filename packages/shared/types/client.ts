@@ -27,8 +27,8 @@ export const clientSchema = z.object({
 })
 
 export const createClientSchema = z.object({
-  fullName: z.string().min(1, 'El nombre es requerido'),
-  email: z.email('El email no es valido'),
+  fullName: z.string().min(1),
+  email: z.email(),
   phone: z.string().optional(),
   trainerId: z.uuid().optional(),
   // Datos de entrenamiento: cargables ya en el invite (Seba los toma en la venta)

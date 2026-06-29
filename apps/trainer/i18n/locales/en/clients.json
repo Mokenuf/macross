@@ -1,0 +1,117 @@
+{
+  "clients": {
+    "title": "Clients",
+    "add": {
+      "title": "Add Client",
+      "heading": "Invite Client"
+    },
+    "detail": {
+      "title": "Client Detail",
+      "email": "Email",
+      "phone": "Phone",
+      "trainer": "Trainer",
+      "age": "Age",
+      "ageUnit": "years",
+      "desiredWeeklyFrequency": "Weekly frequency",
+      "daysUnit": "days",
+      "weight": "Weight",
+      "kgUnit": "kg",
+      "height": "Height",
+      "cmUnit": "cm",
+      "level": "Level",
+      "goals": "Goals",
+      "injuries": "Injuries / Restrictions",
+      "availableEquipment": "Available Equipment",
+      "notes": "Trainer Notes",
+      "trainingData": "Training Data",
+      "trainerNotes": "Trainer Notes",
+      "editButton": "Edit"
+    },
+    "edit": {
+      "title": "Edit Client"
+    },
+    "form": {
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Fran Racciatti",
+      "email": "Email",
+      "emailPlaceholder": "fran{'@'}macross.com",
+      "trainer": "Trainer",
+      "trainerPlaceholder": "Assign trainer",
+      "phone": "Phone",
+      "phonePlaceholder": "+5491112345678",
+      "avatarUrl": "Avatar URL",
+      "avatarUrlPlaceholder": "https://cdn.macross.com/avatar.png",
+      "birthDate": "Birth Date",
+      "desiredWeeklyFrequency": "Desired Weekly Frequency",
+      "desiredWeeklyFrequencyPlaceholder": "3",
+      "weightKg": "Weight (kg)",
+      "weightKgPlaceholder": "70",
+      "heightCm": "Height (cm)",
+      "heightCmPlaceholder": "175",
+      "level": "Level",
+      "levelPlaceholder": "Select level",
+      "goals": "Goals",
+      "goalsPlaceholder": "Select goals",
+      "injuries": "Injuries / Restrictions",
+      "injuriesPlaceholder": "E.g: Chronic lower back pain, no deep squats",
+      "availableEquipment": "Available Equipment",
+      "availableEquipmentPlaceholder": "E.g: Dumbbells up to 20kg, flat bench, barbell and plates",
+      "notes": "Follow-up Notes",
+      "notesPlaceholder": "Observations about the client, progress, reminders...",
+      "sections": {
+        "trainingData": "Training Data",
+        "trainerNotes": "Trainer Notes"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "inviteClient": "Invite Client",
+        "saveChanges": "Save Changes"
+      }
+    },
+    "search": "Search client...",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "trainer": "Trainer",
+      "status": "Status",
+      "createdAt": "Created at"
+    },
+    "filters": {
+      "status": "Status",
+      "statusOptions": {
+        "active": "Active",
+        "deleted": "Deleted",
+        "all": "All"
+      },
+      "trainer": "Trainer",
+      "trainerPlaceholder": "Filter by trainer"
+    },
+    "actions": {
+      "reactivate": "Reactivate"
+    },
+    "toasts": {
+      "invited": "Client Invited",
+      "invitedDescription": "Email sent to {email}",
+      "updated": "Client Updated",
+      "deleted": "Client Deleted",
+      "reactivated": "Client Reactivated",
+      "error": "Error",
+      "errorInviting": "Could not invite client",
+      "errorUpdating": "Could not update client",
+      "errorDeleting": "Could not delete client",
+      "errorReactivating": "Could not reactivate client"
+    },
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "athlete": "Athlete"
+    },
+    "goals": {
+      "hypertrophy": "Hypertrophy",
+      "strength": "Strength",
+      "fat_loss": "Fat loss",
+      "health": "Health"
+    }
+  }
+}

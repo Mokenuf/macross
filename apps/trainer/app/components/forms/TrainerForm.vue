@@ -19,6 +19,8 @@ interface TrainerFormEmits {
 const { trainer, loading = false } = defineProps<TrainerFormProps>()
 const emit = defineEmits<TrainerFormEmits>()
 
+const { t } = useI18n()
+
 const isEdit = computed(() => !!trainer)
 const schema = computed(() => (isEdit.value ? updateTrainerSchema : createTrainerSchema))
 
@@ -36,26 +38,39 @@ function onSubmit(event: FormSubmitEvent<CreateTrainer | UpdateTrainer>) {
 
 <template>
   <UForm :schema :state class="space-y-4" @submit="onSubmit">
-    <UFormField label="Nombre completo" name="fullName" required>
-      <UInput v-model="state.fullName" placeholder="Sebastián Censi" class="w-full" />
+    <UFormField :label="t('trainers.form.fullNameLabel')" name="fullName" required>
+      <UInput
+        v-model="state.fullName"
+        :placeholder="t('trainers.form.fullNamePlaceholder')"
+        class="w-full"
+      />
     </UFormField>
-    <UFormField v-if="!isEdit" label="Email" name="email" required>
-      <UInput v-model="state.email" type="email" placeholder="seba@macross.com" class="w-full" />
+    <UFormField v-if="!isEdit" :label="t('trainers.form.emailLabel')" name="email" required>
+      <UInput
+        v-model="state.email"
+        type="email"
+        :placeholder="t('trainers.form.emailPlaceholder')"
+        class="w-full"
+      />
     </UFormField>
-    <UFormField label="Teléfono" name="phone">
-      <UInput v-model="state.phone" placeholder="+5491112345678" class="w-full" />
+    <UFormField :label="t('trainers.form.phoneLabel')" name="phone">
+      <UInput
+        v-model="state.phone"
+        :placeholder="t('trainers.form.phonePlaceholder')"
+        class="w-full"
+      />
     </UFormField>
-    <UFormField v-if="isEdit" label="URL de avatar" name="avatarUrl">
+    <UFormField v-if="isEdit" :label="t('trainers.form.avatarUrlLabel')" name="avatarUrl">
       <UInput
         v-model="state.avatarUrl"
-        placeholder="https://cdn.macross.com/avatar.png"
+        :placeholder="t('trainers.form.avatarUrlPlaceholder')"
         class="w-full"
       />
     </UFormField>
     <div class="flex justify-end gap-3">
       <UButton
         class="cursor-pointer"
-        label="Cancelar"
+        :label="t('common.actions.cancel')"
         color="neutral"
         variant="ghost"
         to="/trainers"
@@ -63,7 +78,7 @@ function onSubmit(event: FormSubmitEvent<CreateTrainer | UpdateTrainer>) {
       <UButton
         class="cursor-pointer"
         type="submit"
-        :label="isEdit ? 'Guardar cambios' : 'Invitar entrenador'"
+        :label="isEdit ? t('trainers.form.saveChanges') : t('trainers.form.inviteTrainer')"
         :loading
       />
     </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Detalle del cliente' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'clients.detail.title' })
 
+const { t } = useI18n()
 const route = useRoute()
 const { nanoId } = route.params
 
@@ -12,7 +13,11 @@ const { client, loading } = useGetClient(String(nanoId))
     <div v-if="client">
       <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold">{{ client.fullName }}</h1>
-        <UButton icon="i-lucide-pencil" label="Editar" :to="`/clients/${client.nanoId}/edit`" />
+        <UButton
+          icon="i-lucide-pencil"
+          :label="t('clients.detail.editButton')"
+          :to="`/clients/${client.nanoId}/edit`"
+        />
       </div>
       <ClientDetail :client />
     </div>

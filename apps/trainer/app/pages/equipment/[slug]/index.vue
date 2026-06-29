@@ -1,6 +1,7 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Detalle del equipamiento' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'equipment.pages.detail' })
 
+const { t } = useI18n()
 const route = useRoute()
 const { slug } = route.params
 
@@ -17,7 +18,7 @@ const isManager = computed(() => user.value?.role === 'manager')
         <UButton
           v-if="isManager"
           icon="i-lucide-pencil"
-          label="Editar"
+          :label="t('common.actions.edit')"
           :to="`/equipment/${equipment.slug}/edit`"
         />
       </div>

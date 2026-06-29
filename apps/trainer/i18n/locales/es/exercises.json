@@ -1,0 +1,51 @@
+{
+  "exercises": {
+    "title": "Ejercicios",
+    "add": "Agregar Ejercicio",
+    "search": "Buscar ejercicio...",
+    "columns": {
+      "name": "Nombre",
+      "muscleGroups": "Grupos Musculares",
+      "equipment": "Equipamiento",
+      "description": "Descripción"
+    },
+    "filters": {
+      "muscleGroup": "Grupo muscular",
+      "muscleGroupPlaceholder": "Filtrar por grupo muscular",
+      "equipment": "Equipamiento",
+      "equipmentPlaceholder": "Filtrar por equipamiento",
+      "searchPlaceholder": "Buscar..."
+    },
+    "form": {
+      "name": "Nombre",
+      "nameExample": "Ej: Sentadilla búlgara",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción del ejercicio",
+      "muscleGroup": "Grupo muscular",
+      "muscleGroupPlaceholder": "Seleccioná uno o varios grupos musculares",
+      "equipment": "Equipamiento",
+      "equipmentPlaceholder": "Seleccioná el equipamiento",
+      "videoUrl": "URL del video",
+      "videoUrlExample": "Ej: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    },
+    "detail": {
+      "muscleGroups": "Grupos musculares",
+      "equipment": "Equipamiento",
+      "description": "Descripción",
+      "video": "Video"
+    },
+    "pages": {
+      "add": "Agregar ejercicio",
+      "edit": "Editar ejercicio",
+      "detail": "Detalle del ejercicio"
+    },
+    "toasts": {
+      "created": "Ejercicio creado",
+      "updated": "Ejercicio actualizado",
+      "deleted": "Ejercicio eliminado",
+      "createError": "No se pudo crear el ejercicio",
+      "updateError": "No se pudo actualizar el ejercicio",
+      "deleteError": "No se pudo eliminar el ejercicio"
+    }
+  }
+}

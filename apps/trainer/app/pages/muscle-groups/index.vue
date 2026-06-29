@@ -4,27 +4,30 @@ import type { MuscleGroup } from '@macross/shared'
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Grupos Musculares' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.title' })
 
+const { t } = useI18n()
 const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroupList()
 const { remove } = useDeleteMuscleGroup()
 const { data: user } = useGetMe()
 
 const isManager = computed(() => user.value?.role === 'manager')
 
-const filterConfig: Filter[] = [
+const filterConfig = computed<Filter[]>(() => [
   {
     type: 'search',
     key: 'search',
-    label: 'Buscar',
-    placeholder: 'Buscar grupo muscular...',
+    label: t('filters.search'),
+    placeholder: t('muscle-groups.filters.placeholder'),
     debounce: 300,
   },
-]
+])
 
 const filterValues = computed(() => ({ search: search.value }))
 
-const columns: TableColumn<MuscleGroup>[] = [{ accessorKey: 'name', header: 'Nombre' }]
+const columns = computed<TableColumn<MuscleGroup>[]>(() => [
+  { accessorKey: 'name', header: t('muscle-groups.columns.name') },
+])
 
 const actions: TableAction<MuscleGroup>[] = [
   { type: 'view', href: row => `/muscle-groups/${row.slug}` },
@@ -48,7 +51,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       />
       <UButton
         v-if="isManager"
-        label="Agregar Grupo Muscular"
+        :label="t('muscle-groups.add')"
         icon="i-lucide-plus"
         color="primary"
         to="/muscle-groups/add"

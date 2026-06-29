@@ -14,6 +14,8 @@ interface BaseFiltersEmits {
 const { filters, values } = defineProps<BaseFiltersProps>()
 const emit = defineEmits<BaseFiltersEmits>()
 
+const { t } = useI18n()
+
 const debounceTimers: Record<string, ReturnType<typeof setTimeout>> = {}
 
 // Los filtros no-search se difieren: viven acá hasta que el usuario toca "Aplicar". El search no.
@@ -92,7 +94,7 @@ syncDraft()
 
 <template>
   <div class="space-y-3">
-    <h3 class="text-sm font-semibold">Filtros</h3>
+    <h3 class="text-sm font-semibold">{{ t('filters.title') }}</h3>
 
     <div class="flex flex-wrap items-center gap-3">
       <template v-for="filter in filters" :key="filter.key">
@@ -119,14 +121,14 @@ syncDraft()
 
     <div v-if="hasNonSearchFilters" class="flex gap-3">
       <UButton
-        label="Aplicar"
+        :label="t('filters.apply')"
         icon="i-lucide-filter"
         color="primary"
         :disabled="!isDirty"
         @click="applyFilters"
       />
       <UButton
-        label="Limpiar"
+        :label="t('filters.clear')"
         icon="i-lucide-x"
         color="neutral"
         variant="outline"

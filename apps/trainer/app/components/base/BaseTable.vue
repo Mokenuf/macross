@@ -22,6 +22,8 @@ const { columns, actions, data, loading, pagination, deleteLabel } = defineProps
 
 const emit = defineEmits<BaseTableEmits>()
 
+const { t } = useI18n()
+
 function isActionVisible(action: TableAction<T>, row: T): boolean {
   const v = action.visible
   if (typeof v === 'function') return v(row)
@@ -29,15 +31,14 @@ function isActionVisible(action: TableAction<T>, row: T): boolean {
   return v ?? true
 }
 
-const CatalogDefaultActions: Record<
-  ActionType,
-  { label: string; icon: string; color?: ActionColor }
-> = {
-  view: { label: 'Ver', icon: 'i-lucide-eye' },
-  edit: { label: 'Editar', icon: 'i-lucide-pencil' },
-  delete: { label: 'Eliminar', icon: 'i-lucide-trash', color: 'error' },
-  custom: { label: 'Acción', icon: 'i-lucide-more-horizontal' },
-}
+const catalogDefaultActions = computed<
+  Record<ActionType, { label: string; icon: string; color?: ActionColor }>
+>(() => ({
+  view: { label: t('common.actions.view'), icon: 'i-lucide-eye' },
+  edit: { label: t('common.actions.edit'), icon: 'i-lucide-pencil' },
+  delete: { label: t('common.actions.delete'), icon: 'i-lucide-trash', color: 'error' },
+  custom: { label: t('common.actions.more'), icon: 'i-lucide-more-horizontal' },
+}))
 
 const allColumns = computed(() => {
   if (actions.length === 0) return columns
@@ -50,7 +51,7 @@ const allColumns = computed(() => {
       const items: DropdownMenuItem[] = actions
         .filter(a => isActionVisible(a, row.original))
         .map(action => {
-          const defaults = CatalogDefaultActions[action.type]
+          const defaults = catalogDefaultActions.value[action.type]
           return {
             label: action.label ?? defaults.label,
             icon: action.icon ?? defaults.icon,
@@ -140,16 +141,23 @@ async function confirmDelete() {
     <UModal v-model:open="showDeleteModal" :dismissible="!deleting">
       <template #content>
         <div class="space-y-4 p-6">
-          <h3 class="text-lg font-semibold">Eliminar registro</h3>
-          <p class="text-sm text-neutral-500">
-            ¿Estás seguro que querés eliminar
-            <strong v-if="deleteTarget && deleteLabel">{{ deleteLabel(deleteTarget as T) }}</strong
-            >?
-          </p>
+          <h3 class="text-lg font-semibold">{{ t('common.confirmDelete.title') }}</h3>
+          <i18n-t
+            keypath="common.confirmDelete.message"
+            tag="p"
+            class="text-sm text-neutral-500"
+            scope="global"
+          >
+            <template #name>
+              <strong>{{
+                deleteTarget && deleteLabel ? deleteLabel(deleteTarget as T) : ''
+              }}</strong>
+            </template>
+          </i18n-t>
           <div class="flex justify-end gap-3">
             <UButton
               class="cursor-pointer"
-              label="Cancelar"
+              :label="t('common.actions.cancel')"
               color="neutral"
               variant="ghost"
               :disabled="deleting"
@@ -157,7 +165,7 @@ async function confirmDelete() {
             />
             <UButton
               class="cursor-pointer"
-              label="Eliminar"
+              :label="t('common.actions.delete')"
               color="error"
               variant="solid"
               :loading="deleting"

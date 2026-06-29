@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { SetPassword } from '@macross/shared'
 
-definePageMeta({ layout: 'auth', title: 'Establecer contraseña' })
+definePageMeta({ layout: 'auth', title: 'auth.setPassword.title' })
 
+const { t } = useI18n()
 const { setPassword } = useSetPassword()
 const supabase = useSupabaseClient()
 const currentUser = useSupabaseUser()
@@ -42,9 +43,9 @@ async function onSubmit(data: SetPassword) {
 
 <template>
   <div class="w-full max-w-md">
-    <h1 class="mb-6 text-2xl font-bold">Establecer contraseña</h1>
+    <h1 class="mb-6 text-2xl font-bold">{{ t('auth.setPassword.title') }}</h1>
     <p class="mb-6 text-sm text-neutral-500">
-      Bienvenido a Macros for progress. Para continuar, establece una contraseña para tu cuenta.
+      {{ t('auth.setPassword.description') }}
     </p>
     <SetPasswordForm :loading @submit="onSubmit" />
   </div>
