@@ -76,9 +76,10 @@ pnpm test:client      # Tests de apps/client (watch)
 pnpm db:generate      # Regenera los tipos de Supabase tras una migración
 pnpm lint             # Oxlint
 pnpm lint:fix         # Oxlint con autofix
+pnpm typecheck        # Type-check (vue-tsc en apps, tsc en shared) vía Turbo
 pnpm format           # Oxfmt (write)
 pnpm format:check     # Oxfmt (check)
-pnpm check            # Lint + format check
+pnpm check            # Lint + format check + typecheck
 pnpm commit           # Commit con Commitizen
 ```
 
