@@ -1,5 +1,6 @@
 import { env } from '@@/env'
-import { CreateTrainer, createTrainerSchema, Roles, Trainer, trainerSchema } from '@macross/shared'
+import type { CreateTrainer, Trainer } from '@macross/shared'
+import { createTrainerSchema, Roles, trainerSchema } from '@macross/shared'
 
 import {
   serverSupabaseClient,

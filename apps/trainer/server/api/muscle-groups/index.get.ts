@@ -1,10 +1,5 @@
-import {
-  BaseResponse,
-  MuscleGroup,
-  MuscleGroupQueryParams,
-  muscleGroupQueryParamsSchema,
-  muscleGroupSchema,
-} from '@macross/shared'
+import type { BaseResponse, MuscleGroup, MuscleGroupQueryParams } from '@macross/shared'
+import { muscleGroupQueryParamsSchema, muscleGroupSchema } from '@macross/shared'
 import { z } from 'zod'
 
 import { serverSupabaseClient } from '#supabase/server'

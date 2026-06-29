@@ -1,9 +1,5 @@
-import {
-  Exercise,
-  exerciseSchema,
-  ExerciseWithPivot,
-  exerciseWithPivotSchema,
-} from '@macross/shared'
+import type { Exercise, ExerciseWithPivot } from '@macross/shared'
+import { exerciseSchema, exerciseWithPivotSchema } from '@macross/shared'
 
 import { serverSupabaseClient } from '#supabase/server'
 

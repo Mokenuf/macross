@@ -1,10 +1,5 @@
-import {
-  BaseResponse,
-  Equipment,
-  EquipmentQueryParams,
-  equipmentQueryParamsSchema,
-  equipmentSchema,
-} from '@macross/shared'
+import type { BaseResponse, Equipment, EquipmentQueryParams } from '@macross/shared'
+import { equipmentQueryParamsSchema, equipmentSchema } from '@macross/shared'
 import { z } from 'zod'
 
 import { serverSupabaseClient } from '#supabase/server'

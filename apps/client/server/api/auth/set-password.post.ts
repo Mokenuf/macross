@@ -1,4 +1,4 @@
-import { SetPassword, setPasswordSchema } from '@macross/shared'
+import { type SetPassword, setPasswordSchema } from '@macross/shared'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 

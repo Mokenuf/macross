@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "cross-env SKIP_ENV_VALIDATION=1 nuxt prepare"
+    "postinstall": "cross-env SKIP_ENV_VALIDATION=1 nuxt prepare",
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@iconify-json/circle-flags": "^1.2.10",
@@ -24,6 +25,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "cross-env": "^10.1.0"
+    "cross-env": "^10.1.0",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.5"
   }
 }
