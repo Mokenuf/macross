@@ -10,7 +10,7 @@ import {
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
-export function useGetEquipments() {
+export function useGetEquipmentList() {
   const filters = useQueryFilters<EquipmentFilters>({
     page: 1,
     limit: 20,

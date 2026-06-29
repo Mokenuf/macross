@@ -6,7 +6,7 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'Grupos Musculares' })
 
-const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroups()
+const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroupList()
 const { remove } = useDeleteMuscleGroup()
 const { data: user } = useGetMe()
 

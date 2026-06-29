@@ -10,7 +10,7 @@ import {
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
-export function useGetExercises() {
+export function useGetExerciseList() {
   const filters = useQueryFilters<ExerciseFilters>({
     page: 1,
     limit: 20,

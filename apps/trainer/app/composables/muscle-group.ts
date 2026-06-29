@@ -10,7 +10,7 @@ import {
 } from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
-export function useGetMuscleGroups() {
+export function useGetMuscleGroupList() {
   const filters = useQueryFilters<MuscleGroupFilters>({
     page: 1,
     limit: 20,
