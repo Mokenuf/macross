@@ -118,19 +118,17 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-end justify-between">
-      <BaseFilters
-        :filters="filterConfig"
-        :values="filterValues"
-        @update:filters="onFilterUpdate"
-      />
-      <UButton
-        :label="t('clients.add.title')"
-        icon="i-lucide-plus"
-        color="primary"
-        to="/clients/add"
-      />
-    </div>
+    <BasePageHead :title="t('clients.title')">
+      <template #actions>
+        <UButton
+          :label="t('clients.add.title')"
+          icon="i-lucide-plus"
+          color="primary"
+          to="/clients/add"
+        />
+      </template>
+    </BasePageHead>
+    <BaseFilters :filters="filterConfig" :values="filterValues" @update:filters="onFilterUpdate" />
     <BaseTable
       :columns
       :actions

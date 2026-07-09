@@ -83,20 +83,18 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-end justify-between">
-      <BaseFilters
-        :filters="filterConfig"
-        :values="filterValues"
-        @update:filters="onFilterUpdate"
-      />
-      <UButton
-        v-if="isManager"
-        :label="t('common.actions.add')"
-        icon="i-lucide-plus"
-        color="primary"
-        to="/trainers/add"
-      />
-    </div>
+    <BasePageHead :title="t('trainers.title')">
+      <template #actions>
+        <UButton
+          v-if="isManager"
+          :label="t('common.actions.add')"
+          icon="i-lucide-plus"
+          color="primary"
+          to="/trainers/add"
+        />
+      </template>
+    </BasePageHead>
+    <BaseFilters :filters="filterConfig" :values="filterValues" @update:filters="onFilterUpdate" />
     <BaseTable
       :columns
       :actions

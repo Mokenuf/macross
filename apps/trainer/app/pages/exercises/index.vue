@@ -65,17 +65,35 @@ const filterValues = computed(() => ({
   equipmentIds: equipmentIds.value,
 }))
 
+const UBadge = resolveComponent('UBadge')
+
 const columns = computed<TableColumn<Exercise>[]>(() => [
-  { id: 'name', header: t('exercises.columns.name'), accessorFn: row => localizedName(row) },
+  {
+    id: 'name',
+    header: t('exercises.columns.name'),
+    accessorFn: row => localizedName(row),
+    cell: ({ getValue }) =>
+      h('span', { class: 'font-semibold text-highlighted' }, getValue<string>()),
+  },
   {
     id: 'muscleGroups',
     header: t('exercises.columns.muscleGroups'),
-    accessorFn: row => row.muscleGroups.map(mg => localizedName(mg)).join(', '),
+    cell: ({ row }) =>
+      h(
+        'div',
+        { class: 'flex flex-wrap gap-1.5' },
+        row.original.muscleGroups.map(mg =>
+          h(UBadge, { color: 'primary' }, () => localizedName(mg)),
+        ),
+      ),
   },
   {
     id: 'equipment',
     header: t('exercises.columns.equipment'),
-    accessorFn: row => (row.equipment ? localizedName(row.equipment) : '—'),
+    cell: ({ row }) => {
+      const eq = row.original.equipment
+      return eq ? h(UBadge, { color: 'neutral' }, () => localizedName(eq)) : '—'
+    },
   },
   {
     id: 'description',
@@ -102,20 +120,18 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-end justify-between">
-      <BaseFilters
-        :filters="filterConfig"
-        :values="filterValues"
-        @update:filters="onFilterUpdate"
-      />
-      <UButton
-        v-if="isManager"
-        :label="t('exercises.add')"
-        icon="i-lucide-plus"
-        color="primary"
-        to="/exercises/add"
-      />
-    </div>
+    <BasePageHead :title="t('exercises.title')">
+      <template #actions>
+        <UButton
+          v-if="isManager"
+          :label="t('exercises.add')"
+          icon="i-lucide-plus"
+          color="primary"
+          to="/exercises/add"
+        />
+      </template>
+    </BasePageHead>
+    <BaseFilters :filters="filterConfig" :values="filterValues" @update:filters="onFilterUpdate" />
 
     <BaseTable
       :columns

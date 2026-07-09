@@ -7,20 +7,22 @@ const { data: user } = useGetMe()
 
 const { t, te } = useI18n()
 
-const avatarText = computed(() => user?.value?.email?.charAt(0).toUpperCase())
+const { logout } = useLogout()
+
+const avatarText = computed(() => {
+  const name = user.value?.fullName ?? user.value?.email ?? ''
+  return name
+    .split(' ')
+    .map(word => word.charAt(0))
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+})
+const isManager = computed(() => user.value?.role === 'manager')
 const routeTitle = computed(() => {
   const title = route.meta.title as string | undefined
   return title && te(title) ? t(title) : (title ?? t('nav.dashboard'))
 })
-useHead({ title: routeTitle })
-
-const isManager = computed(() => user.value?.role === 'manager')
-
-const { logout } = useLogout()
-
-async function handleLogout() {
-  await logout()
-}
 
 const navigation = computed<NavigationMenuItem[]>(() => [
   {
@@ -35,88 +37,150 @@ const navigation = computed<NavigationMenuItem[]>(() => [
   },
   {
     label: t('nav.catalog'),
-    icon: 'i-lucide-book-open',
-    defaultOpen: true,
-    children: [
-      {
-        label: t('nav.exercises'),
-        to: '/exercises',
-      },
-      {
-        label: t('nav.muscleGroups'),
-        to: '/muscle-groups',
-      },
-      {
-        label: t('nav.equipment'),
-        to: '/equipment',
-      },
-    ],
+    type: 'label',
+  },
+  {
+    label: t('nav.exercises'),
+    icon: 'i-lucide-dumbbell',
+    to: '/exercises',
+  },
+  {
+    label: t('nav.muscleGroups'),
+    icon: 'i-lucide-person-standing',
+    to: '/muscle-groups',
+  },
+  {
+    label: t('nav.equipment'),
+    icon: 'i-lucide-wrench',
+    to: '/equipment',
   },
   {
     label: t('nav.users'),
-    icon: 'i-lucide-users',
-    defaultOpen: true,
-    children: [
-      {
-        label: t('nav.clients'),
-        to: '/clients',
-      },
-      ...(isManager.value
-        ? [
-            {
-              label: t('nav.trainers'),
-              to: '/trainers',
-            },
-          ]
-        : []),
-    ],
+    type: 'label',
   },
+  {
+    label: t('nav.clients'),
+    icon: 'i-lucide-users',
+    to: '/clients',
+  },
+  ...(isManager.value
+    ? [
+        {
+          label: t('nav.trainers'),
+          icon: 'i-lucide-user-cog',
+          to: '/trainers',
+        },
+      ]
+    : []),
 ])
+
+const collapsedNavigation = computed<NavigationMenuItem[]>(() =>
+  navigation.value.map(item => (item.type === 'label' ? { type: 'separator' } : item)),
+)
+
+useHead({ title: routeTitle })
+
+async function handleLogout() {
+  await logout()
+}
 </script>
 
 <template>
   <UDashboardGroup>
-    <UDashboardSidebar collapsible>
-      <template #header="{ collapsed }">
-        <span
-          v-if="!collapsed"
-          class="font-logo text-primary text-lg font-bold tracking-wide uppercase"
-          >Macros for progress</span
+    <UDashboardSidebar collapsible :ui="{ root: 'transition-[width] duration-200 ease-out' }">
+      <template #header="{ collapsed, collapse }">
+        <div
+          class="flex w-full"
+          :class="collapsed ? 'flex-col items-center gap-2 pt-2' : 'items-start justify-between'"
         >
-        <span v-else class="font-logo text-primary mx-auto text-lg font-bold">M4P</span>
-        <UDashboardSidebarCollapse />
-      </template>
-
-      <UNavigationMenu :items="navigation" orientation="vertical" />
-
-      <template #footer="{ collapsed }">
-        <div v-if="!collapsed" class="flex w-full items-center gap-2">
-          <UAvatar :text="avatarText" size="sm" />
-          <span class="text-muted flex-1 truncate text-sm">{{ user?.email }}</span>
+          <NuxtLink
+            v-if="!collapsed"
+            to="/"
+            class="font-logo pt-1 pb-4 text-[21px] leading-tight tracking-[0.04em] uppercase"
+          >
+            Macros<span class="text-primary"> for Progress</span>
+          </NuxtLink>
+          <NuxtLink
+            v-else
+            to="/"
+            class="font-logo text-2xl leading-none tracking-[0.04em] uppercase"
+          >
+            M<span class="text-primary">4</span>P
+          </NuxtLink>
           <UButton
-            icon="i-lucide-log-out"
-            variant="ghost"
-            class="cursor-pointer"
-            size="xs"
+            :icon="collapsed ? 'i-lucide-chevron-right' : 'i-lucide-chevron-left'"
             color="neutral"
-            @click="handleLogout"
+            variant="ghost"
+            size="sm"
+            square
+            class="text-dimmed hover:text-default cursor-pointer"
+            @click="collapse(!collapsed)"
           />
         </div>
-        <div v-else class="flex justify-center">
-          <UAvatar :text="avatarText" size="sm" />
+      </template>
+
+      <template #default="{ collapsed }">
+        <UNavigationMenu
+          :collapsed="collapsed"
+          :items="collapsed ? collapsedNavigation : navigation"
+          orientation="vertical"
+          :ui="{
+            label:
+              'text-[10px] font-semibold uppercase tracking-[0.14em] text-dimmed px-2.5 pt-3.5 pb-1.5',
+            link: 'gap-2.5 py-2 text-[13.5px] before:rounded-sm',
+          }"
+        />
+      </template>
+
+      <template #footer="{ collapsed }">
+        <div v-if="!collapsed" class="flex w-full flex-col gap-2">
+          <div class="flex items-center gap-2.5">
+            <UAvatar
+              :src="user?.avatarUrl || undefined"
+              :text="avatarText"
+              class="from-macross-primary-500 to-macross-gray-800 size-7.5 bg-linear-to-br"
+              :ui="{ fallback: 'font-logo text-[13px] text-highlighted' }"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-semibold">{{ user?.fullName }}</p>
+              <p class="text-dimmed text-[10px] font-medium tracking-wider uppercase">
+                {{ user?.role }}
+              </p>
+            </div>
+            <UButton
+              icon="i-lucide-log-out"
+              color="neutral"
+              variant="ghost"
+              square
+              size="xs"
+              class="border-default text-muted hover:border-error/40 hover:bg-error/8 hover:text-error cursor-pointer rounded-sm border p-1.5"
+              @click="handleLogout"
+            />
+          </div>
+          <LanguageSwitcher />
+        </div>
+        <div v-else class="flex flex-col items-center gap-2">
+          <UAvatar
+            :src="user?.avatarUrl || undefined"
+            :text="avatarText"
+            class="from-macross-primary-500 to-macross-gray-800 size-7.5 bg-linear-to-br"
+            :ui="{ fallback: 'font-logo text-[13px] text-highlighted' }"
+          />
+          <LanguageSwitcher compact />
+          <UButton
+            icon="i-lucide-log-out"
+            color="neutral"
+            variant="ghost"
+            square
+            size="xs"
+            class="border-default text-muted hover:border-error/40 hover:bg-error/8 hover:text-error cursor-pointer rounded-sm border p-1.5"
+            @click="handleLogout"
+          />
         </div>
       </template>
     </UDashboardSidebar>
 
     <UDashboardPanel>
-      <template #header>
-        <UDashboardNavbar :title="routeTitle">
-          <template #right>
-            <LanguageSwitcher />
-          </template>
-        </UDashboardNavbar>
-      </template>
-
       <template #body>
         <slot />
       </template>
