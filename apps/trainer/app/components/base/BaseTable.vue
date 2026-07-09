@@ -112,6 +112,10 @@ function openDeleteModal(row: T, onSelect: (row: T) => void | Promise<void>) {
   showDeleteModal.value = true
 }
 
+function closeDeleteModal() {
+  showDeleteModal.value = false
+}
+
 async function confirmDelete() {
   if (!deleteTarget.value || !deleteAction.value) return
   deleting.value = true
@@ -161,7 +165,7 @@ async function confirmDelete() {
               color="neutral"
               variant="ghost"
               :disabled="deleting"
-              @click="showDeleteModal = false"
+              @click="closeDeleteModal"
             />
             <UButton
               class="cursor-pointer"

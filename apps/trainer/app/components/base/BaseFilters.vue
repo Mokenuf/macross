@@ -72,6 +72,25 @@ function onSelectChange(filter: Filter, value: unknown) {
   draft[filter.key] = value as FilterValue
 }
 
+function onSelectClear(filter: Filter) {
+  draft[filter.key] = filter.type === 'select' && filter.multiple ? [] : ''
+}
+
+function hasSelection(value: unknown): boolean {
+  return Array.isArray(value) ? value.length > 0 : value != null && value !== ''
+}
+
+function selectLabel(filter: Filter, value: unknown): string {
+  if (filter.type !== 'select') return ''
+  const options = filter.options as { label: string; value: string }[]
+  const labelOf = (v: unknown) => options.find(o => o.value === v)?.label ?? String(v)
+  if (Array.isArray(value)) {
+    if (value.length === 1) return labelOf(value[0])
+    return `${labelOf(value[0])} ${t('filters.andMore', { count: value.length - 1 })}`
+  }
+  return labelOf(value)
+}
+
 function applyFilters() {
   for (const filter of nonSearchFilters.value) {
     const value = draft[filter.key]
@@ -100,10 +119,11 @@ syncDraft()
   <div class="space-y-3">
     <h3 class="text-sm font-semibold">{{ t('filters.title') }}</h3>
 
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="flex flex-wrap items-end gap-2.5">
       <template v-for="filter in filters" :key="filter.key">
         <UInput
           v-if="filter.type === 'search'"
+          class="max-w-2xl min-w-40 flex-1"
           :placeholder="filter.placeholder"
           :model-value="String(values[filter.key] ?? '')"
           icon="i-lucide-search"
@@ -111,33 +131,49 @@ syncDraft()
         />
         <USelectMenu
           v-else-if="filter.type === 'select'"
-          class="min-w-40"
+          class="max-w-64 min-w-40"
+          :clear="{ size: 'xs' }"
+          :ui="{ itemTrailingIcon: 'hidden' }"
           :placeholder="filter.placeholder"
           :items="filter.options"
           value-key="value"
           :multiple="filter.multiple"
-          :search-input="filter.searchable ? undefined : false"
+          :search-input="filter.searchable ? { icon: 'i-lucide-search' } : false"
           :model-value="draft[filter.key]"
           @update:model-value="onSelectChange(filter, $event)"
+          @clear="onSelectClear(filter)"
+        >
+          <template #default="{ modelValue }">
+            <span v-if="!hasSelection(modelValue)" class="text-dimmed truncate">
+              {{ filter.placeholder }}
+            </span>
+            <span v-else class="truncate">{{ selectLabel(filter, modelValue) }}</span>
+          </template>
+
+          <template #item-leading>
+            <span
+              class="border-default group-data-[state=checked]:border-macross-bronze-soft group-data-[state=checked]:bg-macross-primary-400 group-data-[state=checked]:text-macross-primary-950 grid size-4 shrink-0 place-items-center rounded-xs border text-transparent"
+            >
+              <UIcon name="i-lucide-check" class="size-3" />
+            </span>
+          </template>
+        </USelectMenu>
+      </template>
+
+      <template v-if="hasNonSearchFilters">
+        <UButton
+          :label="t('filters.apply')"
+          color="primary"
+          :disabled="!isDirty"
+          @click="applyFilters"
+        />
+        <UButton
+          :label="t('filters.clear')"
+          color="neutral"
+          variant="ghost"
+          @click="clearFilters"
         />
       </template>
-    </div>
-
-    <div v-if="hasNonSearchFilters" class="flex gap-3">
-      <UButton
-        :label="t('filters.apply')"
-        icon="i-lucide-filter"
-        color="primary"
-        :disabled="!isDirty"
-        @click="applyFilters"
-      />
-      <UButton
-        :label="t('filters.clear')"
-        icon="i-lucide-x"
-        color="neutral"
-        variant="outline"
-        @click="clearFilters"
-      />
     </div>
   </div>
 </template>

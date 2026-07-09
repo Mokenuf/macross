@@ -65,7 +65,7 @@ const filterValues = computed(() => ({
   equipmentIds: equipmentIds.value,
 }))
 
-const UBadge = resolveComponent('UBadge')
+const BaseBadgeList = resolveComponent('BaseBadgeList')
 
 const columns = computed<TableColumn<Exercise>[]>(() => [
   {
@@ -79,26 +79,29 @@ const columns = computed<TableColumn<Exercise>[]>(() => [
     id: 'muscleGroups',
     header: t('exercises.columns.muscleGroups'),
     cell: ({ row }) =>
-      h(
-        'div',
-        { class: 'flex flex-wrap gap-1.5' },
-        row.original.muscleGroups.map(mg =>
-          h(UBadge, { color: 'primary' }, () => localizedName(mg)),
-        ),
-      ),
+      h(BaseBadgeList, {
+        items: row.original.muscleGroups.map(mg => localizedName(mg)),
+        color: 'primary',
+      }),
   },
   {
     id: 'equipment',
     header: t('exercises.columns.equipment'),
     cell: ({ row }) => {
       const eq = row.original.equipment
-      return eq ? h(UBadge, { color: 'neutral' }, () => localizedName(eq)) : '—'
+      return h(BaseBadgeList, { items: eq ? [localizedName(eq)] : [], color: 'neutral' })
     },
   },
   {
     id: 'description',
     header: t('exercises.columns.description'),
     accessorFn: row => localizedText(row.descriptionEs, row.descriptionEn) ?? '—',
+    cell: ({ getValue }) =>
+      h(
+        'span',
+        { class: 'block max-w-xs truncate', title: getValue<string>() },
+        getValue<string>(),
+      ),
   },
 ])
 

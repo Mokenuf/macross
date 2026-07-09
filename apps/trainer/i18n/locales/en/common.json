@@ -4,7 +4,7 @@
       "add": "Add",
       "edit": "Edit",
       "delete": "Delete",
-      "view": "View",
+      "view": "View detail",
       "save": "Save",
       "cancel": "Cancel",
       "back": "Back",
@@ -16,7 +16,8 @@
       "loading": "Loading..."
     },
     "pagination": {
-      "perPage": "Results per page"
+      "perPage": "Results per page",
+      "range": "{from}–{to} of {total}"
     },
     "toasts": {
       "error": "Error"

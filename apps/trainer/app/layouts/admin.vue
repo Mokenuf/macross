@@ -90,21 +90,17 @@ async function handleLogout() {
     <UDashboardSidebar collapsible :ui="{ root: 'transition-[width] duration-200 ease-out' }">
       <template #header="{ collapsed, collapse }">
         <div
-          class="flex w-full"
-          :class="collapsed ? 'flex-col items-center gap-2 pt-2' : 'items-start justify-between'"
+          class="flex w-full pt-3"
+          :class="collapsed ? 'flex-col items-center gap-2' : 'items-start justify-between'"
         >
           <NuxtLink
             v-if="!collapsed"
             to="/"
-            class="font-logo pt-1 pb-4 text-[21px] leading-tight tracking-[0.04em] uppercase"
+            class="font-logo pt-1 pb-4 text-xl leading-tight tracking-wider uppercase"
           >
             Macros<span class="text-primary"> for Progress</span>
           </NuxtLink>
-          <NuxtLink
-            v-else
-            to="/"
-            class="font-logo text-2xl leading-none tracking-[0.04em] uppercase"
-          >
+          <NuxtLink v-else to="/" class="font-logo text-2xl leading-none tracking-wider uppercase">
             M<span class="text-primary">4</span>P
           </NuxtLink>
           <UButton
@@ -127,7 +123,7 @@ async function handleLogout() {
           :ui="{
             label:
               'text-[10px] font-semibold uppercase tracking-[0.14em] text-dimmed px-2.5 pt-3.5 pb-1.5',
-            link: 'gap-2.5 py-2 text-[13.5px] before:rounded-sm',
+            link: 'gap-2.5 py-2 text-sm before:rounded-sm',
           }"
         />
       </template>
@@ -139,7 +135,7 @@ async function handleLogout() {
               :src="user?.avatarUrl || undefined"
               :text="avatarText"
               class="from-macross-primary-500 to-macross-gray-800 size-7.5 bg-linear-to-br"
-              :ui="{ fallback: 'font-logo text-[13px] text-highlighted' }"
+              :ui="{ fallback: 'font-logo text-sm text-highlighted' }"
             />
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-semibold">{{ user?.fullName }}</p>
@@ -164,7 +160,7 @@ async function handleLogout() {
             :src="user?.avatarUrl || undefined"
             :text="avatarText"
             class="from-macross-primary-500 to-macross-gray-800 size-7.5 bg-linear-to-br"
-            :ui="{ fallback: 'font-logo text-[13px] text-highlighted' }"
+            :ui="{ fallback: 'font-logo text-sm text-highlighted' }"
           />
           <LanguageSwitcher compact />
           <UButton
