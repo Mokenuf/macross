@@ -29,10 +29,12 @@ export function useGetMuscleGroupList() {
 
   const muscleGroups = computed<MuscleGroup[]>(() => data.value?.rows ?? [])
   const pagination = computed<Pagination>(() => data.value?.pagination ?? defaultPagination)
+  const counts = computed(() => data.value?.counts)
 
   return {
     muscleGroups,
     pagination,
+    counts,
     loading: pending,
     refresh,
     error,

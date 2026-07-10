@@ -2,6 +2,7 @@
   "muscle-groups": {
     "title": "Grupos Musculares",
     "add": "Agregar Grupo Muscular",
+    "count": "{count} en catálogo",
     "columns": {
       "name": "Nombre"
     },

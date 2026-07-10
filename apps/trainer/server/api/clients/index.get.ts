@@ -53,6 +53,13 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Client>> =
     )
   }
 
+  if (queryParams.level) {
+    supabaseQuery = supabaseQuery.eq('level', queryParams.level)
+  }
+  if (queryParams.goal.length > 0) {
+    supabaseQuery = supabaseQuery.overlaps('goal', queryParams.goal)
+  }
+
   const { data, error, count } = await supabaseQuery
 
   if (error) {
@@ -64,6 +71,16 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Client>> =
 
   const rows = z.array(clientSchema).parse(toCamelCase<Client[]>(data ?? []))
 
+  // Counts del scope del rol, ignorando search/status/trainerId: el subtítulo es un total estable.
+  const scopedCount = () => {
+    const q = client.from('clients').select('*', { count: 'exact', head: true })
+    return caller.role === 'trainer' ? q.eq('trainer_id', user.sub) : q
+  }
+  const [{ count: activeCount }, { count: totalCount }] = await Promise.all([
+    scopedCount().is('deleted_at', null),
+    scopedCount(),
+  ])
+
   return {
     rows,
     pagination: {
@@ -72,5 +89,6 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Client>> =
       total: count ?? 0,
       totalPages: Math.ceil((count ?? 0) / queryParams.limit),
     },
+    counts: { active: activeCount ?? 0, total: totalCount ?? 0 },
   }
 })

@@ -74,8 +74,11 @@ const navigation = computed<NavigationMenuItem[]>(() => [
     : []),
 ])
 
-const collapsedNavigation = computed<NavigationMenuItem[]>(() =>
-  navigation.value.map(item => (item.type === 'label' ? { type: 'separator' } : item)),
+const collapsedNavigation = computed<NavigationMenuItem[]>(
+  () =>
+    navigation.value.map(item =>
+      item.type === 'label' ? { type: 'separator' } : item,
+    ) as NavigationMenuItem[],
 )
 
 useHead({ title: routeTitle })
@@ -131,18 +134,17 @@ async function handleLogout() {
       <template #footer="{ collapsed }">
         <div v-if="!collapsed" class="flex w-full flex-col gap-2">
           <div class="flex items-center gap-2.5">
-            <UAvatar
-              :src="user?.avatarUrl || undefined"
-              :text="avatarText"
-              class="from-macross-primary-500 to-macross-gray-800 size-7.5 bg-linear-to-br"
-              :ui="{ fallback: 'font-logo text-sm text-highlighted' }"
-            />
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-semibold">{{ user?.fullName }}</p>
-              <p class="text-dimmed text-[10px] font-medium tracking-wider uppercase">
-                {{ user?.role }}
-              </p>
-            </div>
+            <BasePerson
+              :name="user?.fullName ?? ''"
+              :avatar-url="user?.avatarUrl"
+              class="min-w-0 flex-1"
+            >
+              <template #subtitle>
+                <p class="text-dimmed text-[10px] font-medium tracking-wider uppercase">
+                  {{ user?.role }}
+                </p>
+              </template>
+            </BasePerson>
             <UButton
               icon="i-lucide-log-out"
               color="neutral"

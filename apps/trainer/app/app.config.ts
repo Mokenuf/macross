@@ -40,6 +40,14 @@ export default defineAppConfig({
           md: { base: 'px-4.5 py-2.5 gap-2' },
         },
       },
+      compoundVariants: [
+        {
+          color: 'neutral',
+          variant: 'outline',
+          class:
+            'text-macross-primary-300 hover:bg-macross-primary-500/5 hover:ring-macross-primary-800',
+        },
+      ],
     },
     colors: {
       primary: 'macross-primary',

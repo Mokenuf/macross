@@ -8,7 +8,7 @@ const { t } = useI18n()
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'trainers.title' })
 
-const { trainers, pagination, loading, page, limit, search, role } = useGetTrainerList()
+const { trainers, pagination, counts, loading, page, limit, search, role } = useGetTrainerList()
 const { remove } = useDeleteTrainer()
 const { data: user } = useGetMe()
 
@@ -36,25 +36,32 @@ const filterConfig = computed<Filter[]>(() => [
 
 const filterValues = computed(() => ({ search: search.value, role: role.value }))
 
-const UBadge = resolveComponent('UBadge')
-const roleBadge = computed(() => ({
+const BaseBadge = resolveComponent('BaseBadge')
+const BasePerson = resolveComponent('BasePerson')
+const roleBadge = computed<
+  Record<Trainer['role'], { label: string; color: 'primary' | 'neutral' }>
+>(() => ({
   [Roles.trainer]: { label: t('trainers.roleBadges.trainer'), color: 'primary' },
   [Roles.manager]: { label: t('trainers.roleBadges.manager'), color: 'neutral' },
 }))
 
 const columns = computed<TableColumn<Trainer>[]>(() => [
-  { accessorKey: 'fullName', header: t('trainers.columns.name') },
-  { accessorKey: 'email', header: t('trainers.columns.email') },
+  {
+    accessorKey: 'fullName',
+    header: t('trainers.columns.person'),
+    cell: ({ row }) =>
+      h(BasePerson, {
+        name: row.original.fullName,
+        subtitle: row.original.email,
+        avatarUrl: row.original.avatarUrl,
+      }),
+  },
   {
     accessorKey: 'role',
     header: t('trainers.columns.role'),
     cell: ({ row }) => {
-      const rowValue = row.original.role
-      return h(
-        UBadge,
-        { class: 'capitalize', variant: 'subtle', color: roleBadge.value[rowValue].color },
-        () => roleBadge.value[rowValue].label,
-      )
+      const badge = roleBadge.value[row.original.role]
+      return h(BaseBadge, { color: badge.color, label: badge.label })
     },
   },
   {
@@ -83,7 +90,11 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <BasePageHead :title="t('trainers.title')">
+    <BasePageHead
+      :loading
+      :title="t('trainers.title')"
+      :subtitle="t('trainers.count', { count: counts?.active ?? 0 })"
+    >
       <template #actions>
         <UButton
           v-if="isManager"

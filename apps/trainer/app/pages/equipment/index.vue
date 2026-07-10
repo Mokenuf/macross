@@ -8,7 +8,7 @@ definePageMeta({ layout: 'admin', middleware: 'auth', title: 'equipment.title' }
 
 const { t } = useI18n()
 const { localizedName } = useLocalizedName()
-const { equipments, pagination, loading, page, limit, search } = useGetEquipmentList()
+const { equipments, pagination, counts, loading, page, limit, search } = useGetEquipmentList()
 const { remove } = useDeleteEquipment()
 const { data: user } = useGetMe()
 
@@ -44,7 +44,11 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <BasePageHead :title="t('equipment.title')">
+    <BasePageHead
+      :loading
+      :title="t('equipment.title')"
+      :subtitle="t('equipment.count', { count: counts?.active ?? 0 })"
+    >
       <template #actions>
         <UButton
           v-if="isManager"

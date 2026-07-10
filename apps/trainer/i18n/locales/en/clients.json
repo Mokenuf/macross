@@ -1,6 +1,7 @@
 {
   "clients": {
     "title": "Clients",
+    "count": "{active} active · {total} total",
     "add": {
       "title": "Add Client",
       "heading": "Invite Client"
@@ -70,8 +71,9 @@
     },
     "search": "Search client...",
     "columns": {
-      "name": "Name",
-      "email": "Email",
+      "person": "Client",
+      "level": "Level",
+      "goals": "Goals",
       "trainer": "Trainer",
       "status": "Status",
       "createdAt": "Created at"
@@ -84,7 +86,11 @@
         "all": "All"
       },
       "trainer": "Trainer",
-      "trainerPlaceholder": "Filter by trainer"
+      "trainerPlaceholder": "Filter by trainer",
+      "level": "Level",
+      "levelPlaceholder": "Filter by level",
+      "goals": "Goal",
+      "goalsPlaceholder": "Filter by goal"
     },
     "actions": {
       "reactivate": "Reactivate"

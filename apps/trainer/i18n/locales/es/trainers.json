@@ -1,13 +1,13 @@
 {
   "trainers": {
     "title": "Entrenadores",
+    "count": "{count} entrenadores",
     "search": {
       "label": "Buscar",
       "placeholder": "Buscar entrenador..."
     },
     "columns": {
-      "name": "Nombre",
-      "email": "Email",
+      "person": "Entrenador",
       "role": "Rol",
       "createdAt": "Fecha de creación"
     },

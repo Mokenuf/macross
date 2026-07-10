@@ -8,7 +8,7 @@ definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.titl
 
 const { t } = useI18n()
 const { localizedName } = useLocalizedName()
-const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroupList()
+const { muscleGroups, pagination, counts, loading, page, limit, search } = useGetMuscleGroupList()
 const { remove } = useDeleteMuscleGroup()
 const { data: user } = useGetMe()
 
@@ -44,7 +44,11 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <BasePageHead :title="t('muscle-groups.title')">
+    <BasePageHead
+      :loading
+      :title="t('muscle-groups.title')"
+      :subtitle="t('muscle-groups.count', { count: counts?.active ?? 0 })"
+    >
       <template #actions>
         <UButton
           v-if="isManager"

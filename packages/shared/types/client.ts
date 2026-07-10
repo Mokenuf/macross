@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { clientGoalEnum, clientLevelEnum } from './enums'
+import { clientGoalEnum, clientLevelEnum, type ClientGoal, type ClientLevel } from './enums'
 import { queryParamsSchema, type BaseFilters } from './query-params'
 
 export const clientSchema = z.object({
@@ -54,6 +54,11 @@ export const clientQueryParamsSchema = queryParamsSchema.extend({
   sort: clientSortSchema.default('createdAt'),
   trainerId: z.preprocess(val => (val === '' ? undefined : val), z.uuid().optional()),
   status: clientStatusSchema,
+  level: z.preprocess(val => (val === '' ? undefined : val), clientLevelEnum.optional()),
+  goal: z.preprocess(
+    v => (v === undefined || v === '' ? [] : Array.isArray(v) ? v : [v]),
+    z.array(clientGoalEnum),
+  ),
 })
 
 export type Client = z.infer<typeof clientSchema>
@@ -65,6 +70,8 @@ export type ClientQueryParams = z.infer<typeof clientQueryParamsSchema>
 
 export type ClientFilters = BaseFilters & {
   trainerId: string | ''
+  level: ClientLevel | ''
+  goal: ClientGoal[]
   sort: ClientSortOptions
   status: ClientStatus
 }

@@ -6,10 +6,19 @@ import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'exercises.title' })
 const { t } = useI18n()
-const { localizedName, localizedText } = useLocalizedName()
+const { localizedName } = useLocalizedName()
 
-const { exercises, pagination, loading, page, limit, search, equipmentIds, muscleGroupIds } =
-  useGetExerciseList()
+const {
+  exercises,
+  pagination,
+  counts,
+  loading,
+  page,
+  limit,
+  search,
+  equipmentIds,
+  muscleGroupIds,
+} = useGetExerciseList()
 const { remove } = useDeleteExercise()
 const { data: user } = useGetMe()
 
@@ -92,17 +101,6 @@ const columns = computed<TableColumn<Exercise>[]>(() => [
       return h(BaseBadgeList, { items: eq ? [localizedName(eq)] : [], color: 'neutral' })
     },
   },
-  {
-    id: 'description',
-    header: t('exercises.columns.description'),
-    accessorFn: row => localizedText(row.descriptionEs, row.descriptionEn) ?? '—',
-    cell: ({ getValue }) =>
-      h(
-        'span',
-        { class: 'block max-w-xs truncate', title: getValue<string>() },
-        getValue<string>(),
-      ),
-  },
 ])
 
 const actions: TableAction<Exercise>[] = [
@@ -123,7 +121,11 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <BasePageHead :title="t('exercises.title')">
+    <BasePageHead
+      :loading
+      :title="t('exercises.title')"
+      :subtitle="t('exercises.count', { count: counts?.active ?? 0 })"
+    >
       <template #actions>
         <UButton
           v-if="isManager"

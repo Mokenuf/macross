@@ -2,6 +2,7 @@
   "equipment": {
     "title": "Equipamiento",
     "add": "Agregar Equipamiento",
+    "count": "{count} en catálogo",
     "search": "Buscar equipamiento...",
     "columns": {
       "name": "Nombre"

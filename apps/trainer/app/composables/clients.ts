@@ -16,6 +16,8 @@ export function useGetClientList() {
     limit: 20,
     search: '',
     trainerId: '',
+    level: '',
+    goal: [],
     sort: 'createdAt',
     order: 'desc',
     status: 'active',
@@ -28,10 +30,12 @@ export function useGetClientList() {
 
   const clients = computed<Client[]>(() => data.value?.rows ?? [])
   const pagination = computed<Pagination>(() => data.value?.pagination ?? defaultPagination)
+  const counts = computed(() => data.value?.counts)
 
   return {
     clients,
     pagination,
+    counts,
     loading: pending,
     refresh,
     error,

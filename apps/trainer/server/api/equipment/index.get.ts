@@ -44,6 +44,12 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Equipment>
 
   const rows = z.array(equipmentSchema).parse(toCamelCase<Equipment[]>(data ?? []))
 
+  // Total del catálogo (ignora search) para el subtítulo "N en catálogo".
+  const { count: activeCount } = await client
+    .from('equipment')
+    .select('*', { count: 'exact', head: true })
+    .is('deleted_at', null)
+
   return {
     rows,
     pagination: {
@@ -52,5 +58,6 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Equipment>
       total: count ?? 0,
       totalPages: Math.ceil((count ?? 0) / queryParams.limit),
     },
+    counts: { active: activeCount ?? 0 },
   }
 })

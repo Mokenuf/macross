@@ -12,7 +12,14 @@ export const defaultPagination: Pagination = {
   totalPages: 1,
 }
 
+export interface ResponseCounts {
+  // Ambos ignoran los filtros de usuario (search/facetas). active = deleted_at null; total incluye soft-deleted.
+  active: number
+  total?: number
+}
+
 export interface BaseResponse<T> {
   rows: T[]
   pagination: Pagination
+  counts?: ResponseCounts
 }

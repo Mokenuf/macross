@@ -1,6 +1,7 @@
 {
   "clients": {
     "title": "Clientes",
+    "count": "{active} activos · {total} totales",
     "add": {
       "title": "Agregar Cliente",
       "heading": "Invitar Cliente"
@@ -70,8 +71,9 @@
     },
     "search": "Buscar cliente...",
     "columns": {
-      "name": "Nombre",
-      "email": "Email",
+      "person": "Cliente",
+      "level": "Nivel",
+      "goals": "Objetivos",
       "trainer": "Entrenador",
       "status": "Estado",
       "createdAt": "Fecha de creación"
@@ -84,7 +86,11 @@
         "all": "Todos"
       },
       "trainer": "Entrenador",
-      "trainerPlaceholder": "Filtrar por entrenador"
+      "trainerPlaceholder": "Filtrar por entrenador",
+      "level": "Nivel",
+      "levelPlaceholder": "Filtrar por nivel",
+      "goals": "Objetivo",
+      "goalsPlaceholder": "Filtrar por objetivo"
     },
     "actions": {
       "reactivate": "Reactivar"

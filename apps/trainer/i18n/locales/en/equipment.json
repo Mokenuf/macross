@@ -2,6 +2,7 @@
   "equipment": {
     "title": "Equipment",
     "add": "Add Equipment",
+    "count": "{count} in catalog",
     "search": "Search equipment...",
     "columns": {
       "name": "Name"

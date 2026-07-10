@@ -1,13 +1,13 @@
 {
   "trainers": {
     "title": "Trainers",
+    "count": "{count} trainers",
     "search": {
       "label": "Search",
       "placeholder": "Search trainer..."
     },
     "columns": {
-      "name": "Name",
-      "email": "Email",
+      "person": "Trainer",
       "role": "Role",
       "createdAt": "Created at"
     },
