@@ -41,9 +41,7 @@ async function onSubmit(data: SetPassword) {
 </script>
 
 <template>
-  <div class="w-full max-w-md">
-    <h1 class="mb-6 text-2xl font-bold">{{ t('auth.resetPassword.title') }}</h1>
-    <p class="mb-6 text-sm text-neutral-500">{{ t('auth.resetPassword.description') }}</p>
+  <AuthCard :subtitle="t('auth.resetPassword.description')">
     <SetPasswordForm :loading @submit="onSubmit" />
-  </div>
+  </AuthCard>
 </template>

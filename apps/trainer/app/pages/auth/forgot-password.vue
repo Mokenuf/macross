@@ -11,6 +11,9 @@ definePageMeta({
 const { t } = useI18n()
 const { requestPasswordReset } = useRequestPasswordReset()
 
+const authForm = useTemplateRef('authForm')
+useRevalidateOnLocale(() => authForm.value?.formRef ?? null)
+
 const loading = ref(false)
 const fields = computed<AuthFormField[]>(() => [
   {
@@ -34,31 +37,18 @@ async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
 </script>
 
 <template>
-  <div class="w-full max-w-sm p-8">
-    <div class="mb-8 text-center">
-      <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
-        Macros for progress
-      </h1>
-      <p class="mt-1 text-sm text-neutral-400">{{ t('auth.layout.forgotPasswordSubtitle') }}</p>
-    </div>
-
+  <AuthCard :subtitle="t('auth.forgotPassword.subtitle')">
     <UAuthForm
+      ref="authForm"
       :schema="requestPasswordResetSchema"
       :fields
-      icon="i-lucide-mail"
-      :submit="{
-        label: t('auth.forgotPassword.submit'),
-        loading,
-        size: 'lg',
-        block: true,
-      }"
+      :submit="{ label: t('auth.forgotPassword.submit'), loading, size: 'lg', block: true }"
       @submit="handleSubmit"
     />
-
     <div class="mt-4 text-center">
-      <ULink to="/auth/login" class="hover:text-primary text-sm text-neutral-400">
+      <ULink to="/auth/login" class="text-muted hover:text-primary text-sm">
         {{ t('auth.forgotPassword.backToLogin') }}
       </ULink>
     </div>
-  </div>
+  </AuthCard>
 </template>

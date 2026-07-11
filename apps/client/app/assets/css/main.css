@@ -5,18 +5,19 @@
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-logo: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: #0d1117;
-  --color-surface: #161e27;
-  --color-surface-elevated: #202b36;
-  --color-foreground: #e8eaed;
+  --color-background: #0c0b09;
+  --color-surface: #15130f;
+  --color-surface-elevated: #1e1a14;
+  --color-foreground: #ece7df;
 }
 
 @theme static {
+  /* primary — bronce (acento de marca, idéntico al admin para que la marca sea una sola) */
   --color-macross-primary-50: #f8f7f6;
   --color-macross-primary-100: #efedeb;
   --color-macross-primary-200: #dfd7ce;
-  --color-macross-primary-300: #ccb9a3;
-  --color-macross-primary-400: #c09668;
+  --color-macross-primary-300: #cdb9a1;
+  --color-macross-primary-400: #c79a63;
   --color-macross-primary-500: #a57746;
   --color-macross-primary-600: #886339;
   --color-macross-primary-700: #6c4e2d;
@@ -24,6 +25,7 @@
   --color-macross-primary-900: #3d2c1a;
   --color-macross-primary-950: #201a13;
 
+  /* secondary — verde salvia (estados activos, sets completados) */
   --color-macross-secondary-50: #f6f8f7;
   --color-macross-secondary-100: #ebefed;
   --color-macross-secondary-200: #cedfd6;
@@ -36,17 +38,35 @@
   --color-macross-secondary-900: #193e2a;
   --color-macross-secondary-950: #132019;
 
-  --color-macross-gray-50: #f7f7f8;
-  --color-macross-gray-100: #ecedee;
-  --color-macross-gray-200: #d4d5d9;
-  --color-macross-gray-300: #b1b6be;
-  --color-macross-gray-400: #8790a1;
-  --color-macross-gray-500: #677184;
-  --color-macross-gray-600: #555d6d;
-  --color-macross-gray-700: #434a56;
-  --color-macross-gray-800: #333842;
-  --color-macross-gray-900: #262a31;
-  --color-macross-gray-950: #18191b;
+  /* neutral — marrón-negro cálido (la PWA es atlética/cálida, distinta al grafito frío del admin).
+     Anclada a cómo NuxtUI la consume en dark: 900=canvas (--ui-bg), 800=cards (--ui-bg-muted/elevated),
+     700=border/accented, 400/500=texto muted/dimmed, 200=texto default, 950=lo recessed. */
+  --color-macross-gray-50: #f7f5f2;
+  --color-macross-gray-100: #ece7df;
+  --color-macross-gray-200: #dcd6cc;
+  --color-macross-gray-300: #b9b0a3;
+  --color-macross-gray-400: #9d9488;
+  --color-macross-gray-500: #6e655a;
+  --color-macross-gray-600: #4a4338;
+  --color-macross-gray-700: #2c261d;
+  --color-macross-gray-800: #1e1a14;
+  --color-macross-gray-900: #15130f;
+  --color-macross-gray-950: #0c0b09;
+
+  /* acentos de marca sueltos (número del ring, hover) — sin rampa, no los tiene NuxtUI */
+  --color-macross-gold: #e8be7c;
+  --color-macross-bronze-soft: #d8b483;
+  --color-macross-tan: #cdb9a1;
+}
+
+:root {
+  --ui-radius: 0.5rem;
+}
+
+/* NuxtUI reusa neutral-800 para el fondo de cards Y el borde default → los divisores
+   quedan invisibles. Subimos el borde a neutral-700 para que se vean (matchea el mock). */
+.dark {
+  --ui-border: var(--ui-color-neutral-700);
 }
 
 @layer base {
@@ -56,5 +76,11 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+
+  /* Restaura el pointer en botones (Tailwind v4 los dejó en cursor: default). */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
   }
 }
