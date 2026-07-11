@@ -1,5 +1,8 @@
 {
   "common": {
+    "splash": {
+      "loading": "Cargando…"
+    },
     "home": {
       "title": "Inicio",
       "greeting": "Hola",

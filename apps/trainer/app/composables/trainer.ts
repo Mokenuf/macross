@@ -27,10 +27,12 @@ export function useGetTrainerList() {
 
   const trainers = computed<Trainer[]>(() => data.value?.rows ?? [])
   const pagination = computed<Pagination>(() => data.value?.pagination ?? defaultPagination)
+  const counts = computed(() => data.value?.counts)
 
   return {
     trainers,
     pagination,
+    counts,
     loading: pending,
     refresh,
     error,

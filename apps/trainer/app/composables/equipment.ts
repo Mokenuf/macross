@@ -26,10 +26,12 @@ export function useGetEquipmentList() {
 
   const equipments = computed<Equipment[]>(() => data.value?.rows ?? [])
   const pagination = computed<Pagination>(() => data.value?.pagination ?? defaultPagination)
+  const counts = computed(() => data.value?.counts)
 
   return {
     equipments,
     pagination,
+    counts,
     loading: pending,
     refresh,
     error,

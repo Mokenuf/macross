@@ -15,7 +15,7 @@ const authForm = useTemplateRef('authForm')
 useRevalidateOnLocale(() => authForm.value?.formRef ?? null)
 
 const loading = ref(false)
-const fields: AuthFormField[] = [
+const fields = computed<AuthFormField[]>(() => [
   {
     name: 'password',
     type: 'password',
@@ -30,7 +30,7 @@ const fields: AuthFormField[] = [
     placeholder: t('auth.resetPassword.confirmPlaceholder'),
     required: true,
   },
-]
+])
 
 onMounted(async () => {
   // detectSessionInUrl is off, so the hash survives until we read it here.
@@ -64,29 +64,21 @@ async function onSubmit(event: FormSubmitEvent<SetPassword>) {
 </script>
 
 <template>
-  <div class="w-full max-w-sm p-4">
-    <div class="bg-surface border-macross-gray-800 rounded-2xl border p-8 shadow-2xl">
-      <div class="mb-6 text-center">
-        <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
-          Macros for progress
-        </h1>
-        <p class="text-muted mt-2 text-sm">{{ t('auth.resetPassword.description') }}</p>
-      </div>
+  <div class="w-full max-w-sm p-8">
+    <AuthBrand class="text-4xl" />
+    <p class="text-muted mt-1 mb-6 text-sm">{{ t('auth.resetPassword.description') }}</p>
 
-      <UAuthForm
-        ref="authForm"
-        :schema="setPasswordSchema"
-        :fields
-        icon="i-lucide-lock"
-        :submit="{
-          label: t('auth.resetPassword.submit'),
-          loading,
-          size: 'lg',
-          block: true,
-          class: 'cursor-pointer',
-        }"
-        @submit="onSubmit"
-      />
-    </div>
+    <UAuthForm
+      ref="authForm"
+      :schema="setPasswordSchema"
+      :fields
+      :submit="{
+        label: t('auth.resetPassword.submit'),
+        loading,
+        size: 'lg',
+        block: true,
+      }"
+      @submit="onSubmit"
+    />
   </div>
 </template>

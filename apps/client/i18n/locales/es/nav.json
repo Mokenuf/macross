@@ -1,5 +1,8 @@
 {
   "nav": {
+    "today": "Hoy",
+    "plan": "Mi plani",
+    "profile": "Perfil",
     "logout": "Cerrar sesión"
   }
 }

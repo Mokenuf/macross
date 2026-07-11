@@ -11,6 +11,7 @@ export const equipmentSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
+  exerciseCount: z.number().optional(),
 })
 
 export const createEquipmentSchema = z.object({

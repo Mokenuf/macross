@@ -1,17 +1,22 @@
 {
   "clients": {
     "title": "Clientes",
+    "count": "{active} activos · {total} totales",
     "add": {
       "title": "Agregar Cliente",
-      "heading": "Invitar Cliente"
+      "heading": "Invitar Cliente",
+      "subtitle": "Se le envía un mail para que cree su contraseña"
     },
     "detail": {
       "title": "Detalle del cliente",
       "email": "Email",
       "phone": "Teléfono",
       "trainer": "Entrenador",
+      "joinedAt": "Ingresó {date}",
       "age": "Edad",
       "ageUnit": "años",
+      "frequency": "Frecuencia",
+      "frequencyUnit": "días / sem",
       "desiredWeeklyFrequency": "Frecuencia semanal",
       "daysUnit": "días",
       "weight": "Peso",
@@ -70,8 +75,9 @@
     },
     "search": "Buscar cliente...",
     "columns": {
-      "name": "Nombre",
-      "email": "Email",
+      "person": "Cliente",
+      "level": "Nivel",
+      "goals": "Objetivos",
       "trainer": "Entrenador",
       "status": "Estado",
       "createdAt": "Fecha de creación"
@@ -84,7 +90,11 @@
         "all": "Todos"
       },
       "trainer": "Entrenador",
-      "trainerPlaceholder": "Filtrar por entrenador"
+      "trainerPlaceholder": "Filtrar por entrenador",
+      "level": "Nivel",
+      "levelPlaceholder": "Filtrar por nivel",
+      "goals": "Objetivo",
+      "goalsPlaceholder": "Filtrar por objetivo"
     },
     "actions": {
       "reactivate": "Reactivar"

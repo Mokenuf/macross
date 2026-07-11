@@ -15,7 +15,6 @@ const authForm = useTemplateRef('authForm')
 useRevalidateOnLocale(() => authForm.value?.formRef ?? null)
 
 const loading = ref(false)
-const error = ref('')
 const fields = computed<AuthFormField[]>(() => [
   {
     name: 'email',
@@ -35,12 +34,10 @@ const fields = computed<AuthFormField[]>(() => [
 
 async function handleSubmit(event: FormSubmitEvent<Login>) {
   loading.value = true
-  error.value = ''
 
   try {
     await login(event.data)
-  } catch (e) {
-    error.value = t('auth.login.errorInvalidCredentials')
+  } catch {
   } finally {
     loading.value = false
   }
@@ -48,33 +45,19 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
 </script>
 
 <template>
-  <div class="w-full max-w-sm p-8">
-    <div class="mb-8 text-center">
-      <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
-        Macros for progress
-      </h1>
-      <p class="mt-1 text-sm text-neutral-400">{{ t('auth.layout.subtitle') }}</p>
-    </div>
-
+  <AuthCard :subtitle="t('auth.layout.subtitle')">
     <UAuthForm
       ref="authForm"
       :schema="loginSchema"
       :fields
-      icon="i-lucide-log-in"
-      :submit="{
-        label: t('auth.login.submit'),
-        loading,
-        size: 'lg',
-        block: true,
-        class: 'cursor-pointer',
-      }"
+      :submit="{ label: t('auth.login.submit'), loading, size: 'lg', block: true }"
       @submit="handleSubmit"
     />
 
     <div class="mt-4 text-center">
-      <ULink to="/auth/forgot-password" class="hover:text-primary text-sm text-neutral-400">
+      <ULink to="/auth/forgot-password" class="text-muted hover:text-primary text-sm">
         {{ t('auth.login.forgotPasswordLink') }}
       </ULink>
     </div>
-  </div>
+  </AuthCard>
 </template>

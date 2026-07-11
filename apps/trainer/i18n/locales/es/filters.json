@@ -3,6 +3,7 @@
     "title": "Filtros",
     "apply": "Aplicar",
     "clear": "Limpiar",
-    "search": "Buscar"
+    "search": "Buscar",
+    "andMore": "y {count} más"
   }
 }

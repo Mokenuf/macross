@@ -120,8 +120,9 @@ fix/trainer/auth        ─┘
 
 ### Client app
 
-- Autenticación (login/logout) con Supabase Auth + toasts, middlewares `auth` / `guest`, layouts `auth` (centrado) y `default` (mobile-first con header + logout), home placeholder con email del usuario logueado
-- Flow de set-password para clientes nuevos vía link de invite por mail (mismo patrón robusto que trainer: `detectSessionInUrl: false` + procesamiento manual del hash), con card branded en la paleta Macross
+- Autenticación (login/logout) con Supabase Auth + toasts, middlewares `auth` / `guest`, layouts `auth` (centrado) y `default` (shell mobile real: header con marca + barra de navegación inferior), splash de arranque con la marca, home placeholder con email del usuario logueado
+- Rebranding completo de la PWA a la identidad Macros for Progress: paleta cálida propia (distinta al grafito del dashboard), tipografía display, pantallas de auth y navegación mobile al mock de diseño
+- Flow de set-password para clientes nuevos vía link de invite por mail (mismo patrón robusto que trainer: `detectSessionInUrl: false` + procesamiento manual del hash)
 - Flow de recuperación de contraseña análogo (forgot-password → mail → reset-password) que empieza y termina en la PWA del cliente
 - Bloqueo de login para cuentas desactivadas: un cliente con soft delete no puede iniciar sesión (el server route lo detecta tras el signin y cierra la sesión con un mensaje claro)
 - Interfaz bilingüe español/inglés con selector de idioma (banderas), mismo patrón que el dashboard (mensajes de validación incluidos, que se re-traducen al cambiar de idioma)

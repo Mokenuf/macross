@@ -285,4 +285,60 @@ describe('clientQueryParamsSchema', () => {
     const result = clientQueryParamsSchema.safeParse({ status: 'archived' })
     expect(result.success).toBe(false)
   })
+
+  it('convierte level "" a undefined via preprocess', () => {
+    const result = clientQueryParamsSchema.safeParse({ level: '' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.level).toBeUndefined()
+    }
+  })
+
+  it('acepta un level valido del enum', () => {
+    const result = clientQueryParamsSchema.safeParse({ level: 'advanced' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.level).toBe('advanced')
+    }
+  })
+
+  it('rechaza level fuera del enum', () => {
+    expect(clientQueryParamsSchema.safeParse({ level: 'experto' }).success).toBe(false)
+  })
+
+  it('default de goal es [] cuando se omite', () => {
+    const result = clientQueryParamsSchema.safeParse({})
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.goal).toEqual([])
+    }
+  })
+
+  it('convierte goal "" a [] via preprocess', () => {
+    const result = clientQueryParamsSchema.safeParse({ goal: '' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.goal).toEqual([])
+    }
+  })
+
+  it('normaliza un goal escalar a array', () => {
+    const result = clientQueryParamsSchema.safeParse({ goal: 'hypertrophy' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.goal).toEqual(['hypertrophy'])
+    }
+  })
+
+  it('acepta goal como array de varios objetivos', () => {
+    const result = clientQueryParamsSchema.safeParse({ goal: ['hypertrophy', 'fat_loss'] })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.goal).toEqual(['hypertrophy', 'fat_loss'])
+    }
+  })
+
+  it('rechaza goal con un valor fuera del enum', () => {
+    expect(clientQueryParamsSchema.safeParse({ goal: ['volumen'] }).success).toBe(false)
+  })
 })

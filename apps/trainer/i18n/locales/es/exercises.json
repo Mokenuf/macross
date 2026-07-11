@@ -3,6 +3,7 @@
     "title": "Ejercicios",
     "add": "Agregar Ejercicio",
     "search": "Buscar ejercicio...",
+    "count": "{count} en catálogo",
     "columns": {
       "name": "Nombre",
       "muscleGroups": "Grupos Musculares",
@@ -35,8 +36,8 @@
     "detail": {
       "muscleGroups": "Grupos musculares",
       "equipment": "Equipamiento",
-      "description": "Descripción",
-      "video": "Video"
+      "descriptionEs": "Descripción (ES)",
+      "descriptionEn": "Descripción (EN)"
     },
     "pages": {
       "add": "Agregar ejercicio",

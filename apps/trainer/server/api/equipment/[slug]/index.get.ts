@@ -25,7 +25,16 @@ export default defineEventHandler(async (event): Promise<Equipment> => {
 
   if (!data) throw createError({ statusCode: 404, statusMessage: 'Equipamiento no encontrado' })
 
-  const equipment = equipmentSchema.parse(toCamelCase<Equipment>(data))
+  const { count } = await client
+    .from('exercises')
+    .select('*', { count: 'exact', head: true })
+    .eq('equipment_id', data.id)
+    .is('deleted_at', null)
+
+  const equipment = equipmentSchema.parse({
+    ...toCamelCase<Equipment>(data),
+    exerciseCount: count ?? 0,
+  })
 
   return equipment
 })

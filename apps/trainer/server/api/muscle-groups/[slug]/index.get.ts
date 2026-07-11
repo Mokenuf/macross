@@ -25,7 +25,16 @@ export default defineEventHandler(async (event): Promise<MuscleGroup> => {
 
   if (!data) throw createError({ statusCode: 404, statusMessage: 'Grupo muscular no encontrado' })
 
-  const muscleGroup = muscleGroupSchema.parse(toCamelCase<MuscleGroup>(data))
+  const { count } = await client
+    .from('exercise_muscle_groups')
+    .select('exercises!inner(id)', { count: 'exact', head: true })
+    .eq('muscle_group_id', data.id)
+    .is('exercises.deleted_at', null)
+
+  const muscleGroup = muscleGroupSchema.parse({
+    ...toCamelCase<MuscleGroup>(data),
+    exerciseCount: count ?? 0,
+  })
 
   return muscleGroup
 })

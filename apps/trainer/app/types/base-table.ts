@@ -4,14 +4,7 @@ export type { TableColumn }
 
 export type ActionType = 'view' | 'edit' | 'delete' | 'custom'
 
-export type ActionColor =
-  | 'primary'
-  | 'secondary'
-  | 'info'
-  | 'success'
-  | 'warning'
-  | 'error'
-  | 'neutral'
+export type ActionColor = 'primary' | 'info' | 'success' | 'warning' | 'error' | 'neutral'
 
 export interface TableAction<T> {
   type: ActionType

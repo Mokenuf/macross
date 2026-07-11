@@ -34,6 +34,6 @@ function onSubmit(event: FormSubmitEvent<SetPassword>) {
       <UInput v-model="state.confirm" type="password" class="w-full" />
     </UFormField>
 
-    <UButton type="submit" :label="t('common.actions.save')" :loading block />
+    <UButton type="submit" :label="t('common.actions.save')" :loading size="lg" block />
   </UForm>
 </template>

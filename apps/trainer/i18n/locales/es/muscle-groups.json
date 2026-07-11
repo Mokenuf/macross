@@ -2,6 +2,7 @@
   "muscle-groups": {
     "title": "Grupos Musculares",
     "add": "Agregar Grupo Muscular",
+    "count": "{count} en catálogo",
     "columns": {
       "name": "Nombre"
     },
@@ -15,10 +16,13 @@
       "nameEnPlaceholder": "Ej: Chest"
     },
     "detail": {
-      "title": "Detalle del grupo muscular"
+      "usage": "No se usa en ningún ejercicio | Usado en {count} ejercicio | Usado en {count} ejercicios",
+      "viewExercises": "Ver ejercicios"
     },
-    "edit": {
-      "title": "Editar Grupo Muscular"
+    "pages": {
+      "add": "Agregar Grupo Muscular",
+      "edit": "Editar Grupo Muscular",
+      "detail": "Detalle del grupo muscular"
     },
     "toasts": {
       "created": "Grupo muscular creado",

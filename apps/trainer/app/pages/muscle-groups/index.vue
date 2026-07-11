@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { MuscleGroup } from '@macross/shared'
+import type { BreadcrumbItem } from '@nuxt/ui'
 
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
@@ -8,11 +9,16 @@ definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.titl
 
 const { t } = useI18n()
 const { localizedName } = useLocalizedName()
-const { muscleGroups, pagination, loading, page, limit, search } = useGetMuscleGroupList()
+const { muscleGroups, pagination, counts, loading, page, limit, search } = useGetMuscleGroupList()
 const { remove } = useDeleteMuscleGroup()
 const { data: user } = useGetMe()
 
 const isManager = computed(() => user.value?.role === 'manager')
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/' },
+  { label: t('muscle-groups.title') },
+])
 
 const filterConfig = computed<Filter[]>(() => [
   {
@@ -44,20 +50,23 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-end justify-between">
-      <BaseFilters
-        :filters="filterConfig"
-        :values="filterValues"
-        @update:filters="onFilterUpdate"
-      />
-      <UButton
-        v-if="isManager"
-        :label="t('muscle-groups.add')"
-        icon="i-lucide-plus"
-        color="primary"
-        to="/muscle-groups/add"
-      />
-    </div>
+    <BasePageHead
+      :loading
+      :breadcrumbs
+      :title="t('muscle-groups.title')"
+      :subtitle="t('muscle-groups.count', { count: counts?.active ?? 0 })"
+    >
+      <template #actions>
+        <UButton
+          v-if="isManager"
+          :label="t('muscle-groups.add')"
+          icon="i-lucide-plus"
+          color="primary"
+          to="/muscle-groups/add"
+        />
+      </template>
+    </BasePageHead>
+    <BaseFilters :filters="filterConfig" :values="filterValues" @update:filters="onFilterUpdate" />
 
     <BaseTable
       :columns

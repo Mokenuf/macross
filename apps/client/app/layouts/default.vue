@@ -4,9 +4,11 @@ const { logout } = useLogout()
 </script>
 
 <template>
-  <div class="bg-background flex min-h-screen flex-col">
-    <header class="border-default flex items-center justify-between border-b p-4">
-      <h1 class="text-lg font-semibold">Macross</h1>
+  <div class="bg-background flex min-h-svh flex-col">
+    <header class="flex items-center justify-between px-5 pt-4 pb-3">
+      <NuxtLink to="/" class="font-logo text-primary text-lg tracking-wider uppercase">
+        Macros for Progress
+      </NuxtLink>
       <div class="flex items-center gap-1">
         <LanguageSwitcher />
         <UButton
@@ -14,12 +16,16 @@ const { logout } = useLogout()
           icon="i-lucide-log-out"
           color="neutral"
           variant="ghost"
+          size="sm"
           @click="logout"
         />
       </div>
     </header>
-    <main class="flex-1 p-4">
+
+    <main class="flex-1 px-5 pb-24">
       <slot />
     </main>
+
+    <BottomNav />
   </div>
 </template>

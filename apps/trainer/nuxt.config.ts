@@ -50,7 +50,7 @@ export default defineNuxtConfig({
   },
   ui: {
     theme: {
-      colors: ['primary', 'secondary', 'info', 'success', 'warning', 'error', 'neutral'],
+      colors: ['primary', 'info', 'success', 'warning', 'error', 'neutral'],
     },
   },
   vite: {

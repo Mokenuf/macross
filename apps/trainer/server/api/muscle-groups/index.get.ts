@@ -44,6 +44,12 @@ export default defineEventHandler(async (event): Promise<BaseResponse<MuscleGrou
 
   const rows = z.array(muscleGroupSchema).parse(toCamelCase<MuscleGroup[]>(data ?? []))
 
+  // Total del catálogo (ignora search) para el subtítulo "N en catálogo".
+  const { count: activeCount } = await client
+    .from('muscle_groups')
+    .select('*', { count: 'exact', head: true })
+    .is('deleted_at', null)
+
   return {
     rows,
     pagination: {
@@ -52,5 +58,6 @@ export default defineEventHandler(async (event): Promise<BaseResponse<MuscleGrou
       total: count ?? 0,
       totalPages: Math.ceil((count ?? 0) / queryParams.limit),
     },
+    counts: { active: activeCount ?? 0 },
   }
 })

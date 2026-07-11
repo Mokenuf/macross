@@ -47,6 +47,11 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Trainer>> 
 
   const rows = z.array(trainerSchema).parse(toCamelCase<Trainer[]>(data ?? []))
 
+  const { count: activeCount } = await client
+    .from('trainers')
+    .select('*', { count: 'exact', head: true })
+    .is('deleted_at', null)
+
   return {
     rows,
     pagination: {
@@ -55,5 +60,6 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Trainer>> 
       total: count ?? 0,
       totalPages: Math.ceil((count ?? 0) / queryParams.limit),
     },
+    counts: { active: activeCount ?? 0 },
   }
 })

@@ -3,6 +3,7 @@
     "title": "Exercises",
     "add": "Add Exercise",
     "search": "Search exercise...",
+    "count": "{count} in catalog",
     "columns": {
       "name": "Name",
       "muscleGroups": "Muscle Groups",
@@ -35,8 +36,8 @@
     "detail": {
       "muscleGroups": "Muscle groups",
       "equipment": "Equipment",
-      "description": "Description",
-      "video": "Video"
+      "descriptionEs": "Description (ES)",
+      "descriptionEn": "Description (EN)"
     },
     "pages": {
       "add": "Add exercise",

@@ -50,10 +50,10 @@ function onSubmit(event: FormSubmitEvent<CreateMuscleGroup>) {
       <UButton
         :label="t('common.actions.cancel')"
         color="neutral"
-        variant="ghost"
+        variant="outline"
         to="/muscle-groups"
       />
-      <UButton class="cursor-pointer" type="submit" :label="t('common.actions.save')" :loading />
+      <UButton type="submit" :label="t('common.actions.save')" :loading />
     </div>
   </UForm>
 </template>

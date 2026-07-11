@@ -4,19 +4,15 @@
 @theme {
   --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-logo: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
-
-  --color-background: #0d1117;
-  --color-surface: #161e27;
-  --color-surface-elevated: #202b36;
-  --color-foreground: #e8eaed;
 }
 
 @theme static {
+  /* primary — bronce (acento de marca) */
   --color-macross-primary-50: #f8f7f6;
   --color-macross-primary-100: #efedeb;
   --color-macross-primary-200: #dfd7ce;
-  --color-macross-primary-300: #ccb9a3;
-  --color-macross-primary-400: #c09668;
+  --color-macross-primary-300: #cdb9a1;
+  --color-macross-primary-400: #c79a63;
   --color-macross-primary-500: #a57746;
   --color-macross-primary-600: #886339;
   --color-macross-primary-700: #6c4e2d;
@@ -24,37 +20,84 @@
   --color-macross-primary-900: #3d2c1a;
   --color-macross-primary-950: #201a13;
 
-  --color-macross-secondary-50: #f6f8f7;
-  --color-macross-secondary-100: #ebefed;
-  --color-macross-secondary-200: #cedfd6;
-  --color-macross-secondary-300: #a3cdb6;
-  --color-macross-secondary-400: #67c190;
-  --color-macross-secondary-500: #44a672;
-  --color-macross-secondary-600: #388a5e;
-  --color-macross-secondary-700: #2c6d4a;
-  --color-macross-secondary-800: #225339;
-  --color-macross-secondary-900: #193e2a;
-  --color-macross-secondary-950: #132019;
+  /* neutral — grafito frío. Los escalones están alineados a cómo NuxtUI los consume
+     en dark: 900=canvas (--ui-bg), 800=cards (--ui-bg-muted/elevated), 700=accented,
+     400/500=texto muted/dimmed, 200=texto default. 950 queda para lo recessed (inputs). */
+  --color-macross-gray-50: #f5f7f8;
+  --color-macross-gray-100: #e9edf0;
+  --color-macross-gray-200: #dbe1e6;
+  --color-macross-gray-300: #b3bcc5;
+  --color-macross-gray-400: #98a2ad;
+  --color-macross-gray-500: #66707a;
+  --color-macross-gray-600: #47515b;
+  --color-macross-gray-700: #2a343d;
+  --color-macross-gray-800: #1c242c;
+  --color-macross-gray-900: #151b21;
+  --color-macross-gray-950: #0e1216;
 
-  --color-macross-gray-50: #f7f7f8;
-  --color-macross-gray-100: #ecedee;
-  --color-macross-gray-200: #d4d5d9;
-  --color-macross-gray-300: #b1b6be;
-  --color-macross-gray-400: #8790a1;
-  --color-macross-gray-500: #677184;
-  --color-macross-gray-600: #555d6d;
-  --color-macross-gray-700: #434a56;
-  --color-macross-gray-800: #333842;
-  --color-macross-gray-900: #262a31;
-  --color-macross-gray-950: #18191b;
+  /* success — verde salvia (● activa, toast ok) */
+  --color-macross-success-50: #eef8f2;
+  --color-macross-success-100: #d6efe1;
+  --color-macross-success-200: #aee0c6;
+  --color-macross-success-300: #82cfa8;
+  --color-macross-success-400: #5fbf8c;
+  --color-macross-success-500: #45a672;
+  --color-macross-success-600: #388a5e;
+  --color-macross-success-700: #2d6d4a;
+  --color-macross-success-800: #22533a;
+  --color-macross-success-900: #193e2a;
+  --color-macross-success-950: #10261a;
+
+  /* warning — oro apagado (save-dot, kpi de aviso) */
+  --color-macross-warning-50: #fbf6ea;
+  --color-macross-warning-100: #f5e9c9;
+  --color-macross-warning-200: #ecd396;
+  --color-macross-warning-300: #e6c06d;
+  --color-macross-warning-400: #e0ad4e;
+  --color-macross-warning-500: #c68f34;
+  --color-macross-warning-600: #a0722a;
+  --color-macross-warning-700: #7c5722;
+  --color-macross-warning-800: #5c4020;
+  --color-macross-warning-900: #3f2d1a;
+  --color-macross-warning-950: #241910;
+
+  /* danger — terracota (delete, estados de error) */
+  --color-macross-danger-50: #fbf0ee;
+  --color-macross-danger-100: #f6dbd6;
+  --color-macross-danger-200: #edb8ae;
+  --color-macross-danger-300: #e28f80;
+  --color-macross-danger-400: #d96f5f;
+  --color-macross-danger-500: #c04f3d;
+  --color-macross-danger-600: #a03d2e;
+  --color-macross-danger-700: #7e3125;
+  --color-macross-danger-800: #5e2820;
+  --color-macross-danger-900: #43201b;
+  --color-macross-danger-950: #26120f;
+
+  /* acentos de marca sueltos (número héroe, hover) — sin rampa, no los tiene NuxtUI */
+  --color-macross-gold: #e8be7c;
+  --color-macross-bronze-soft: #d8b483;
+}
+
+:root {
+  --ui-radius: 0.5rem;
+}
+
+/* Único override de theme. NuxtUI reusa neutral-800 para el fondo de las cards Y el
+   borde default → en un admin denso de tablas los divisores quedan invisibles. Subimos
+   el borde a neutral-700 para que se vean (matchea los bordes visibles del mock). */
+.dark {
+  --ui-border: var(--ui-color-neutral-700);
 }
 
 @layer base {
   :root {
     color-scheme: dark;
   }
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+
+  /* Restaura el pointer en botones (Tailwind v4 los dejó en cursor: default). */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
   }
 }

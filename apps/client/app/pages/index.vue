@@ -13,13 +13,17 @@ const user = useSupabaseUser()
 
 <template>
   <div class="space-y-4">
-    <h1 class="text-2xl font-bold">{{ t('common.home.greeting') }}👋</h1>
-    <p class="text-neutral-400">{{ user?.email }}</p>
+    <div>
+      <h1 class="font-logo text-3xl tracking-wider uppercase">
+        {{ t('common.home.greeting') }} 👋
+      </h1>
+      <p class="text-muted text-sm">{{ user?.email }}</p>
+    </div>
     <UCard>
       <template #header>
         <h3 class="font-semibold">{{ t('common.home.routine.title') }}</h3>
       </template>
-      <p class="text-sm text-neutral-400">{{ t('common.home.routine.comingSoon') }}</p>
+      <p class="text-muted text-sm">{{ t('common.home.routine.comingSoon') }}</p>
     </UCard>
   </div>
 </template>

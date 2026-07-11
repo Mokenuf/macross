@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 
+defineProps<{ compact?: boolean }>()
+
 const { locale, locales, setLocale } = useI18n()
 
 const flags: Record<string, string> = {
@@ -21,7 +23,8 @@ const items = computed<DropdownMenuItem[]>(() =>
   <UDropdownMenu :items>
     <UButton
       :icon="flags[locale]"
-      trailing-icon="i-lucide-chevron-down"
+      :trailing-icon="compact ? undefined : 'i-lucide-chevron-down'"
+      :square="compact"
       variant="ghost"
       color="neutral"
       size="sm"

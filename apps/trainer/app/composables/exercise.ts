@@ -28,10 +28,12 @@ export function useGetExerciseList() {
 
   const exercises = computed<Exercise[]>(() => data.value?.rows ?? [])
   const pagination = computed<Pagination>(() => data.value?.pagination ?? defaultPagination)
+  const counts = computed(() => data.value?.counts)
 
   return {
     exercises,
     pagination,
+    counts,
     loading: pending,
     refresh,
     error,

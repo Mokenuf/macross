@@ -1,13 +1,13 @@
 {
   "trainers": {
     "title": "Trainers",
+    "count": "{count} trainers",
     "search": {
       "label": "Search",
       "placeholder": "Search trainer..."
     },
     "columns": {
-      "name": "Name",
-      "email": "Email",
+      "person": "Trainer",
       "role": "Role",
       "createdAt": "Created at"
     },
@@ -25,7 +25,8 @@
     },
     "add": {
       "title": "Add Trainer",
-      "heading": "Invite Trainer"
+      "heading": "Invite Trainer",
+      "subtitle": "An email is sent so they can set their password"
     },
     "detail": {
       "title": "Trainer Detail",
@@ -33,7 +34,9 @@
       "roleManager": "Manager",
       "email": "Email",
       "phone": "Phone",
-      "clients": "Clients",
+      "joinedAt": "Joined {date}",
+      "activeClients": "Active clients",
+      "totalClients": "Total clients",
       "viewClients": "View clients"
     },
     "edit": {

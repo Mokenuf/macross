@@ -1,17 +1,22 @@
 {
   "clients": {
     "title": "Clients",
+    "count": "{active} active · {total} total",
     "add": {
       "title": "Add Client",
-      "heading": "Invite Client"
+      "heading": "Invite Client",
+      "subtitle": "An email is sent so they can set their password"
     },
     "detail": {
       "title": "Client Detail",
       "email": "Email",
       "phone": "Phone",
       "trainer": "Trainer",
+      "joinedAt": "Joined {date}",
       "age": "Age",
       "ageUnit": "years",
+      "frequency": "Frequency",
+      "frequencyUnit": "days / wk",
       "desiredWeeklyFrequency": "Weekly frequency",
       "daysUnit": "days",
       "weight": "Weight",
@@ -70,8 +75,9 @@
     },
     "search": "Search client...",
     "columns": {
-      "name": "Name",
-      "email": "Email",
+      "person": "Client",
+      "level": "Level",
+      "goals": "Goals",
       "trainer": "Trainer",
       "status": "Status",
       "createdAt": "Created at"
@@ -84,7 +90,11 @@
         "all": "All"
       },
       "trainer": "Trainer",
-      "trainerPlaceholder": "Filter by trainer"
+      "trainerPlaceholder": "Filter by trainer",
+      "level": "Level",
+      "levelPlaceholder": "Filter by level",
+      "goals": "Goal",
+      "goalsPlaceholder": "Filter by goal"
     },
     "actions": {
       "reactivate": "Reactivate"

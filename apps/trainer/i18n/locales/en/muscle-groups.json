@@ -2,6 +2,7 @@
   "muscle-groups": {
     "title": "Muscle Groups",
     "add": "Add Muscle Group",
+    "count": "{count} in catalog",
     "columns": {
       "name": "Name"
     },
@@ -15,10 +16,13 @@
       "nameEnPlaceholder": "E.g.: Chest"
     },
     "detail": {
-      "title": "Muscle Group Details"
+      "usage": "Not used in any exercise | Used in {count} exercise | Used in {count} exercises",
+      "viewExercises": "View exercises"
     },
-    "edit": {
-      "title": "Edit Muscle Group"
+    "pages": {
+      "add": "Add Muscle Group",
+      "edit": "Edit Muscle Group",
+      "detail": "Muscle Group Details"
     },
     "toasts": {
       "created": "Muscle group created",

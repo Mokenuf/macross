@@ -18,7 +18,7 @@ const authForm = useTemplateRef('authForm')
 useRevalidateOnLocale(() => authForm.value?.formRef ?? null)
 
 const loading = ref(false)
-const fields: AuthFormField[] = [
+const fields = computed<AuthFormField[]>(() => [
   {
     name: 'email',
     type: 'email',
@@ -26,7 +26,7 @@ const fields: AuthFormField[] = [
     placeholder: t('auth.forgotPassword.emailPlaceholder'),
     required: true,
   },
-]
+])
 
 async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
   loading.value = true
@@ -40,35 +40,27 @@ async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
 </script>
 
 <template>
-  <div class="w-full max-w-sm p-4">
-    <div class="bg-surface border-macross-gray-800 rounded-2xl border p-8 shadow-2xl">
-      <div class="mb-6 text-center">
-        <h1 class="font-logo text-primary text-2xl font-bold tracking-widest uppercase">
-          Macros for progress
-        </h1>
-        <p class="text-muted mt-2 text-sm">{{ t('auth.forgotPassword.description') }}</p>
-      </div>
+  <div class="w-full max-w-sm p-8">
+    <AuthBrand class="text-4xl" />
+    <p class="text-muted mt-1 mb-6 text-sm">{{ t('auth.forgotPassword.description') }}</p>
 
-      <UAuthForm
-        ref="authForm"
-        :schema="requestPasswordResetSchema"
-        :fields
-        icon="i-lucide-mail"
-        :submit="{
-          label: t('auth.forgotPassword.submit'),
-          loading,
-          size: 'lg',
-          block: true,
-          class: 'cursor-pointer',
-        }"
-        @submit="handleSubmit"
-      />
+    <UAuthForm
+      ref="authForm"
+      :schema="requestPasswordResetSchema"
+      :fields
+      :submit="{
+        label: t('auth.forgotPassword.submit'),
+        loading,
+        size: 'lg',
+        block: true,
+      }"
+      @submit="handleSubmit"
+    />
 
-      <div class="mt-4 text-center">
-        <ULink to="/auth/login" class="hover:text-primary text-muted text-sm">
-          {{ t('auth.forgotPassword.backToLogin') }}
-        </ULink>
-      </div>
+    <div class="mt-4 text-center">
+      <ULink to="/auth/login" class="text-muted hover:text-primary text-sm">
+        {{ t('auth.forgotPassword.backToLogin') }}
+      </ULink>
     </div>
   </div>
 </template>

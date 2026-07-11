@@ -81,6 +81,12 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
     toExercise,
   )
 
+  // Total del catálogo (ignora search/facetas) para el subtítulo "N en catálogo".
+  const { count: activeCount } = await client
+    .from('exercises')
+    .select('*', { count: 'exact', head: true })
+    .is('deleted_at', null)
+
   return {
     rows,
     pagination: {
@@ -89,5 +95,6 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
       total: count ?? 0,
       totalPages: Math.ceil((count ?? 0) / queryParams.limit),
     },
+    counts: { active: activeCount ?? 0 },
   }
 })

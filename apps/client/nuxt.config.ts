@@ -43,4 +43,9 @@ export default defineNuxtConfig({
       colors: ['primary', 'secondary', 'info', 'success', 'warning', 'error', 'neutral'],
     },
   },
+  vite: {
+    optimizeDeps: {
+      include: ['zod'],
+    },
+  },
 })

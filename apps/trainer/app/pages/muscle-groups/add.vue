@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import type { CreateMuscleGroup } from '@macross/shared'
+import type { BreadcrumbItem } from '@nuxt/ui'
 
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.add' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.pages.add' })
 
 const { t } = useI18n()
-
 const { create, pending } = useCreateMuscleGroup()
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/' },
+  { label: t('muscle-groups.title'), to: '/muscle-groups' },
+  { label: t('common.actions.add') },
+])
 
 function onSubmit(data: CreateMuscleGroup) {
   create(data)
@@ -13,8 +19,8 @@ function onSubmit(data: CreateMuscleGroup) {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-2xl py-6">
-    <h1 class="mb-6 text-2xl font-bold">{{ t('muscle-groups.add') }}</h1>
+  <div>
+    <BasePageHead :breadcrumbs :title="t('muscle-groups.pages.add')" />
     <MuscleGroupForm :loading="pending" @submit="onSubmit" />
   </div>
 </template>

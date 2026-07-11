@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import type { CreateEquipment } from '@macross/shared'
+import type { BreadcrumbItem } from '@nuxt/ui'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'equipment.pages.add' })
 
 const { t } = useI18n()
 const { create, pending } = useCreateEquipment()
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/' },
+  { label: t('equipment.title'), to: '/equipment' },
+  { label: t('common.actions.add') },
+])
 
 function onSubmit(data: CreateEquipment) {
   create(data)
@@ -12,8 +19,8 @@ function onSubmit(data: CreateEquipment) {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-2xl py-6">
-    <h1 class="mb-6 text-2xl font-bold">{{ t('equipment.pages.add') }}</h1>
+  <div>
+    <BasePageHead :breadcrumbs :title="t('equipment.pages.add')" />
     <EquipmentForm :loading="pending" @submit="onSubmit" />
   </div>
 </template>

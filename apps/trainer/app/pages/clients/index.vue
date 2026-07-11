@@ -1,17 +1,31 @@
 <script setup lang="ts">
 import { Roles, type BaseResponse, type Client, type Trainer } from '@macross/shared'
+import type { BreadcrumbItem } from '@nuxt/ui'
 
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'clients.title' })
 
-const { clients, pagination, loading, page, limit, search, trainerId, status } = useGetClientList()
+const {
+  clients,
+  pagination,
+  counts,
+  loading,
+  page,
+  limit,
+  search,
+  trainerId,
+  status,
+  level,
+  goal,
+} = useGetClientList()
 const { remove } = useDeleteClient()
 const { reactivate } = useReactivateClient()
 const { data: me } = useGetMe()
 const { t } = useI18n()
 const { formatDate } = useFormatDate()
+const { levelLabels, goalLabels, levelOptions, goalOptions } = useClientOptions()
 
 const { data: trainersData } = useFetch<BaseResponse<Trainer>>('/api/trainers', {
   key: 'trainers-select',
@@ -22,6 +36,11 @@ const isManager = computed(() => me.value?.role === Roles.manager)
 const trainerOptions = computed(() =>
   (trainersData.value?.rows ?? []).map(tr => ({ label: tr.fullName, value: tr.id })),
 )
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/' },
+  { label: t('clients.title') },
+])
 
 const filterConfig = computed<Filter[]>(() => {
   const filters: Filter[] = [
@@ -43,6 +62,21 @@ const filterConfig = computed<Filter[]>(() => {
         { label: t('clients.filters.statusOptions.all'), value: 'all' },
       ],
     },
+    {
+      type: 'select',
+      key: 'level',
+      label: t('clients.filters.level'),
+      placeholder: t('clients.filters.levelPlaceholder'),
+      options: levelOptions.value,
+    },
+    {
+      type: 'select',
+      key: 'goal',
+      label: t('clients.filters.goals'),
+      placeholder: t('clients.filters.goalsPlaceholder'),
+      options: goalOptions.value,
+      multiple: true,
+    },
   ]
   if (isManager.value) {
     filters.push({
@@ -61,14 +95,45 @@ const filterValues = computed(() => ({
   search: search.value,
   trainerId: trainerId.value,
   status: status.value,
+  level: level.value,
+  goal: goal.value,
 }))
 
-const UBadge = resolveComponent('UBadge')
+const BaseBadge = resolveComponent('BaseBadge')
+const BaseBadgeList = resolveComponent('BaseBadgeList')
+const BasePerson = resolveComponent('BasePerson')
 
 const columns = computed<TableColumn<Client>[]>(() => {
   const cols: TableColumn<Client>[] = [
-    { accessorKey: 'fullName', header: t('clients.columns.name') },
-    { accessorKey: 'email', header: t('clients.columns.email') },
+    {
+      accessorKey: 'fullName',
+      header: t('clients.columns.person'),
+      cell: ({ row }) =>
+        h(BasePerson, {
+          name: row.original.fullName,
+          subtitle: row.original.email,
+          avatarUrl: row.original.avatarUrl,
+        }),
+    },
+    {
+      accessorKey: 'level',
+      header: t('clients.columns.level'),
+      cell: ({ row }) => {
+        const rowLevel = row.original.level
+        return rowLevel
+          ? h(BaseBadge, { color: 'neutral', label: levelLabels.value[rowLevel] })
+          : h('span', { class: 'text-muted' }, '—')
+      },
+    },
+    {
+      accessorKey: 'goal',
+      header: t('clients.columns.goals'),
+      cell: ({ row }) =>
+        h(BaseBadgeList, {
+          items: (row.original.goal ?? []).map(g => goalLabels.value[g]),
+          color: 'primary',
+        }),
+    },
   ]
   if (isManager.value) {
     cols.push({
@@ -82,8 +147,8 @@ const columns = computed<TableColumn<Client>[]>(() => {
     header: t('clients.columns.status'),
     cell: ({ row }) =>
       row.original.deletedAt
-        ? h(UBadge, { color: 'error', variant: 'subtle' }, () => t('common.status.deleted'))
-        : h(UBadge, { color: 'success', variant: 'subtle' }, () => t('common.status.active')),
+        ? h(BaseBadge, { color: 'error', label: t('common.status.deleted'), shape: 'pill' })
+        : h(BaseBadge, { color: 'success', label: t('common.status.active'), shape: 'pill' }),
   })
   cols.push({
     accessorKey: 'createdAt',
@@ -111,6 +176,8 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
     search,
     trainerId,
     status,
+    level,
+    goal,
   }
   if (map[key]) map[key].value = value
 }
@@ -118,19 +185,22 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
 
 <template>
   <div class="space-y-4">
-    <div class="flex items-end justify-between">
-      <BaseFilters
-        :filters="filterConfig"
-        :values="filterValues"
-        @update:filters="onFilterUpdate"
-      />
-      <UButton
-        :label="t('clients.add.title')"
-        icon="i-lucide-plus"
-        color="primary"
-        to="/clients/add"
-      />
-    </div>
+    <BasePageHead
+      :loading
+      :breadcrumbs
+      :title="t('clients.title')"
+      :subtitle="t('clients.count', { active: counts?.active ?? 0, total: counts?.total ?? 0 })"
+    >
+      <template #actions>
+        <UButton
+          :label="t('clients.add.title')"
+          icon="i-lucide-plus"
+          color="primary"
+          to="/clients/add"
+        />
+      </template>
+    </BasePageHead>
+    <BaseFilters :filters="filterConfig" :values="filterValues" @update:filters="onFilterUpdate" />
     <BaseTable
       :columns
       :actions

@@ -2,6 +2,7 @@
   "equipment": {
     "title": "Equipamiento",
     "add": "Agregar Equipamiento",
+    "count": "{count} en catálogo",
     "search": "Buscar equipamiento...",
     "columns": {
       "name": "Nombre"
@@ -15,7 +16,10 @@
       "nameEsExample": "Ej: Mancuerna",
       "nameEnExample": "Ej: Dumbbell"
     },
-    "detail": {},
+    "detail": {
+      "usage": "No se usa en ningún ejercicio | Usado en {count} ejercicio | Usado en {count} ejercicios",
+      "viewExercises": "Ver ejercicios"
+    },
     "pages": {
       "add": "Agregar Equipamiento",
       "edit": "Editar Equipamiento",
