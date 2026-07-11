@@ -1,15 +1,25 @@
 <script setup lang="ts">
 import type { UpdateMuscleGroup } from '@macross/shared'
+import type { BreadcrumbItem } from '@nuxt/ui'
 
-definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.edit.title' })
+definePageMeta({ layout: 'admin', middleware: 'auth', title: 'muscle-groups.pages.edit' })
 
 const { t } = useI18n()
-
+const { localizedName } = useLocalizedName()
 const route = useRoute()
 const { slug } = route.params
 
 const { muscleGroup, loading } = useGetMuscleGroup(String(slug))
 const { update, pending } = useUpdateMuscleGroup()
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/' },
+  { label: t('muscle-groups.title'), to: '/muscle-groups' },
+  ...(muscleGroup.value
+    ? [{ label: localizedName(muscleGroup.value), to: `/muscle-groups/${muscleGroup.value.slug}` }]
+    : []),
+  { label: t('common.actions.edit') },
+])
 
 function onSubmit(data: UpdateMuscleGroup) {
   update(String(slug), data)
@@ -17,9 +27,14 @@ function onSubmit(data: UpdateMuscleGroup) {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-2xl py-6">
-    <h1 class="mb-6 text-2xl font-bold">{{ t('muscle-groups.edit.title') }}</h1>
-    <MuscleGroupForm v-if="muscleGroup" :muscle-group :loading="pending" @submit="onSubmit" />
+  <div>
+    <BasePageHead :breadcrumbs :title="t('muscle-groups.pages.edit')" />
+    <MuscleGroupForm
+      v-if="muscleGroup"
+      :muscle-group="muscleGroup"
+      :loading="pending"
+      @submit="onSubmit"
+    />
     <div v-else-if="loading" class="flex justify-center py-12">
       <UIcon name="i-lucide-loader-2" class="size-8 animate-spin" />
     </div>

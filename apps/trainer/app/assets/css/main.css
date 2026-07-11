@@ -94,4 +94,10 @@
   :root {
     color-scheme: dark;
   }
+
+  /* Restaura el pointer en botones (Tailwind v4 los dejó en cursor: default). */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
 }

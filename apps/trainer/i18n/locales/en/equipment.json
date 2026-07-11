@@ -16,7 +16,10 @@
       "nameEsExample": "E.g.: Mancuerna",
       "nameEnExample": "E.g.: Dumbbell"
     },
-    "detail": {},
+    "detail": {
+      "usage": "Not used in any exercise | Used in {count} exercise | Used in {count} exercises",
+      "viewExercises": "View exercises"
+    },
     "pages": {
       "add": "Add Equipment",
       "edit": "Edit Equipment",

@@ -4,15 +4,19 @@
     "count": "{active} active · {total} total",
     "add": {
       "title": "Add Client",
-      "heading": "Invite Client"
+      "heading": "Invite Client",
+      "subtitle": "An email is sent so they can set their password"
     },
     "detail": {
       "title": "Client Detail",
       "email": "Email",
       "phone": "Phone",
       "trainer": "Trainer",
+      "joinedAt": "Joined {date}",
       "age": "Age",
       "ageUnit": "years",
+      "frequency": "Frequency",
+      "frequencyUnit": "days / wk",
       "desiredWeeklyFrequency": "Weekly frequency",
       "daysUnit": "days",
       "weight": "Weight",

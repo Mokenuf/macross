@@ -25,7 +25,8 @@
     },
     "add": {
       "title": "Agregar Entrenador",
-      "heading": "Invitar Entrenador"
+      "heading": "Invitar Entrenador",
+      "subtitle": "Se le envía un mail para que cree su contraseña"
     },
     "detail": {
       "title": "Detalle del entrenador",
@@ -33,7 +34,9 @@
       "roleManager": "Manager",
       "email": "Email",
       "phone": "Teléfono",
-      "clients": "Clientes",
+      "joinedAt": "Ingresó {date}",
+      "activeClients": "Clientes activos",
+      "totalClients": "Clientes totales",
       "viewClients": "Ver clientes"
     },
     "edit": {

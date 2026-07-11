@@ -46,7 +46,6 @@ function cancel() {
         </div>
         <div class="mt-4.5 flex justify-end gap-2.5">
           <UButton
-            class="cursor-pointer"
             :label="cancelLabel ?? t('common.actions.cancel')"
             color="neutral"
             variant="ghost"
@@ -54,7 +53,6 @@ function cancel() {
             @click="cancel"
           />
           <UButton
-            class="cursor-pointer"
             :label="confirmLabel ?? t('common.actions.delete')"
             color="error"
             variant="solid"

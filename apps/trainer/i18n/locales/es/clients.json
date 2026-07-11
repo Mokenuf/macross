@@ -4,15 +4,19 @@
     "count": "{active} activos · {total} totales",
     "add": {
       "title": "Agregar Cliente",
-      "heading": "Invitar Cliente"
+      "heading": "Invitar Cliente",
+      "subtitle": "Se le envía un mail para que cree su contraseña"
     },
     "detail": {
       "title": "Detalle del cliente",
       "email": "Email",
       "phone": "Teléfono",
       "trainer": "Entrenador",
+      "joinedAt": "Ingresó {date}",
       "age": "Edad",
       "ageUnit": "años",
+      "frequency": "Frecuencia",
+      "frequencyUnit": "días / sem",
       "desiredWeeklyFrequency": "Frecuencia semanal",
       "daysUnit": "días",
       "weight": "Peso",

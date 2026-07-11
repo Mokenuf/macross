@@ -80,15 +80,20 @@ function hasSelection(value: unknown): boolean {
   return Array.isArray(value) ? value.length > 0 : value != null && value !== ''
 }
 
+// Sin fallback a String(v): si el label no se puede resolver (opciones async todavía sin cargar,
+// o un id stale) devolvemos '' y el trigger cae al placeholder, en vez de filtrar el UUID crudo.
 function selectLabel(filter: Filter, value: unknown): string {
   if (filter.type !== 'select') return ''
   const options = filter.options as { label: string; value: string }[]
-  const labelOf = (v: unknown) => options.find(o => o.value === v)?.label ?? String(v)
+  const labelOf = (v: unknown) => options.find(o => o.value === v)?.label ?? ''
   if (Array.isArray(value)) {
-    if (value.length === 1) return labelOf(value[0])
-    return `${labelOf(value[0])} ${t('filters.andMore', { count: value.length - 1 })}`
+    if (value.length === 0) return ''
+    const first = labelOf(value[0])
+    if (!first) return ''
+    if (value.length === 1) return first
+    return `${first} ${t('filters.andMore', { count: value.length - 1 })}`
   }
-  return labelOf(value)
+  return hasSelection(value) ? labelOf(value) : ''
 }
 
 function applyFilters() {
@@ -144,10 +149,10 @@ syncDraft()
           @clear="onSelectClear(filter)"
         >
           <template #default="{ modelValue }">
-            <span v-if="!hasSelection(modelValue)" class="text-dimmed truncate">
-              {{ filter.placeholder }}
+            <span v-if="selectLabel(filter, modelValue)" class="truncate">
+              {{ selectLabel(filter, modelValue) }}
             </span>
-            <span v-else class="truncate">{{ selectLabel(filter, modelValue) }}</span>
+            <span v-else class="text-dimmed truncate">{{ filter.placeholder }}</span>
           </template>
 
           <template #item-leading>

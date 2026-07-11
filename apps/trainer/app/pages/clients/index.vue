@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Roles, type BaseResponse, type Client, type Trainer } from '@macross/shared'
+import type { BreadcrumbItem } from '@nuxt/ui'
 
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
@@ -35,6 +36,11 @@ const isManager = computed(() => me.value?.role === Roles.manager)
 const trainerOptions = computed(() =>
   (trainersData.value?.rows ?? []).map(tr => ({ label: tr.fullName, value: tr.id })),
 )
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/' },
+  { label: t('clients.title') },
+])
 
 const filterConfig = computed<Filter[]>(() => {
   const filters: Filter[] = [
@@ -181,6 +187,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
   <div class="space-y-4">
     <BasePageHead
       :loading
+      :breadcrumbs
       :title="t('clients.title')"
       :subtitle="t('clients.count', { active: counts?.active ?? 0, total: counts?.total ?? 0 })"
     >

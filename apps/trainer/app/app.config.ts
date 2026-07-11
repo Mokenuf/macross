@@ -76,6 +76,11 @@ export default defineAppConfig({
         },
       },
     },
+    formField: {
+      slots: {
+        label: 'font-semibold text-macross-primary-300',
+      },
+    },
     input: {
       variants: {
         variant: { outline: inputSurface },

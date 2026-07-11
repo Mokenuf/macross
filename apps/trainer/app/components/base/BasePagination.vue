@@ -54,7 +54,6 @@ function onLimitChange(value: AcceptableValue | undefined) {
           :items="limitOptions"
           value-key="value"
           :search-input="false"
-          class="cursor-pointer"
           :ui="{ item: 'cursor-pointer' }"
           @update:model-value="onLimitChange"
         />

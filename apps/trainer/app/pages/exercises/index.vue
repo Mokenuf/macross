@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BaseResponse, Equipment, Exercise, MuscleGroup } from '@macross/shared'
+import type { BreadcrumbItem } from '@nuxt/ui'
 
 import type { Filter } from '@/types/base-filters'
 import type { TableAction, TableColumn } from '@/types/base-table'
@@ -32,6 +33,11 @@ const { data: equipmentData } = useFetch<BaseResponse<Equipment>>('/api/equipmen
 })
 
 const isManager = computed(() => user.value?.role === 'manager')
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+  { label: t('nav.dashboard'), to: '/' },
+  { label: t('exercises.title') },
+])
 
 const muscleGroupOptions = computed(() =>
   (muscleGroupsData.value?.rows ?? []).map(mg => ({ label: localizedName(mg), value: mg.id })),
@@ -123,6 +129,7 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
   <div class="space-y-4">
     <BasePageHead
       :loading
+      :breadcrumbs
       :title="t('exercises.title')"
       :subtitle="t('exercises.count', { count: counts?.active ?? 0 })"
     >

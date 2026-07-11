@@ -51,7 +51,6 @@ async function handleSubmit(event: FormSubmitEvent<RequestPasswordReset>) {
         loading,
         size: 'lg',
         block: true,
-        class: 'cursor-pointer',
       }"
       @submit="handleSubmit"
     />

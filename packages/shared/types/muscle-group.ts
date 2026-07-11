@@ -11,6 +11,7 @@ export const muscleGroupSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
+  exerciseCount: z.number().optional(),
 })
 
 export const createMuscleGroupSchema = z.object({

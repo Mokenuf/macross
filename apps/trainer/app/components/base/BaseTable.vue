@@ -96,7 +96,6 @@ const allColumns = computed(() => {
             icon: 'i-lucide-ellipsis-vertical',
             color: 'neutral',
             variant: 'ghost',
-            ui: { base: 'cursor-pointer' },
           }),
       )
     },

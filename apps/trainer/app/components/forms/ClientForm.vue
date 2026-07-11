@@ -204,14 +204,12 @@ function onSubmit(event: FormSubmitEvent<CreateClient | UpdateClient>) {
 
     <div class="flex justify-end gap-3">
       <UButton
-        class="cursor-pointer"
         :label="t('clients.form.buttons.cancel')"
         color="neutral"
-        variant="ghost"
+        variant="outline"
         to="/clients"
       />
       <UButton
-        class="cursor-pointer"
         type="submit"
         :label="
           isEdit ? t('clients.form.buttons.saveChanges') : t('clients.form.buttons.inviteClient')

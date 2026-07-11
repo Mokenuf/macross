@@ -72,14 +72,12 @@ function onSubmit(event: FormSubmitEvent<CreateTrainer | UpdateTrainer>) {
     </UFormField>
     <div class="flex justify-end gap-3">
       <UButton
-        class="cursor-pointer"
         :label="t('common.actions.cancel')"
         color="neutral"
-        variant="ghost"
+        variant="outline"
         to="/trainers"
       />
       <UButton
-        class="cursor-pointer"
         type="submit"
         :label="isEdit ? t('trainers.form.saveChanges') : t('trainers.form.inviteTrainer')"
         :loading

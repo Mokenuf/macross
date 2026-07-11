@@ -49,10 +49,10 @@ function onSubmit(event: FormSubmitEvent<CreateEquipment>) {
       <UButton
         :label="t('common.actions.cancel')"
         color="neutral"
-        variant="ghost"
+        variant="outline"
         to="/equipment"
       />
-      <UButton class="cursor-pointer" type="submit" :label="t('common.actions.save')" :loading />
+      <UButton type="submit" :label="t('common.actions.save')" :loading />
     </div>
   </UForm>
 </template>

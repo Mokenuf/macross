@@ -66,7 +66,6 @@ async function handleSubmit(event: FormSubmitEvent<Login>) {
         loading,
         size: 'lg',
         block: true,
-        class: 'cursor-pointer',
       }"
       @submit="handleSubmit"
     />

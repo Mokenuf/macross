@@ -112,7 +112,7 @@ async function handleLogout() {
             variant="ghost"
             size="sm"
             square
-            class="text-dimmed hover:text-default cursor-pointer"
+            class="text-dimmed hover:text-default"
             @click="collapse(!collapsed)"
           />
         </div>
@@ -151,7 +151,7 @@ async function handleLogout() {
               variant="ghost"
               square
               size="xs"
-              class="border-default text-muted hover:border-error/40 hover:bg-error/8 hover:text-error cursor-pointer rounded-sm border p-1.5"
+              class="border-default text-muted hover:border-error/40 hover:bg-error/8 hover:text-error rounded-sm border p-1.5"
               @click="handleLogout"
             />
           </div>
@@ -171,7 +171,7 @@ async function handleLogout() {
             variant="ghost"
             square
             size="xs"
-            class="border-default text-muted hover:border-error/40 hover:bg-error/8 hover:text-error cursor-pointer rounded-sm border p-1.5"
+            class="border-default text-muted hover:border-error/40 hover:bg-error/8 hover:text-error rounded-sm border p-1.5"
             @click="handleLogout"
           />
         </div>

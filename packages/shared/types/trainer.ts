@@ -14,6 +14,7 @@ export const trainerSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
+  activeClients: z.number().optional(),
   totalClients: z.number().optional(),
 })
 
