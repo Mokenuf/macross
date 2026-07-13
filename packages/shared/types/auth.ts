@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
   password: z.string().min(6),
 })
 
@@ -16,7 +16,7 @@ export const setPasswordSchema = z
   })
 
 export const requestPasswordResetSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
 })
 
 export type Login = z.infer<typeof loginSchema>
