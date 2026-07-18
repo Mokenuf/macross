@@ -30,7 +30,8 @@
       "notes": "Trainer Notes",
       "trainingData": "Training Data",
       "trainerNotes": "Trainer Notes",
-      "editButton": "Edit"
+      "editButton": "Edit",
+      "viewRoutines": "View routines"
     },
     "edit": {
       "title": "Edit Client"

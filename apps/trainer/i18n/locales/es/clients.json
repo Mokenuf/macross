@@ -30,7 +30,8 @@
       "notes": "Notas del entrenador",
       "trainingData": "Datos de entrenamiento",
       "trainerNotes": "Notas del entrenador",
-      "editButton": "Editar"
+      "editButton": "Editar",
+      "viewRoutines": "Ver rutinas"
     },
     "edit": {
       "title": "Editar cliente"

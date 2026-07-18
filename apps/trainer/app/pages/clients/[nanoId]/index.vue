@@ -41,6 +41,14 @@ async function onReactivate() {
         <template #actions>
           <div class="flex gap-2">
             <UButton
+              :label="t('clients.detail.viewRoutines')"
+              icon="i-lucide-dumbbell"
+              color="neutral"
+              variant="outline"
+              size="sm"
+              :to="`/routines?clientId=${client.id}`"
+            />
+            <UButton
               :label="t('common.actions.edit')"
               color="neutral"
               variant="outline"

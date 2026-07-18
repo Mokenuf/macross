@@ -104,6 +104,8 @@ export const createRoutineSchema = z.object({
   weeks: z.coerce.number().int().min(1).default(4),
   notes: z.string().optional(),
   isTemplate: z.boolean().optional().default(false),
+  // Activar desactiva las demás del cliente (una activa por cliente). Desactivar no es terminal.
+  activate: z.boolean().optional().default(false),
   days: z.array(createRoutineDaySchema).min(1),
 })
 

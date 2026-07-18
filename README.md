@@ -1,4 +1,4 @@
-# Macross
+# Macros for Progress
 
 Plataforma digital para entrenadores personales. Gestión de clientes, ejercicios con video, rutinas por fases, y seguimiento de progreso — todo bajo la marca del entrenador.
 

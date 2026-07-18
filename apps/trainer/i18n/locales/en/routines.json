@@ -1,0 +1,119 @@
+{
+  "routines": {
+    "title": "Routines",
+    "count": "{count} active",
+    "search": "Search routine...",
+    "add": {
+      "title": "New phase",
+      "heading": "New phase"
+    },
+    "edit": {
+      "title": "Edit routine"
+    },
+    "columns": {
+      "name": "Phase",
+      "client": "Client",
+      "structure": "Structure",
+      "status": "Status"
+    },
+    "structure": "{days} days · {weeks} wks",
+    "noClient": "Unassigned",
+    "filters": {
+      "client": "Client",
+      "clientPlaceholder": "Filter by client",
+      "status": "Status",
+      "statusOptions": {
+        "active": "Active",
+        "finished": "Finished",
+        "all": "All"
+      }
+    },
+    "status": {
+      "active": "Active",
+      "finished": "Finished"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "finish": "Deactivate"
+    },
+    "confirmFinish": {
+      "title": "Deactivate this routine?",
+      "message": "{name} will be finished and the client will stop seeing it. This action cannot be undone.",
+      "confirm": "Deactivate"
+    },
+    "wizard": {
+      "step1": "Starting point",
+      "step2": "Phase details",
+      "step3": "Routine",
+      "soon": "Coming soon",
+      "startCards": {
+        "new": {
+          "title": "New phase",
+          "description": "Empty phase. Build the days and exercises by hand."
+        },
+        "copy": {
+          "title": "Copy from another phase",
+          "description": "Start from an existing phase and adjust it."
+        },
+        "template": {
+          "title": "From template",
+          "description": "Reusable template you keep aside."
+        }
+      },
+      "cancel": "Cancel",
+      "back": "Back",
+      "next": "Next",
+      "save": "Save",
+      "activate": "Activate this routine",
+      "activateHint": "Activating deactivates the client's current active routine (one active per client)."
+    },
+    "form": {
+      "client": "Client",
+      "clientPlaceholder": "Select client",
+      "name": "Phase name",
+      "namePlaceholder": "Phase 2 — Hypertrophy",
+      "daysPerWeek": "Days per week",
+      "weeks": "Weeks",
+      "weeksLocked": "4 · fixed per phase",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Mesocycle goal, notes for the client…"
+    },
+    "builder": {
+      "day": "Day {n}",
+      "addDay": "Day",
+      "dayLabel": "Day name (optional)",
+      "dayLabelPlaceholder": "e.g. Push",
+      "duplicateDay": "Duplicate day",
+      "removeDay": "Remove day",
+      "emptyDay": "This day has no exercises yet",
+      "addExercise": "Add exercise",
+      "noExercise": "No exercise",
+      "incompleteHint": "Add at least one exercise (with sets and reps) to each day to save.",
+      "exercisePlaceholder": "Search exercise…",
+      "blockTypes": {
+        "single": "Single",
+        "superset": "Superset",
+        "dropset": "Dropset"
+      },
+      "week": "Wk {n}",
+      "sets": "Sets",
+      "reps": "Reps",
+      "repsPlaceholder": "12",
+      "rest": "Rest",
+      "restPlaceholder": "90s",
+      "optional": "Optional"
+    },
+    "toasts": {
+      "created": "Routine created",
+      "createError": "Could not create the routine",
+      "updated": "Routine updated",
+      "updateError": "Could not update the routine",
+      "deleted": "Routine deleted",
+      "deleteError": "Could not delete the routine",
+      "finished": "Routine deactivated",
+      "finishError": "Could not deactivate the routine"
+    }
+  }
+}

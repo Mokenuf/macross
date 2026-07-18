@@ -1,0 +1,119 @@
+{
+  "routines": {
+    "title": "Rutinas",
+    "count": "{count} activas",
+    "search": "Buscar rutina...",
+    "add": {
+      "title": "Nueva fase",
+      "heading": "Nueva fase"
+    },
+    "edit": {
+      "title": "Editar rutina"
+    },
+    "columns": {
+      "name": "Fase",
+      "client": "Cliente",
+      "structure": "Estructura",
+      "status": "Estado"
+    },
+    "structure": "{days} días · {weeks} sem",
+    "noClient": "Sin asignar",
+    "filters": {
+      "client": "Cliente",
+      "clientPlaceholder": "Filtrar por cliente",
+      "status": "Estado",
+      "statusOptions": {
+        "active": "Activas",
+        "finished": "Finalizadas",
+        "all": "Todas"
+      }
+    },
+    "status": {
+      "active": "Activa",
+      "finished": "Finalizada"
+    },
+    "actions": {
+      "view": "Ver",
+      "edit": "Editar",
+      "duplicate": "Duplicar",
+      "finish": "Desactivar"
+    },
+    "confirmFinish": {
+      "title": "¿Desactivar esta rutina?",
+      "message": "{name} quedará finalizada y el cliente dejará de verla. Esta acción no se puede deshacer.",
+      "confirm": "Desactivar"
+    },
+    "wizard": {
+      "step1": "Punto de partida",
+      "step2": "Datos de la fase",
+      "step3": "Rutina",
+      "soon": "Próximamente",
+      "startCards": {
+        "new": {
+          "title": "Nueva fase",
+          "description": "Fase vacía. Armás los días y ejercicios a mano."
+        },
+        "copy": {
+          "title": "Copiar de otra fase",
+          "description": "Partís de una fase ya armada y la ajustás."
+        },
+        "template": {
+          "title": "Desde template",
+          "description": "Plantilla reutilizable que mantenés aparte."
+        }
+      },
+      "cancel": "Cancelar",
+      "back": "Atrás",
+      "next": "Siguiente",
+      "save": "Guardar",
+      "activate": "Activar esta rutina",
+      "activateHint": "Al activar se desactiva la rutina activa actual del cliente (una activa por cliente)."
+    },
+    "form": {
+      "client": "Cliente",
+      "clientPlaceholder": "Seleccionar cliente",
+      "name": "Nombre de la fase",
+      "namePlaceholder": "Fase 2 — Hipertrofia",
+      "daysPerWeek": "Días por semana",
+      "weeks": "Semanas",
+      "weeksLocked": "4 · fijas por fase",
+      "notes": "Notas (opcional)",
+      "notesPlaceholder": "Objetivo del mesociclo, observaciones para el cliente…"
+    },
+    "builder": {
+      "day": "Día {n}",
+      "addDay": "Día",
+      "dayLabel": "Nombre del día (opcional)",
+      "dayLabelPlaceholder": "Ej: Empuje",
+      "duplicateDay": "Duplicar día",
+      "removeDay": "Quitar día",
+      "emptyDay": "Este día no tiene ejercicios todavía",
+      "addExercise": "Agregar ejercicio",
+      "noExercise": "Sin ejercicio",
+      "incompleteHint": "Completá al menos un ejercicio (con series y reps) en cada día para poder guardar.",
+      "exercisePlaceholder": "Buscar ejercicio…",
+      "blockTypes": {
+        "single": "Single",
+        "superset": "Superserie",
+        "dropset": "Dropset"
+      },
+      "week": "Sem {n}",
+      "sets": "Series",
+      "reps": "Reps",
+      "repsPlaceholder": "12",
+      "rest": "Descanso",
+      "restPlaceholder": "90s",
+      "optional": "Opcional"
+    },
+    "toasts": {
+      "created": "Rutina creada",
+      "createError": "No se pudo crear la rutina",
+      "updated": "Rutina actualizada",
+      "updateError": "No se pudo actualizar la rutina",
+      "deleted": "Rutina eliminada",
+      "deleteError": "No se pudo eliminar la rutina",
+      "finished": "Rutina desactivada",
+      "finishError": "No se pudo desactivar la rutina"
+    }
+  }
+}

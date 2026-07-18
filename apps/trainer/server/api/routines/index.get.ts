@@ -42,10 +42,11 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Routine>> 
     supabaseQuery = supabaseQuery.eq('active', false)
   }
 
-  // Scoping: el trainer solo ve las suyas; el manager puede filtrar por cliente.
+  // Scoping: el trainer solo ve las suyas. El filtro por cliente aplica a cualquier rol (deep-link desde la ficha).
   if (caller.role === 'trainer') {
     supabaseQuery = supabaseQuery.eq('trainer_id', user.sub)
-  } else if (queryParams.clientId) {
+  }
+  if (queryParams.clientId) {
     supabaseQuery = supabaseQuery.eq('client_id', queryParams.clientId)
   }
 
