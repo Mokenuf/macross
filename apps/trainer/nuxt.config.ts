@@ -39,6 +39,9 @@ export default defineNuxtConfig({
       fallbackLocale: 'es',
     },
   },
+  icon: {
+    clientBundle: { scan: true },
+  },
   supabase: {
     redirect: false,
     types: '@macross/shared/types/database.ts',
