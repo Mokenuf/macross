@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { blockTypeEnum } from './enums'
-import { exerciseSchema } from './exercise'
+import { equipmentSchema } from './equipment'
 import { queryParamsSchema, type BaseFilters } from './query-params'
 
 export const routineExerciseSchemeSchema = z.object({
@@ -23,7 +23,15 @@ export const routineExerciseSchema = z.object({
   sortOrder: z.number().int(),
   optional: z.boolean(),
   notes: z.string().nullable(),
-  exercise: exerciseSchema,
+  exercise: z.object({
+    id: z.uuid(),
+    nameEs: z.string(),
+    nameEn: z.string().nullable(),
+    videoUrl: z.url().nullable(),
+    slug: z.string(),
+    nanoId: z.string(),
+    equipment: equipmentSchema.nullable(),
+  }),
   schemes: z.array(routineExerciseSchemeSchema),
   createdAt: z.string(),
   updatedAt: z.string(),
