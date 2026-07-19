@@ -10,11 +10,16 @@ definePageMeta({ layout: 'admin', middleware: 'auth', title: 'routines.title' })
 const { routines, pagination, counts, loading, page, limit, search, clientId, status } =
   useGetRoutineList()
 const { remove } = useDeleteRoutine()
-const { finish, pending: finishing } = useFinishRoutine()
+const { deactivate, pending: deactivating } = useDeactivateRoutine()
+const { activate, pending: activating } = useActivateRoutine()
 const { t } = useI18n()
 
-const finishTarget = ref<Routine | null>(null)
-const finishModalOpen = ref(false)
+const toggleTarget = ref<Routine | null>(null)
+const toggleModalOpen = ref(false)
+const toggling = computed(() => deactivating.value || activating.value)
+const confirmKey = computed(() =>
+  toggleTarget.value?.active ? 'confirmDeactivate' : 'confirmActivate',
+)
 
 const { data: clientsData } = useFetch<BaseResponse<Client>>('/api/clients', {
   key: 'clients-select',
@@ -45,7 +50,7 @@ const filterConfig = computed<Filter[]>(() => {
       default: 'active',
       options: [
         { label: t('routines.filters.statusOptions.active'), value: 'active' },
-        { label: t('routines.filters.statusOptions.finished'), value: 'finished' },
+        { label: t('routines.filters.statusOptions.inactive'), value: 'inactive' },
         { label: t('routines.filters.statusOptions.all'), value: 'all' },
       ],
     },
@@ -100,34 +105,41 @@ const columns = computed<TableColumn<Routine>[]>(() => [
     cell: ({ row }) =>
       row.original.active
         ? h(BaseBadge, { color: 'success', label: t('routines.status.active'), shape: 'pill' })
-        : h(BaseBadge, { color: 'neutral', label: t('routines.status.finished'), shape: 'pill' }),
+        : h(BaseBadge, { color: 'neutral', label: t('routines.status.inactive'), shape: 'pill' }),
   },
 ])
 
 const actions = computed<TableAction<Routine>[]>(() => [
   { type: 'view', href: row => `/routines/${row.nanoId}` },
   { type: 'edit', href: row => `/routines/${row.nanoId}/edit` },
-  // Duplicar (copiar de otra fase / desde template) se libera en Fase 6.
   {
     type: 'custom',
-    label: t('routines.actions.finish'),
+    label: t('routines.actions.deactivate'),
     icon: 'i-lucide-power',
-    // Desactivar es terminal (no hay reactivar): confirma a mano con BaseConfirmModal.
-    onSelect: openFinishModal,
+    // BaseTable solo auto-confirma el delete; las acciones custom cablean su propio confirm.
+    onSelect: openToggleModal,
     visible: row => row.active,
+  },
+  {
+    type: 'custom',
+    label: t('routines.actions.activate'),
+    icon: 'i-lucide-power',
+    onSelect: openToggleModal,
+    visible: row => !row.active,
   },
   { type: 'delete', onSelect: row => remove(row.nanoId) },
 ])
 
-function openFinishModal(row: Routine) {
-  finishTarget.value = row
-  finishModalOpen.value = true
+function openToggleModal(row: Routine) {
+  toggleTarget.value = row
+  toggleModalOpen.value = true
 }
 
-async function confirmFinish() {
-  if (!finishTarget.value) return
-  await finish(finishTarget.value.nanoId)
-  finishModalOpen.value = false
+async function confirmToggle() {
+  const target = toggleTarget.value
+  if (!target) return
+  await (target.active ? deactivate(target.nanoId) : activate(target.nanoId))
+  toggleModalOpen.value = false
 }
 
 function onFilterUpdate({ key, value }: { key: string; value: string | number | string[] }) {
@@ -169,14 +181,14 @@ function onFilterUpdate({ key, value }: { key: string; value: string | number | 
       v-model:limit="limit"
     />
     <BaseConfirmModal
-      v-model:open="finishModalOpen"
-      :title="t('routines.confirmFinish.title')"
-      :confirm-label="t('routines.confirmFinish.confirm')"
-      :loading="finishing"
+      v-model:open="toggleModalOpen"
+      :title="t(`routines.${confirmKey}.title`)"
+      :confirm-label="t(`routines.${confirmKey}.confirm`)"
+      :loading="toggling"
       icon="i-lucide-power"
-      @confirm="confirmFinish"
+      @confirm="confirmToggle"
     >
-      {{ t('routines.confirmFinish.message', { name: finishTarget?.name ?? '' }) }}
+      {{ t(`routines.${confirmKey}.message`, { name: toggleTarget?.name ?? '' }) }}
     </BaseConfirmModal>
   </div>
 </template>

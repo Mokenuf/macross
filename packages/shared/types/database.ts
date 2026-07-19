@@ -335,7 +335,7 @@ export type Database = {
           id: string
           notes: string | null
           reps: string
-          rest_seconds: string | null
+          rest_seconds: number | null
           routine_exercise_id: string
           sets: number
           updated_at: string
@@ -346,7 +346,7 @@ export type Database = {
           id?: string
           notes?: string | null
           reps: string
-          rest_seconds?: string | null
+          rest_seconds?: number | null
           routine_exercise_id: string
           sets: number
           updated_at?: string
@@ -357,7 +357,7 @@ export type Database = {
           id?: string
           notes?: string | null
           reps?: string
-          rest_seconds?: string | null
+          rest_seconds?: number | null
           routine_exercise_id?: string
           sets?: number
           updated_at?: string

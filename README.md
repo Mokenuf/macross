@@ -112,6 +112,7 @@ fix/trainer/auth        ─┘
 - CRUDL completo de clientes: alta por invitación (mail con set-password en la PWA del cliente), listado con scoping por rol (el trainer ve solo los suyos; el manager, todos con filtro por entrenador), detalle, edición y soft delete. Tanto managers como trainers gestionan clientes. El detalle del entrenador muestra su contador de clientes y un deep-link al listado pre-filtrado.
 - Reactivación de clientes eliminados: el listado tiene un filtro de estado (activos / eliminados / todos, default activos) y una columna de estado como badge derivada del soft delete; los clientes eliminados se pueden reactivar (mismo scoping por rol que el borrado). Reinvitar el email de un cliente eliminado devuelve un mensaje claro sugiriendo reactivarlo (en vez del error crudo de Supabase).
 - Datos de entrenamiento del cliente: fecha de nacimiento (edad calculada con date-fns), peso, altura, nivel, frecuencia semanal, objetivos (multivaluados), anamnesis (lesiones/restricciones) y equipamiento disponible. Cargables ya en el alta o en edición; enums validados en Zod. Notas de seguimiento del entrenador sobre el cliente (solo en edición).
+- CRUDL de rutinas (en la UI: "fases"): armado por **wizard** (datos de la fase → días → ejercicios con series/reps/descanso/opcional), asignación a un cliente con activación (una rutina activa por cliente a la vez), listado con filtros por cliente y estado (activa/inactiva), **detalle read-only** del árbol completo (días → bloques → ejercicios × 4 semanas, matriz de prescripción), edición (mismo wizard sembrado desde la rutina) y **activar/desactivar** como toggle reversible
 - Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
 - Filtros sincronizados con URL query params
 - Permisos por rol (manager vs trainer) en UI
@@ -130,10 +131,10 @@ fix/trainer/auth        ─┘
 
 ### Shared
 
-- Schemas Zod compartidos (ejercicios, grupos musculares, equipamiento, entrenadores, clientes, auth, query params)
+- Schemas Zod compartidos (ejercicios, grupos musculares, equipamiento, entrenadores, clientes, rutinas, auth, query params)
 - Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
 - Error map de Zod para i18n de los mensajes de validación (override de los comunes + locale nativo de Zod v4 para el resto)
-- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createEquipmentSchema`, `equipmentQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `updateClientSchema`, `clientQueryParamsSchema`, `loginSchema`, `setPasswordSchema`, `requestPasswordResetSchema`)
+- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createEquipmentSchema`, `equipmentQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `updateClientSchema`, `clientQueryParamsSchema`, `loginSchema`, `setPasswordSchema`, `requestPasswordResetSchema`, `createRoutineSchema`, `createRoutineExerciseSchema`, `routineQueryParamsSchema`, `routineStatusSchema`, `blockTypeEnum`)
 
 ## Estado
 

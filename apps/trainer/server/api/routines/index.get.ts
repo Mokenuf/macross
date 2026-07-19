@@ -35,10 +35,10 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Routine>> 
     })
     .range(from, to)
 
-  // Finalizar una rutina es active=false, NO soft-delete: el status mapea a la columna `active`.
+  // Activar/desactivar es un toggle sobre `active` (NO soft-delete): el status mapea a esa columna.
   if (queryParams.status === 'active') {
     supabaseQuery = supabaseQuery.eq('active', true)
-  } else if (queryParams.status === 'finished') {
+  } else if (queryParams.status === 'inactive') {
     supabaseQuery = supabaseQuery.eq('active', false)
   }
 

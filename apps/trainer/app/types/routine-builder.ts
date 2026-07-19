@@ -10,7 +10,7 @@ export interface BuilderExercise {
   exercise: BuilderExerciseRef | null
   sets: number
   reps: string
-  restSeconds: string
+  restSeconds: number | null
   optional: boolean
   notes: string
 }

@@ -31,7 +31,7 @@ const selected = computed<Exercise | undefined>({
   },
 })
 
-// Matriz-espejo: una sola prescripción reflejada igual en las N semanas. El popover por-celda se libera en Fase 4.
+// Matriz-espejo: una sola prescripción reflejada igual en las N semanas. La edición por celda llega con el builder completo.
 const cellPreview = computed(() => `${exercise.sets}×${exercise.reps || '—'}`)
 const summaryName = computed(() =>
   exercise.exercise ? localizedName(exercise.exercise) : t('routines.builder.noExercise'),
@@ -50,7 +50,7 @@ const summaryName = computed(() =>
           class="text-dimmed size-4"
         />
         <span class="font-logo text-primary text-lg leading-none">{{ blockLetter }}</span>
-        <!-- superset/dropset se liberan en Fase 4 -->
+        <!-- superset/dropset llegan con el builder completo -->
         <div
           class="bg-macross-gray-950 ring-accented inline-flex gap-1 rounded-sm p-0.5 ring ring-inset"
           @click.stop
@@ -105,7 +105,7 @@ const summaryName = computed(() =>
                 <td class="text-highlighted px-2 py-1.5 font-semibold">{{ summaryName }}</td>
                 <td v-for="w in weeks" :key="w" class="px-2 py-1.5 text-center">
                   <span
-                    class="text-highlighted bg-macross-gray-950 ring-accented inline-flex rounded px-2.5 py-1 font-semibold ring ring-inset"
+                    class="text-highlighted bg-macross-gray-950 ring-accented hover:ring-primary font-logo inline-flex min-w-13 justify-center rounded-sm px-2.5 py-2 text-lg leading-none ring transition-colors ring-inset"
                   >
                     {{ cellPreview }}
                   </span>
@@ -113,7 +113,7 @@ const summaryName = computed(() =>
               </tr>
             </tbody>
           </table>
-          <USelectMenu
+          <UInputMenu
             v-model="selected"
             :items="options"
             by="id"
@@ -134,8 +134,9 @@ const summaryName = computed(() =>
               />
             </UFormField>
             <UFormField :label="t('routines.builder.rest')">
-              <UInput
+              <UInputNumber
                 v-model="exercise.restSeconds"
+                :min="0"
                 :placeholder="t('routines.builder.restPlaceholder')"
                 class="w-32"
               />
@@ -143,6 +144,7 @@ const summaryName = computed(() =>
             <UCheckbox
               v-model="exercise.optional"
               :label="t('routines.builder.optional')"
+              :ui="{ icon: 'size-3' }"
               class="ml-auto"
             />
           </div>

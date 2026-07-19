@@ -129,22 +129,22 @@ export function useDeleteRoutine() {
   return { remove, pending }
 }
 
-export function useFinishRoutine() {
+export function useDeactivateRoutine() {
   const { t } = useI18n()
   const pending = ref(false)
   const toast = useToast()
 
-  async function finish(nanoId: string) {
+  async function deactivate(nanoId: string) {
     pending.value = true
     try {
-      await $fetch(`/api/routines/${nanoId}/finish`, { method: 'POST' })
+      await $fetch(`/api/routines/${nanoId}/deactivate`, { method: 'POST' })
       await refreshNuxtData('routines')
-      toast.add({ title: t('routines.toasts.finished'), color: 'success' })
+      toast.add({ title: t('routines.toasts.deactivated'), color: 'success' })
     } catch (e) {
       toast.add({
         title: t('common.toasts.error'),
         description:
-          (e as FetchError<ApiError>).data?.statusMessage ?? t('routines.toasts.finishError'),
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('routines.toasts.deactivateError'),
         color: 'error',
       })
     } finally {
@@ -152,5 +152,31 @@ export function useFinishRoutine() {
     }
   }
 
-  return { finish, pending }
+  return { deactivate, pending }
+}
+
+export function useActivateRoutine() {
+  const { t } = useI18n()
+  const pending = ref(false)
+  const toast = useToast()
+
+  async function activate(nanoId: string) {
+    pending.value = true
+    try {
+      await $fetch(`/api/routines/${nanoId}/activate`, { method: 'POST' })
+      await refreshNuxtData('routines')
+      toast.add({ title: t('routines.toasts.activated'), color: 'success' })
+    } catch (e) {
+      toast.add({
+        title: t('common.toasts.error'),
+        description:
+          (e as FetchError<ApiError>).data?.statusMessage ?? t('routines.toasts.activateError'),
+        color: 'error',
+      })
+    } finally {
+      pending.value = false
+    }
+  }
+
+  return { activate, pending }
 }

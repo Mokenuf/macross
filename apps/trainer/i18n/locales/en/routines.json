@@ -24,24 +24,36 @@
       "status": "Status",
       "statusOptions": {
         "active": "Active",
-        "finished": "Finished",
+        "inactive": "Inactive",
         "all": "All"
       }
     },
     "status": {
       "active": "Active",
-      "finished": "Finished"
+      "inactive": "Inactive"
+    },
+    "detail": {
+      "noDays": "This routine has no days yet.",
+      "blocksExercises": "{blocks} blocks · {exercises} exercises",
+      "exercise": "Exercise",
+      "frequency": "{weeks} wk · {days} days"
     },
     "actions": {
       "view": "View",
       "edit": "Edit",
       "duplicate": "Duplicate",
-      "finish": "Deactivate"
+      "deactivate": "Deactivate",
+      "activate": "Activate"
     },
-    "confirmFinish": {
+    "confirmDeactivate": {
       "title": "Deactivate this routine?",
-      "message": "{name} will be finished and the client will stop seeing it. This action cannot be undone.",
+      "message": "{name} will become inactive and the client will stop seeing it. You can reactivate it anytime.",
       "confirm": "Deactivate"
+    },
+    "confirmActivate": {
+      "title": "Activate this routine?",
+      "message": "{name} will be activated. If the client already has an active routine, it will be deactivated.",
+      "confirm": "Activate"
     },
     "wizard": {
       "step1": "Starting point",
@@ -90,7 +102,6 @@
       "emptyDay": "This day has no exercises yet",
       "addExercise": "Add exercise",
       "noExercise": "No exercise",
-      "incompleteHint": "Add at least one exercise (with sets and reps) to each day to save.",
       "exercisePlaceholder": "Search exercise…",
       "blockTypes": {
         "single": "Single",
@@ -101,8 +112,8 @@
       "sets": "Sets",
       "reps": "Reps",
       "repsPlaceholder": "12",
-      "rest": "Rest",
-      "restPlaceholder": "90s",
+      "rest": "Rest (sec)",
+      "restPlaceholder": "90",
       "optional": "Optional"
     },
     "toasts": {
@@ -112,8 +123,10 @@
       "updateError": "Could not update the routine",
       "deleted": "Routine deleted",
       "deleteError": "Could not delete the routine",
-      "finished": "Routine deactivated",
-      "finishError": "Could not deactivate the routine"
+      "deactivated": "Routine deactivated",
+      "deactivateError": "Could not deactivate the routine",
+      "activated": "Routine activated",
+      "activateError": "Could not activate the routine"
     }
   }
 }

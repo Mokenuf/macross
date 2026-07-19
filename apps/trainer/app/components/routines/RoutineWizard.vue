@@ -1,17 +1,24 @@
 <script setup lang="ts">
-import { type BaseResponse, type Client, type CreateRoutine, type Exercise } from '@macross/shared'
+import {
+  type BaseResponse,
+  type Client,
+  type CreateRoutine,
+  type Exercise,
+  type Routine,
+} from '@macross/shared'
 
 import type { BuilderDay, BuilderExercise, RoutineBuilderState } from '@/types/routine-builder'
 
 interface RoutineWizardProps {
   loading?: boolean
+  routine?: Routine
 }
 
 interface RoutineWizardEmits {
   submit: [CreateRoutine]
 }
 
-const { loading = false } = defineProps<RoutineWizardProps>()
+const { loading = false, routine } = defineProps<RoutineWizardProps>()
 const emit = defineEmits<RoutineWizardEmits>()
 
 const { t } = useI18n()
@@ -19,17 +26,24 @@ const { t } = useI18n()
 const MAX_DAYS = 7
 const DEFAULT_DAYS = 3
 
-const currentStep = ref(0)
+const isEdit = computed(() => !!routine)
+const firstStep = computed(() => (isEdit.value ? 1 : 0))
+
+const currentStep = ref(routine ? 1 : 0)
 const activeDay = ref(0)
 
-const state = reactive<RoutineBuilderState>({
-  name: '',
-  clientId: '',
-  weeks: 4,
-  notes: '',
-  activate: true,
-  days: Array.from({ length: DEFAULT_DAYS }, makeDay),
-})
+const state = reactive<RoutineBuilderState>(
+  routine
+    ? seedFromRoutine(routine)
+    : {
+        name: '',
+        clientId: '',
+        weeks: 4,
+        notes: '',
+        activate: true,
+        days: Array.from({ length: DEFAULT_DAYS }, makeDay),
+      },
+)
 
 const { data: clientsData } = useFetch<BaseResponse<Client>>('/api/clients', {
   key: 'routine-clients',
@@ -43,11 +57,15 @@ const { data: exercisesData } = useFetch<BaseResponse<Exercise>>('/api/exercises
 })
 const exercises = computed(() => exercisesData.value?.rows ?? [])
 
-const steps = computed(() => [
-  { title: t('routines.wizard.step1'), icon: 'i-lucide-flag', value: 0 },
-  { title: t('routines.wizard.step2'), icon: 'i-lucide-clipboard-list', value: 1 },
-  { title: t('routines.wizard.step3'), icon: 'i-lucide-dumbbell', value: 2 },
-])
+const steps = computed(() => {
+  const all = [
+    { title: t('routines.wizard.step1'), icon: 'i-lucide-flag', value: 0 },
+    { title: t('routines.wizard.step2'), icon: 'i-lucide-clipboard-list', value: 1 },
+    { title: t('routines.wizard.step3'), icon: 'i-lucide-dumbbell', value: 2 },
+  ]
+  // En edición no hay "punto de partida": se entra directo a datos + builder.
+  return isEdit.value ? all.slice(1) : all
+})
 
 const selectedClient = computed<Client | undefined>({
   get: () => clients.value.find(c => c.id === state.clientId),
@@ -67,10 +85,42 @@ function makeDay(): BuilderDay {
 }
 
 function makeExercise(): BuilderExercise {
-  return { exercise: null, sets: 3, reps: '', restSeconds: '', optional: false, notes: '' }
+  return { exercise: null, sets: 3, reps: '', restSeconds: null, optional: false, notes: '' }
 }
 
-// Cada día necesita al menos un ejercicio y toda fila completa (ejercicio + series + reps) para guardar.
+// Edición = full-replace flat: se aplanan los bloques (cada slot → fila suelta) y se toma la
+// prescripción de la semana 1 (en el modelo flat las N semanas nacen iguales). La progresión por
+// semana no sobrevive a este colapso — lo preserva el editor de matriz por semana del builder completo.
+function seedFromRoutine(r: Routine): RoutineBuilderState {
+  return {
+    name: r.name,
+    clientId: r.clientId ?? '',
+    weeks: r.weeks,
+    notes: r.notes ?? '',
+    activate: r.active,
+    days: (r.days ?? []).map(d => ({
+      label: d.label ?? '',
+      exercises: d.blocks.flatMap(block =>
+        block.exercises.map(slot => {
+          const week1 = slot.schemes.find(s => s.weekNumber === 1) ?? slot.schemes[0]
+          return {
+            exercise: {
+              id: slot.exercise.id,
+              nameEs: slot.exercise.nameEs,
+              nameEn: slot.exercise.nameEn,
+            },
+            sets: week1?.sets ?? 3,
+            reps: week1?.reps ?? '',
+            restSeconds: week1?.restSeconds ?? null,
+            optional: slot.optional,
+            notes: slot.notes ?? '',
+          }
+        }),
+      ),
+    })),
+  }
+}
+
 function dayComplete(day: BuilderDay) {
   return (
     day.exercises.length > 0 &&
@@ -112,7 +162,7 @@ function next() {
 }
 
 function back() {
-  if (currentStep.value > 0) currentStep.value -= 1
+  if (currentStep.value > firstStep.value) currentStep.value -= 1
 }
 
 function submit() {
@@ -132,7 +182,7 @@ function submit() {
           exerciseId: e.exercise!.id,
           sets: e.sets,
           reps: e.reps.trim(),
-          restSeconds: e.restSeconds.trim() || undefined,
+          restSeconds: e.restSeconds ?? undefined,
           optional: e.optional,
           notes: e.notes.trim() || undefined,
         })),
@@ -146,7 +196,7 @@ function submit() {
   <div class="space-y-6">
     <UStepper :items="steps" v-model="currentStep" disabled class="w-full" />
 
-    <!-- Paso 1: punto de partida (copiar/template se liberan en Fase 6) -->
+    <!-- Copiar rutina y crear desde template todavía no están disponibles -->
     <div v-if="currentStep === 0" class="grid gap-3 sm:grid-cols-3">
       <div class="border-primary bg-primary/8 flex flex-col gap-1.5 rounded-lg border p-4">
         <UIcon name="i-lucide-plus" class="text-primary size-5" />
@@ -191,7 +241,6 @@ function submit() {
       </div>
     </div>
 
-    <!-- Paso 2: datos de la fase -->
     <div v-else-if="currentStep === 1" class="grid gap-4 sm:grid-cols-2">
       <UFormField :label="t('routines.form.client')" class="sm:col-span-2">
         <USelectMenu
@@ -203,6 +252,13 @@ function submit() {
           class="w-full"
         />
       </UFormField>
+      <USwitch
+        v-if="!isEdit"
+        v-model="state.activate"
+        :label="t('routines.wizard.activate')"
+        :description="t('routines.wizard.activateHint')"
+        class="sm:col-span-2"
+      />
       <UFormField :label="t('routines.form.name')" class="sm:col-span-2">
         <UInput
           v-model="state.name"
@@ -226,7 +282,7 @@ function submit() {
           />
         </div>
       </UFormField>
-      <!-- Semanas trabadas en 4 (fijas por fase); editarlas se libera en una fase futura -->
+      <!-- 4 semanas fijas por fase (regla de negocio) → campo bloqueado -->
       <UFormField :label="t('routines.form.weeks')">
         <UInput
           :model-value="String(state.weeks)"
@@ -245,7 +301,6 @@ function submit() {
       </UFormField>
     </div>
 
-    <!-- Paso 3: builder flat -->
     <div v-else class="space-y-4">
       <div
         class="bg-macross-gray-950 ring-accented inline-flex flex-wrap items-center gap-1 rounded-sm p-0.5 ring ring-inset"
@@ -288,7 +343,7 @@ function submit() {
               class="w-full"
             />
           </UFormField>
-          <!-- Duplicar día se libera en Fase 4 -->
+          <!-- Duplicar día llega con el builder completo -->
           <UButton
             :label="t('routines.builder.duplicateDay')"
             icon="i-lucide-copy"
@@ -330,22 +385,11 @@ function submit() {
           @click="addExercise"
         />
       </div>
-
-      <USwitch
-        v-model="state.activate"
-        :label="t('routines.wizard.activate')"
-        :description="t('routines.wizard.activateHint')"
-      />
-
-      <p v-if="!canSubmit" class="text-dimmed text-sm">
-        {{ t('routines.builder.incompleteHint') }}
-      </p>
     </div>
 
-    <!-- Navegación -->
     <div class="flex gap-3 pt-2">
       <UButton
-        v-if="currentStep === 0"
+        v-if="currentStep === firstStep"
         :label="t('routines.wizard.cancel')"
         color="neutral"
         variant="ghost"

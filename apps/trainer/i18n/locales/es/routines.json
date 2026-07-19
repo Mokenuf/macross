@@ -24,24 +24,36 @@
       "status": "Estado",
       "statusOptions": {
         "active": "Activas",
-        "finished": "Finalizadas",
+        "inactive": "Inactivas",
         "all": "Todas"
       }
     },
     "status": {
       "active": "Activa",
-      "finished": "Finalizada"
+      "inactive": "Inactiva"
+    },
+    "detail": {
+      "noDays": "Esta rutina no tiene días cargados.",
+      "blocksExercises": "{blocks} bloques · {exercises} ejercicios",
+      "exercise": "Ejercicio",
+      "frequency": "{weeks} sem · {days} días"
     },
     "actions": {
       "view": "Ver",
       "edit": "Editar",
       "duplicate": "Duplicar",
-      "finish": "Desactivar"
+      "deactivate": "Desactivar",
+      "activate": "Activar"
     },
-    "confirmFinish": {
+    "confirmDeactivate": {
       "title": "¿Desactivar esta rutina?",
-      "message": "{name} quedará finalizada y el cliente dejará de verla. Esta acción no se puede deshacer.",
+      "message": "{name} pasará a inactiva y el cliente dejará de verla. Podés reactivarla cuando quieras.",
       "confirm": "Desactivar"
+    },
+    "confirmActivate": {
+      "title": "¿Activar esta rutina?",
+      "message": "Se activará {name}. Si el cliente ya tiene una rutina activa, se desactivará.",
+      "confirm": "Activar"
     },
     "wizard": {
       "step1": "Punto de partida",
@@ -90,7 +102,6 @@
       "emptyDay": "Este día no tiene ejercicios todavía",
       "addExercise": "Agregar ejercicio",
       "noExercise": "Sin ejercicio",
-      "incompleteHint": "Completá al menos un ejercicio (con series y reps) en cada día para poder guardar.",
       "exercisePlaceholder": "Buscar ejercicio…",
       "blockTypes": {
         "single": "Single",
@@ -101,8 +112,8 @@
       "sets": "Series",
       "reps": "Reps",
       "repsPlaceholder": "12",
-      "rest": "Descanso",
-      "restPlaceholder": "90s",
+      "rest": "Descanso (seg)",
+      "restPlaceholder": "90",
       "optional": "Opcional"
     },
     "toasts": {
@@ -112,8 +123,10 @@
       "updateError": "No se pudo actualizar la rutina",
       "deleted": "Rutina eliminada",
       "deleteError": "No se pudo eliminar la rutina",
-      "finished": "Rutina desactivada",
-      "finishError": "No se pudo desactivar la rutina"
+      "deactivated": "Rutina desactivada",
+      "deactivateError": "No se pudo desactivar la rutina",
+      "activated": "Rutina activada",
+      "activateError": "No se pudo activar la rutina"
     }
   }
 }
