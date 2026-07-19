@@ -11,7 +11,11 @@ export const ClientLevels = clientLevelEnum.enum
 export const clientGoalEnum = z.enum(['hypertrophy', 'strength', 'fat_loss', 'health'])
 export const ClientGoals = clientGoalEnum.enum
 
+export const blockTypeEnum = z.enum(['single', 'superset', 'dropset', 'circuit'])
+export const BlockTypes = blockTypeEnum.enum
+
 export type OrderOptions = z.infer<typeof orderEnum>
 export type Role = z.infer<typeof roleEnum>
 export type ClientLevel = z.infer<typeof clientLevelEnum>
 export type ClientGoal = z.infer<typeof clientGoalEnum>
+export type BlockType = z.infer<typeof blockTypeEnum>

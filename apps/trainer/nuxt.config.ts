@@ -15,6 +15,7 @@ const namespaces = [
   'equipment',
   'muscle-groups',
   'trainers',
+  'routines',
 ]
 
 export default defineNuxtConfig({
@@ -38,6 +39,9 @@ export default defineNuxtConfig({
       cookieKey: 'i18n_locale',
       fallbackLocale: 'es',
     },
+  },
+  icon: {
+    clientBundle: { scan: true },
   },
   supabase: {
     redirect: false,

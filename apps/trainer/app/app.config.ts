@@ -8,6 +8,15 @@ const control = {
   },
 }
 
+// UInputNumber tipa su variante `size` como string (aplica al slot base), no como objeto
+// { base } como UInput/UTextarea → su override necesita el shape string o no matchea la altura.
+const inputNumberControl = {
+  variants: {
+    variant: { outline: inputSurface },
+    size: { md: controlSize },
+  },
+}
+
 const selectControl = {
   slots: { content: 'bg-elevated' },
   variants: {
@@ -88,7 +97,7 @@ export default defineAppConfig({
       },
     },
     inputMenu: selectControl,
-    inputNumber: control,
+    inputNumber: inputNumberControl,
     navigationMenu: {
       compoundVariants: [
         {

@@ -247,6 +247,47 @@ export type Database = {
         }
         Relationships: []
       }
+      routine_blocks: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          notes: string | null
+          routine_day_id: string
+          sort_order: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          notes?: string | null
+          routine_day_id: string
+          sort_order: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          notes?: string | null
+          routine_day_id?: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'routine_blocks_routine_day_id_fkey'
+            columns: ['routine_day_id']
+            isOneToOne: false
+            referencedRelation: 'routine_days'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       routine_days: {
         Row: {
           created_at: string
@@ -288,6 +329,50 @@ export type Database = {
           },
         ]
       }
+      routine_exercise_schemes: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          reps: string
+          rest_seconds: number | null
+          routine_exercise_id: string
+          sets: number
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reps: string
+          rest_seconds?: number | null
+          routine_exercise_id: string
+          sets: number
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reps?: string
+          rest_seconds?: number | null
+          routine_exercise_id?: string
+          sets?: number
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'routine_exercise_schemes_routine_exercise_id_fkey'
+            columns: ['routine_exercise_id']
+            isOneToOne: false
+            referencedRelation: 'routine_exercises'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       routine_exercises: {
         Row: {
           created_at: string
@@ -295,11 +380,8 @@ export type Database = {
           exercise_id: string
           id: string
           notes: string | null
-          optional: boolean | null
-          reps: string
-          rest_seconds: string | null
-          routine_day_id: string
-          sets: number
+          optional: boolean
+          routine_block_id: string
           sort_order: number
           updated_at: string
         }
@@ -309,11 +391,8 @@ export type Database = {
           exercise_id: string
           id?: string
           notes?: string | null
-          optional?: boolean | null
-          reps: string
-          rest_seconds?: string | null
-          routine_day_id: string
-          sets: number
+          optional?: boolean
+          routine_block_id: string
           sort_order: number
           updated_at?: string
         }
@@ -323,11 +402,8 @@ export type Database = {
           exercise_id?: string
           id?: string
           notes?: string | null
-          optional?: boolean | null
-          reps?: string
-          rest_seconds?: string | null
-          routine_day_id?: string
-          sets?: number
+          optional?: boolean
+          routine_block_id?: string
           sort_order?: number
           updated_at?: string
         }
@@ -340,56 +416,56 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'routine_exercises_routine_day_id_fkey'
-            columns: ['routine_day_id']
+            foreignKeyName: 'routine_exercises_routine_block_id_fkey'
+            columns: ['routine_block_id']
             isOneToOne: false
-            referencedRelation: 'routine_days'
+            referencedRelation: 'routine_blocks'
             referencedColumns: ['id']
           },
         ]
       }
       routines: {
         Row: {
-          active: boolean | null
-          client_id: string
+          active: boolean
+          client_id: string | null
           created_at: string
           days_per_week: number
           deleted_at: string | null
           id: string
+          is_template: boolean
           name: string
           nano_id: string
           notes: string | null
-          slug: string | null
           trainer_id: string
           updated_at: string
           weeks: number
         }
         Insert: {
-          active?: boolean | null
-          client_id: string
+          active?: boolean
+          client_id?: string | null
           created_at?: string
           days_per_week: number
           deleted_at?: string | null
           id?: string
+          is_template?: boolean
           name: string
           nano_id?: string
           notes?: string | null
-          slug?: string | null
           trainer_id: string
           updated_at?: string
-          weeks: number
+          weeks?: number
         }
         Update: {
-          active?: boolean | null
-          client_id?: string
+          active?: boolean
+          client_id?: string | null
           created_at?: string
           days_per_week?: number
           deleted_at?: string | null
           id?: string
+          is_template?: boolean
           name?: string
           nano_id?: string
           notes?: string | null
-          slug?: string | null
           trainer_id?: string
           updated_at?: string
           weeks?: number
@@ -459,7 +535,7 @@ export type Database = {
           deleted_at: string | null
           id: string
           logged_at: string
-          routine_exercise_id: string
+          routine_exercise_scheme_id: string
           set_number: number
           updated_at: string
           weight_kg: number | null
@@ -472,7 +548,7 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           logged_at?: string
-          routine_exercise_id: string
+          routine_exercise_scheme_id: string
           set_number: number
           updated_at?: string
           weight_kg?: number | null
@@ -485,7 +561,7 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           logged_at?: string
-          routine_exercise_id?: string
+          routine_exercise_scheme_id?: string
           set_number?: number
           updated_at?: string
           weight_kg?: number | null
@@ -499,10 +575,10 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'workout_logs_routine_exercise_id_fkey'
-            columns: ['routine_exercise_id']
+            foreignKeyName: 'workout_logs_routine_exercise_scheme_id_fkey'
+            columns: ['routine_exercise_scheme_id']
             isOneToOne: false
-            referencedRelation: 'routine_exercises'
+            referencedRelation: 'routine_exercise_schemes'
             referencedColumns: ['id']
           },
         ]
@@ -512,6 +588,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_block: { Args: { _block_id: string }; Returns: boolean }
+      can_edit_day: { Args: { _day_id: string }; Returns: boolean }
+      can_edit_routine: { Args: { _routine_id: string }; Returns: boolean }
+      can_edit_routine_exercise: {
+        Args: { _slot_id: string }
+        Returns: boolean
+      }
       generate_nanoid: { Args: { size?: number }; Returns: string }
       get_user_role: { Args: never; Returns: string }
       is_manager: { Args: never; Returns: boolean }
