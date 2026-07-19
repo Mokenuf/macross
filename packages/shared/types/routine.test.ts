@@ -95,6 +95,17 @@ describe('createRoutineExerciseSchema', () => {
     ).toBe(false)
   })
 
+  it('coerce restSeconds de string a number', () => {
+    const result = createRoutineExerciseSchema.safeParse({
+      exerciseId: uuid,
+      sets: 4,
+      reps: '12',
+      restSeconds: '90',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.restSeconds).toBe(90)
+  })
+
   it('aplica optional default false', () => {
     const result = createRoutineExerciseSchema.safeParse({ exerciseId: uuid, sets: 4, reps: '12' })
     expect(result.success).toBe(true)
@@ -144,5 +155,11 @@ describe('routineStatusSchema', () => {
     const result = routineStatusSchema.safeParse(undefined)
     expect(result.success).toBe(true)
     if (result.success) expect(result.data).toBe('active')
+  })
+
+  it('acepta los estados válidos', () => {
+    for (const s of ['all', 'active', 'inactive']) {
+      expect(routineStatusSchema.safeParse(s).success).toBe(true)
+    }
   })
 })

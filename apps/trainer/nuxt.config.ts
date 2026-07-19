@@ -15,6 +15,7 @@ const namespaces = [
   'equipment',
   'muscle-groups',
   'trainers',
+  'routines',
 ]
 
 export default defineNuxtConfig({

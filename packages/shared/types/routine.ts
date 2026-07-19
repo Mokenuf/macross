@@ -10,7 +10,7 @@ export const routineExerciseSchemeSchema = z.object({
   weekNumber: z.number().int(),
   sets: z.number().int(),
   reps: z.string(),
-  restSeconds: z.string().nullable(),
+  restSeconds: z.number().int().nullable(),
   notes: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -89,7 +89,7 @@ export const createRoutineExerciseSchema = z.object({
   notes: z.string().optional(),
   sets: z.coerce.number().int().min(1),
   reps: z.string().min(1),
-  restSeconds: z.string().optional(),
+  restSeconds: z.coerce.number().int().nonnegative().optional(),
 })
 
 export const createRoutineDaySchema = z.object({
@@ -104,12 +104,14 @@ export const createRoutineSchema = z.object({
   weeks: z.coerce.number().int().min(1).default(4),
   notes: z.string().optional(),
   isTemplate: z.boolean().optional().default(false),
+  // Activar desactiva las demás del cliente (una activa por cliente). Desactivar no es terminal.
+  activate: z.boolean().optional().default(false),
   days: z.array(createRoutineDaySchema).min(1),
 })
 
 export const updateRoutineSchema = createRoutineSchema.extend({})
 
-export const routineStatusSchema = z.enum(['all', 'active', 'finished']).default('active')
+export const routineStatusSchema = z.enum(['all', 'active', 'inactive']).default('active')
 
 export const routineSortSchema = z.enum(['name', 'createdAt'])
 
