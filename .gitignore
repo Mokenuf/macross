@@ -30,6 +30,8 @@ CLAUDE.md
 # Supabase
 supabase/.temp/
 
-# Assets
-apps/client/public/icons/*.png
-apps/client/public/icons/favicon.*
+# Assets — derivados de public/source.svg (los genera @vite-pwa/assets-generator en el build)
+apps/client/public/pwa-*.png
+apps/client/public/maskable-icon-*.png
+apps/client/public/apple-touch-icon-*.png
+apps/client/public/favicon.ico

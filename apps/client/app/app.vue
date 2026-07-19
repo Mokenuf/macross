@@ -17,6 +17,7 @@ onMounted(() => {
 
 <template>
   <UApp :locale="locales[locale]">
+    <NuxtPwaAssets />
     <AppSplash v-if="booting" />
     <NuxtLayout>
       <NuxtPage />
