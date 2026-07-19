@@ -6,7 +6,7 @@ import './env'
 const namespaces = ['common', 'nav', 'auth', 'validation']
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/i18n'],
+  modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/i18n', '@vite-pwa/nuxt'],
   alias: {
     '@macross/shared': fileURLToPath(new URL('../../packages/shared', import.meta.url)),
   },
@@ -31,6 +31,24 @@ export default defineNuxtConfig({
   },
   icon: {
     clientBundle: { scan: true },
+  },
+  pwa: {
+    registerType: 'autoUpdate',
+    pwaAssets: { config: true },
+    manifest: {
+      name: 'Macros for Progress',
+      short_name: 'M4P',
+      description: 'Tu planificación de entrenamiento',
+      lang: 'es',
+      display: 'standalone',
+      start_url: '/',
+      background_color: '#0c0b09',
+      theme_color: '#0c0b09',
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,svg,png,ico,woff2}'],
+    },
+    devOptions: { enabled: false },
   },
   supabase: {
     redirect: false,
