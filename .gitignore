@@ -29,3 +29,7 @@ CLAUDE.md
 
 # Supabase
 supabase/.temp/
+
+# Assets
+apps/client/public/icons/*.png
+apps/client/public/icons/favicon.*
