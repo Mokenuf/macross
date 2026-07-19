@@ -595,6 +595,14 @@ export type Database = {
         Args: { _slot_id: string }
         Returns: boolean
       }
+      can_view_block: { Args: { _block_id: string }; Returns: boolean }
+      can_view_day: { Args: { _day_id: string }; Returns: boolean }
+      can_view_exercise: { Args: { _exercise_id: string }; Returns: boolean }
+      can_view_routine: { Args: { _routine_id: string }; Returns: boolean }
+      can_view_routine_exercise: {
+        Args: { _slot_id: string }
+        Returns: boolean
+      }
       generate_nanoid: { Args: { size?: number }; Returns: string }
       get_user_role: { Args: never; Returns: string }
       is_manager: { Args: never; Returns: boolean }

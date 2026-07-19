@@ -7,7 +7,7 @@ Plataforma digital para entrenadores personales. Gestión de clientes, ejercicio
 Dos aplicaciones en un mismo monorepo:
 
 - **Trainer** — Dashboard web (desktop-first) para el entrenador. CRUD de clientes, biblioteca de ejercicios con video, armado de rutinas por fases y semanas, y seguimiento del progreso de cada alumno.
-- **Client** — PWA (mobile-first) para los clientes. Ver la rutina del día, ver videos de cada ejercicio, registrar pesos por serie, timer de descanso, y notas del entrenador.
+- **Client** — PWA (mobile-first) para los clientes, instalable desde el navegador como una app más del teléfono. Ver la rutina del día, ver videos de cada ejercicio, registrar pesos por serie, timer de descanso, y notas del entrenador.
 
 ## Stack
 
@@ -19,6 +19,7 @@ Dos aplicaciones en un mismo monorepo:
 | Backend    | Supabase (Postgres, Auth, Storage, RLS) |
 | Validación | Zod + T3 Env (env vars con `env.ts`)    |
 | i18n       | `@nuxtjs/i18n` (es/en, ambas apps)      |
+| PWA        | `@vite-pwa/nuxt` (solo la app cliente)  |
 | Testing    | Vitest                                  |
 | Linter     | Oxlint                                  |
 | Formatter  | Oxfmt                                   |
