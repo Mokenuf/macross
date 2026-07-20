@@ -1,0 +1,20 @@
+{
+  "plan": {
+    "title": "Mi planificación",
+    "meta": "Semana {week} de {weeks} · {days} días",
+    "dayLabel": "Día {number}",
+    "dayNotFound": "No encontramos ese día en tu planificación.",
+    "exerciseOne": "{count} ejercicio",
+    "exerciseMany": "{count} ejercicios",
+    "blockTypes": {
+      "single": "Individual",
+      "superset": "Superserie",
+      "dropset": "Dropset",
+      "circuit": "Circuito"
+    },
+    "empty": {
+      "title": "Todavía no tenés una planificación activa",
+      "description": "Cuando tu entrenador te asigne una fase, la vas a ver acá."
+    }
+  }
+}

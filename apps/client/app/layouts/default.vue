@@ -5,7 +5,9 @@ const { logout } = useLogout()
 
 <template>
   <div class="bg-background flex min-h-svh flex-col">
-    <header class="flex items-center justify-between px-5 pt-4 pb-3">
+    <header
+      class="flex items-center justify-between px-5 pt-[calc(1rem+env(safe-area-inset-top))] pb-3"
+    >
       <NuxtLink to="/" class="font-logo text-primary text-lg tracking-wider uppercase">
         Macros for Progress
       </NuxtLink>
@@ -22,7 +24,7 @@ const { logout } = useLogout()
       </div>
     </header>
 
-    <main class="flex-1 px-5 pb-24">
+    <main class="flex-1 px-5 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <slot />
     </main>
 

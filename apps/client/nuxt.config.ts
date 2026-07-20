@@ -3,10 +3,16 @@ import { fileURLToPath } from 'node:url'
 
 import './env'
 
-const namespaces = ['common', 'nav', 'auth', 'validation']
+const namespaces = ['common', 'nav', 'auth', 'validation', 'plan']
 
 export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/i18n', '@vite-pwa/nuxt'],
+  // viewport-fit=cover: sin esto env(safe-area-inset-*) devuelve 0 en iOS (nav bajo el home indicator)
+  app: {
+    head: {
+      viewport: 'width=device-width, initial-scale=1, viewport-fit=cover',
+    },
+  },
   alias: {
     '@macross/shared': fileURLToPath(new URL('../../packages/shared', import.meta.url)),
   },

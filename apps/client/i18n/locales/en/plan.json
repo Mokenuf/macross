@@ -1,0 +1,20 @@
+{
+  "plan": {
+    "title": "My plan",
+    "meta": "Week {week} of {weeks} · {days} days",
+    "dayLabel": "Day {number}",
+    "dayNotFound": "We couldn't find that day in your plan.",
+    "exerciseOne": "{count} exercise",
+    "exerciseMany": "{count} exercises",
+    "blockTypes": {
+      "single": "Single",
+      "superset": "Superset",
+      "dropset": "Dropset",
+      "circuit": "Circuit"
+    },
+    "empty": {
+      "title": "You don't have an active plan yet",
+      "description": "When your trainer assigns you a phase, you'll see it here."
+    }
+  }
+}

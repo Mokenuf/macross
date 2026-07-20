@@ -6,10 +6,8 @@
     "home": {
       "title": "Home",
       "greeting": "Hello",
-      "routine": {
-        "title": "Your routine",
-        "comingSoon": "Coming soon you'll see your routine for today here"
-      }
+      "activePhase": "Your active phase",
+      "viewPlan": "View my plan"
     }
   }
 }

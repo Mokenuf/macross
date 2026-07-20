@@ -6,10 +6,8 @@
     "home": {
       "title": "Inicio",
       "greeting": "Hola",
-      "routine": {
-        "title": "Tu rutina",
-        "comingSoon": "Próximamente vas a ver tu rutina del día acá"
-      }
+      "activePhase": "Tu fase activa",
+      "viewPlan": "Ver mi planificación"
     }
   }
 }
