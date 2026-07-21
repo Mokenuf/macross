@@ -1,0 +1,34 @@
+{
+  "plan": {
+    "title": "Mi planificación",
+    "meta": "Semana {week} de {weeks} · {days} días",
+    "dayLabel": "Día {number}",
+    "dayNotFound": "No encontramos ese día en tu planificación.",
+    "startWorkout": "Empezar entrenamiento",
+    "exerciseOne": "{count} ejercicio",
+    "exerciseMany": "{count} ejercicios",
+    "blockTypes": {
+      "single": "Individual",
+      "superset": "Superserie",
+      "dropset": "Dropset",
+      "circuit": "Circuito"
+    },
+    "empty": {
+      "title": "Todavía no tenés una planificación activa",
+      "description": "Cuando tu entrenador te asigne una fase, la vas a ver acá."
+    },
+    "exercise": {
+      "notFound": "No encontramos ese ejercicio en tu planificación.",
+      "positionLabel": "Ejercicio {n} de {total}",
+      "setSummary": "Serie {current} de {total} · objetivo {reps} reps",
+      "videoSoon": "Próximamente",
+      "weight": "Peso",
+      "reps": "Reps",
+      "lastTime": "La vez pasada",
+      "noRecord": "Sin registro",
+      "completeSet": "Completar serie",
+      "rest": "Descanso",
+      "notes": "Nota del entrenador"
+    }
+  }
+}
