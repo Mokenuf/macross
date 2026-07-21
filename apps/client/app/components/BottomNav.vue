@@ -20,9 +20,7 @@ function isActive(to: string) {
 </script>
 
 <template>
-  <nav
-    class="bg-default border-default fixed inset-x-0 bottom-0 z-40 flex border-t pb-[env(safe-area-inset-bottom)]"
-  >
+  <nav class="bg-default border-default flex shrink-0 border-t pb-[env(safe-area-inset-bottom)]">
     <NuxtLink
       v-for="item in items"
       :key="item.to"

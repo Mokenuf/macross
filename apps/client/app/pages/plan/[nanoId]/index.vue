@@ -16,6 +16,9 @@ const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.va
 const heroTitle = computed(() =>
   day.value ? (day.value.label ?? t('plan.dayLabel', { number: day.value.dayNumber })) : '',
 )
+const firstExerciseSlug = computed(
+  () => day.value?.blocks.flatMap(b => b.exercises)[0]?.exercise.slug ?? null,
+)
 
 useHead({ title: () => heroTitle.value || t('plan.title') })
 
@@ -36,38 +39,38 @@ function exercisesText(blocks: RoutineBlock[]): string {
 </script>
 
 <template>
-  <div class="space-y-5">
-    <NuxtLink
-      to="/plan"
-      class="text-muted hover:text-default inline-flex items-center gap-1.5 text-sm transition-colors"
-    >
-      <UIcon name="i-lucide-chevron-left" class="size-4" />
-      {{ t('plan.title') }}
-    </NuxtLink>
-
-    <div v-if="loading" class="space-y-3">
-      <div class="bg-muted h-9 w-2/3 animate-pulse rounded-lg" />
-      <div
-        v-for="n in 4"
-        :key="n"
-        class="bg-muted ring-accented h-[72px] animate-pulse rounded-md ring-1"
-      />
-    </div>
-
-    <div v-else-if="!day" class="bg-muted ring-accented rounded-md p-6 text-center ring-1">
-      <p class="text-default font-semibold">{{ t('plan.dayNotFound') }}</p>
-    </div>
-
-    <template v-else>
-      <header class="space-y-0.5">
-        <p class="text-primary text-xs font-semibold tracking-widest uppercase">
+  <div>
+    <div class="bg-background sticky top-0 z-20 -mx-5 px-5 pt-1 pb-3">
+      <NuxtLink
+        to="/plan"
+        class="text-muted hover:text-default inline-flex items-center gap-1.5 text-sm transition-colors"
+      >
+        <UIcon name="i-lucide-chevron-left" class="size-4" />
+        {{ t('plan.title') }}
+      </NuxtLink>
+      <template v-if="day">
+        <p class="text-primary pt-2 text-xs font-semibold tracking-widest uppercase">
           {{ t('plan.dayLabel', { number: day.dayNumber }) }}
         </p>
         <h1 class="font-logo text-4xl leading-none tracking-wide uppercase">{{ heroTitle }}</h1>
         <p class="text-muted pt-1 text-sm">{{ exercisesText(day.blocks) }}</p>
-      </header>
+      </template>
+    </div>
 
-      <div class="space-y-3">
+    <div v-if="loading" class="space-y-3 pt-2">
+      <div
+        v-for="n in 4"
+        :key="n"
+        class="bg-muted ring-accented h-18 animate-pulse rounded-md ring-1"
+      />
+    </div>
+
+    <div v-else-if="!day" class="bg-muted ring-accented mt-2 rounded-md p-6 text-center ring-1">
+      <p class="text-default font-semibold">{{ t('plan.dayNotFound') }}</p>
+    </div>
+
+    <template v-else>
+      <div class="space-y-3 pt-1 pb-2">
         <template v-for="(block, bi) in day.blocks" :key="block.id">
           <!-- Bloque agrupado (superserie/dropset/circuito): esqueleto. El builder mínimo de Fase 2 solo produce 'single'. -->
           <div
@@ -98,7 +101,6 @@ function exercisesText(blocks: RoutineBlock[]): string {
             </NuxtLink>
           </div>
 
-          <!-- Bloque single: ejercicio suelto -->
           <template v-else>
             <NuxtLink
               v-for="exercise in block.exercises"
@@ -121,6 +123,19 @@ function exercisesText(blocks: RoutineBlock[]): string {
             </NuxtLink>
           </template>
         </template>
+      </div>
+
+      <div
+        v-if="firstExerciseSlug"
+        class="bg-background/70 sticky bottom-0 z-20 -mx-5 px-5 py-8 backdrop-blur-md"
+      >
+        <UButton
+          :to="`/plan/${nanoId}/${firstExerciseSlug}`"
+          :label="t('plan.startWorkout')"
+          size="xl"
+          block
+          leading-icon="i-lucide-play"
+        />
       </div>
     </template>
   </div>

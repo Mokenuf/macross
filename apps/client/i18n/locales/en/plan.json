@@ -4,6 +4,7 @@
     "meta": "Week {week} of {weeks} · {days} days",
     "dayLabel": "Day {number}",
     "dayNotFound": "We couldn't find that day in your plan.",
+    "startWorkout": "Start workout",
     "exerciseOne": "{count} exercise",
     "exerciseMany": "{count} exercises",
     "blockTypes": {
@@ -15,6 +16,19 @@
     "empty": {
       "title": "You don't have an active plan yet",
       "description": "When your trainer assigns you a phase, you'll see it here."
+    },
+    "exercise": {
+      "notFound": "We couldn't find that exercise in your plan.",
+      "positionLabel": "Exercise {n} of {total}",
+      "setSummary": "Set {current} of {total} · target {reps} reps",
+      "videoSoon": "Coming soon",
+      "weight": "Weight",
+      "reps": "Reps",
+      "lastTime": "Last time",
+      "noRecord": "No record",
+      "completeSet": "Complete set",
+      "rest": "Rest",
+      "notes": "Trainer's note"
     }
   }
 }
