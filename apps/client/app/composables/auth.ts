@@ -79,3 +79,27 @@ export function useSetPassword() {
 
   return { setPassword }
 }
+
+export function useChangePassword() {
+  const toast = useToast()
+  const { t } = useI18n()
+
+  // Reusa el endpoint de set-password (updateUser con sesión activa). Al cambiarla,
+  // deslogueamos: el cliente vuelve a entrar con la contraseña nueva.
+  async function changePassword(input: SetPassword) {
+    try {
+      await $fetch('/api/auth/set-password', { method: 'POST', body: input })
+      await $fetch('/api/auth/logout', { method: 'POST' })
+      toast.add({ title: t('auth.toasts.passwordChanged'), color: 'success' })
+      await navigateTo('/auth/login', { external: true })
+    } catch (e) {
+      toast.add({
+        title: t('auth.toasts.error'),
+        description: (e as FetchError<ApiError>).data?.statusMessage ?? t('auth.errors.generic'),
+        color: 'error',
+      })
+    }
+  }
+
+  return { changePassword }
+}

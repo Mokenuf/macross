@@ -1,0 +1,34 @@
+{
+  "profile": {
+    "title": "My profile",
+    "clientOf": "Client of {trainer}",
+    "kpi": {
+      "age": "Age",
+      "ageUnit": "years",
+      "weight": "Weight",
+      "weightUnit": "kg",
+      "height": "Height",
+      "heightUnit": "cm",
+      "frequency": "Frequency",
+      "frequencyUnit": "days"
+    },
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "athlete": "Athlete"
+    },
+    "goals": {
+      "hypertrophy": "Hypertrophy",
+      "strength": "Strength",
+      "fat_loss": "Fat loss",
+      "health": "Health"
+    },
+    "account": {
+      "title": "Account",
+      "changePassword": "Change password",
+      "language": "Language",
+      "logout": "Log out"
+    }
+  }
+}

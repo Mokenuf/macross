@@ -109,7 +109,7 @@ function exercisesText(blocks: RoutineBlock[]): string {
               class="bg-muted ring-accented hover:ring-primary flex items-center gap-3.5 rounded-md p-3.5 ring-1 transition-colors"
             >
               <span
-                class="from-macross-gray-700 to-macross-gray-950 ring-accented text-macross-bronze-soft font-logo flex size-12 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br text-2xl ring-1"
+                class="from-macross-gray-700 to-macross-gray-950 ring-accented text-macross-bronze-soft font-logo flex size-12 shrink-0 items-center justify-center rounded-sm bg-linear-to-br text-2xl ring-1"
               >
                 {{ blockLetter(bi) }}
               </span>

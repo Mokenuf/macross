@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import './env'
 
-const namespaces = ['common', 'nav', 'auth', 'validation', 'plan']
+const namespaces = ['common', 'nav', 'auth', 'validation', 'plan', 'profile']
 
 export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/i18n', '@vite-pwa/nuxt'],

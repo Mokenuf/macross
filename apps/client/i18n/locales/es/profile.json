@@ -1,0 +1,34 @@
+{
+  "profile": {
+    "title": "Mi perfil",
+    "clientOf": "Cliente de {trainer}",
+    "kpi": {
+      "age": "Edad",
+      "ageUnit": "años",
+      "weight": "Peso",
+      "weightUnit": "kg",
+      "height": "Altura",
+      "heightUnit": "cm",
+      "frequency": "Frecuencia",
+      "frequencyUnit": "días"
+    },
+    "levels": {
+      "beginner": "Principiante",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado",
+      "athlete": "Atleta"
+    },
+    "goals": {
+      "hypertrophy": "Hipertrofia",
+      "strength": "Fuerza",
+      "fat_loss": "Pérdida de grasa",
+      "health": "Salud"
+    },
+    "account": {
+      "title": "Cuenta",
+      "changePassword": "Cambiar contraseña",
+      "language": "Idioma",
+      "logout": "Cerrar sesión"
+    }
+  }
+}

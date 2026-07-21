@@ -5,6 +5,21 @@ export default defineAppConfig({
       secondary: 'macross-secondary',
       neutral: 'macross-gray',
     },
+    badge: {
+      slots: {
+        base: 'font-semibold',
+      },
+      variants: {
+        size: {
+          md: {
+            base: 'rounded-sm px-2.5',
+          },
+        },
+      },
+      defaultVariants: {
+        variant: 'subtle',
+      },
+    },
     button: {
       slots: {
         base: 'font-semibold',

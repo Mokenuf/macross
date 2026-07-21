@@ -7,6 +7,9 @@ definePageMeta({
 })
 
 const { routine, loading } = useGetActiveRoutine()
+const { profile } = useGetProfile()
+
+const firstName = computed(() => profile.value?.fullName.split(' ')[0] ?? '')
 
 useHead({ title: t('common.home.title') })
 </script>
@@ -14,7 +17,9 @@ useHead({ title: t('common.home.title') })
 <template>
   <div class="space-y-5">
     <header class="space-y-0.5">
-      <p class="text-dimmed text-sm">{{ t('common.home.greeting') }} 👋</p>
+      <p class="text-dimmed text-sm">
+        {{ t('common.home.greeting') }}<template v-if="firstName">, {{ firstName }}</template> 👋
+      </p>
       <template v-if="routine">
         <p class="text-primary pt-1 text-xs font-semibold tracking-widest uppercase">
           {{ t('common.home.activePhase') }}

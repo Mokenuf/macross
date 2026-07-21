@@ -101,42 +101,26 @@ fix/trainer/auth        ─┘
 
 ### Trainer app
 
-- Autenticación (login/logout) con Supabase Auth + toasts de feedback
-- Flow de set-password para nuevos trainers vía link de invite por mail (robusto ante sesiones previas activas en el browser)
-- Flow de recuperación de contraseña (forgot-password → mail → reset-password) que empieza y termina en el dashboard del trainer, reutilizando el mismo procesamiento manual del hash que set-password
-- Estados de loading en todos los botones de submit y en el modal de confirmación de borrado (spinner + bloqueo de doble click)
-- Dashboard con perfil del usuario logueado
-- CRUDL completo de ejercicios (listado paginado, crear, detalle con video embed, editar, soft delete con confirmación). El listado filtra por grupo muscular y equipamiento, ambos multi-select (OR dentro de cada faceta, AND entre facetas), con los filtros sincronizados a la URL como arrays
-- CRUDL completo de grupos musculares, asociados a ejercicios vía relación many-to-many (un ejercicio puede tener varios grupos musculares)
-- CRUDL completo de equipamiento (catálogo compartido), asociado a ejercicios vía FK simple (un ejercicio tiene un equipamiento). Al eliminar un equipamiento se desasigna de los ejercicios que lo usaban
-- CRUDL completo de entrenadores: alta por invitación (`inviteUserByEmail`), listado con filtros por rol, detalle, edición y soft delete. Solo los managers pueden invitar, editar o eliminar; los managers no pueden ser eliminados.
-- CRUDL completo de clientes: alta por invitación (mail con set-password en la PWA del cliente), listado con scoping por rol (el trainer ve solo los suyos; el manager, todos con filtro por entrenador), detalle, edición y soft delete. Tanto managers como trainers gestionan clientes. El detalle del entrenador muestra su contador de clientes y un deep-link al listado pre-filtrado.
-- Reactivación de clientes eliminados: el listado tiene un filtro de estado (activos / eliminados / todos, default activos) y una columna de estado como badge derivada del soft delete; los clientes eliminados se pueden reactivar (mismo scoping por rol que el borrado). Reinvitar el email de un cliente eliminado devuelve un mensaje claro sugiriendo reactivarlo (en vez del error crudo de Supabase).
-- Datos de entrenamiento del cliente: fecha de nacimiento (edad calculada con date-fns), peso, altura, nivel, frecuencia semanal, objetivos (multivaluados), anamnesis (lesiones/restricciones) y equipamiento disponible. Cargables ya en el alta o en edición; enums validados en Zod. Notas de seguimiento del entrenador sobre el cliente (solo en edición).
-- CRUDL de rutinas (en la UI: "fases"): armado por **wizard** (datos de la fase → días → ejercicios con series/reps/descanso/opcional), asignación a un cliente con activación (una rutina activa por cliente a la vez), listado con filtros por cliente y estado (activa/inactiva), **detalle read-only** del árbol completo (días → bloques → ejercicios × 4 semanas, matriz de prescripción), edición (mismo wizard sembrado desde la rutina) y **activar/desactivar** como toggle reversible
-- Componentes base reutilizables (BaseTable, BasePagination, BaseFilters)
-- Filtros sincronizados con URL query params
-- Permisos por rol (manager vs trainer) en UI
-- Interfaz bilingüe español/inglés con selector de idioma (banderas) que persiste la elección; sin prefijo de idioma en la URL. Incluye los mensajes de validación de los formularios (i18n nativa de Zod v4, que se re-traducen al cambiar de idioma con un error visible) y fechas localizadas. El idioma se detecta del browser en la primera visita
-- Contenido de catálogo bilingüe: los ejercicios, grupos musculares y equipamiento se cargan en español **e** inglés (nombre en ambos idiomas, descripción opcional); el listado, el detalle y los selects muestran el idioma activo (con fallback a español). La búsqueda matchea en cualquiera de los dos idiomas. Lo per-cliente (notas, lesiones) queda en un solo idioma a propósito
+- Autenticación completa: login/logout, alta por invitación por mail (set-password), y recuperación de contraseña
+- Biblioteca de ejercicios con video, grupos musculares y equipamiento (catálogo compartido), con búsqueda y filtros combinables
+- Gestión de clientes: alta por invitación, ficha con datos de entrenamiento y notas de seguimiento, scoping por rol (el trainer ve los suyos; el manager, todos), soft delete y reactivación
+- Rutinas ("fases"): armado por wizard, asignación a un cliente con activación (una activa por cliente), detalle del árbol completo y edición
+- Gestión de entrenadores con roles (manager / trainer), restringida a managers
+- Permisos por rol, filtros sincronizados con la URL e interfaz bilingüe es/en (incluye validaciones y contenido de catálogo)
 
 ### Client app
 
-- Autenticación (login/logout) con Supabase Auth + toasts, middlewares `auth` / `guest`, layouts `auth` (centrado) y `default` (app-shell mobile: header con marca y barra de navegación inferior **fijos**, contenido scrolleable), splash de arranque con la marca, home con saludo y el nombre de la fase activa + acceso directo a la planificación
-- Rebranding completo de la PWA a la identidad Macros for Progress: paleta cálida propia (distinta al grafito del dashboard), tipografía display, pantallas de auth y navegación mobile al mock de diseño
-- Flow de set-password para clientes nuevos vía link de invite por mail (mismo patrón robusto que trainer: `detectSessionInUrl: false` + procesamiento manual del hash)
-- Flow de recuperación de contraseña análogo (forgot-password → mail → reset-password) que empieza y termina en la PWA del cliente
-- Bloqueo de login para cuentas desactivadas: un cliente con soft delete no puede iniciar sesión (el server route lo detecta tras el signin y cierra la sesión con un mensaje claro)
-- Visualización de la planificación (solo lectura): la rutina activa del cliente — lista de días, vista de cada día con sus ejercicios y las series/reps de la semana, e interna de cada ejercicio con el video de YouTube (o un placeholder si el entrenador todavía no cargó uno) y la prescripción. El registro de pesos/series por serie queda para una etapa posterior (los controles se muestran pero todavía no escriben)
-- Interfaz bilingüe español/inglés con selector de idioma (banderas), mismo patrón que el dashboard (mensajes de validación incluidos, que se re-traducen al cambiar de idioma)
-- Listo para deploy como demo
+- PWA instalable con identidad de marca propia (paleta cálida, navegación mobile) y splash de arranque
+- Autenticación completa: login/logout, set-password por invitación, recuperación y cambio de contraseña; login bloqueado para cuentas desactivadas
+- Planificación activa en solo lectura: días, ejercicios con series/reps de la semana y video de cada ejercicio (el registro de pesos/series llega en una etapa posterior)
+- Perfil del cliente con sus datos de entrenamiento y sección de cuenta (contraseña, idioma, cerrar sesión)
+- Interfaz bilingüe es/en, mismo patrón que el dashboard
 
 ### Shared
 
-- Schemas Zod compartidos (ejercicios, grupos musculares, equipamiento, entrenadores, clientes, rutinas, auth, query params)
-- Tipos e interfaces (`BaseResponse<T>`, `Pagination`, `ApiError`)
-- Error map de Zod para i18n de los mensajes de validación (override de los comunes + locale nativo de Zod v4 para el resto)
-- Tests unitarios de schemas con Vitest (`createExerciseSchema`, `exerciseQueryParamsSchema`, `createEquipmentSchema`, `equipmentQueryParamsSchema`, `createMuscleGroupSchema`, `muscleGroupQueryParamsSchema`, `queryParamsSchema`, `createTrainerSchema`, `updateTrainerSchema`, `trainerQueryParamsSchema`, `createClientSchema`, `updateClientSchema`, `clientQueryParamsSchema`, `loginSchema`, `setPasswordSchema`, `requestPasswordResetSchema`, `createRoutineSchema`, `createRoutineExerciseSchema`, `routineQueryParamsSchema`, `routineStatusSchema`, `blockTypeEnum`)
+- Schemas Zod y tipos compartidos entre las dos apps (recursos, auth, respuestas paginadas)
+- i18n de los mensajes de validación (sobre Zod v4)
+- Tests unitarios de los schemas con Vitest
 
 ## Estado
 

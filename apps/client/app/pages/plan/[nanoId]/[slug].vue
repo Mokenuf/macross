@@ -110,7 +110,7 @@ function formatRest(seconds: number | null): string {
       />
       <div
         v-else
-        class="from-macross-gray-800 to-macross-gray-950 border-default flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-lg border bg-gradient-to-br"
+        class="from-macross-gray-800 to-macross-gray-950 border-default flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-lg border bg-linear-to-br"
       >
         <span
           class="ring-primary/60 text-primary bg-macross-gray-950/50 flex size-11 items-center justify-center rounded-full ring-1"
