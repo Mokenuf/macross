@@ -34,7 +34,7 @@ function exercisesText(day: RoutineDay): string {
       <div
         v-for="n in 4"
         :key="n"
-        class="bg-muted ring-accented h-[72px] animate-pulse rounded-md ring-1"
+        class="bg-muted ring-accented h-18 animate-pulse rounded-md ring-1"
       />
     </div>
 
@@ -55,7 +55,7 @@ function exercisesText(day: RoutineDay): string {
         class="bg-muted ring-accented hover:ring-primary flex items-center gap-3.5 rounded-md p-3.5 ring-1 transition-colors"
       >
         <span
-          class="from-macross-gray-700 to-macross-gray-950 ring-accented text-macross-bronze-soft font-logo flex size-12 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br text-2xl ring-1"
+          class="from-macross-gray-700 to-macross-gray-950 ring-accented text-macross-bronze-soft font-logo flex size-12 shrink-0 items-center justify-center rounded-sm bg-linear-to-br text-2xl ring-1"
         >
           {{ day.dayNumber }}
         </span>
