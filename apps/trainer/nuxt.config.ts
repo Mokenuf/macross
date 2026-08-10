@@ -44,6 +44,7 @@ export default defineNuxtConfig({
     clientBundle: { scan: true },
   },
   supabase: {
+    cookiePrefix: 'sb-trainer',
     redirect: false,
     types: '@macross/shared/types/database.ts',
     clientOptions: {
