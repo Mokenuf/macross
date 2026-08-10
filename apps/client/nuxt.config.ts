@@ -57,6 +57,7 @@ export default defineNuxtConfig({
     devOptions: { enabled: false },
   },
   supabase: {
+    cookiePrefix: 'sb-client',
     redirect: false,
     types: '@macross/shared/types/database.ts',
     clientOptions: {
