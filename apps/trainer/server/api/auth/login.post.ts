@@ -19,5 +19,19 @@ export default defineEventHandler(async event => {
     })
   }
 
+  const { data: profile } = await client
+    .from('trainers')
+    .select('deleted_at')
+    .eq('id', data.user.id)
+    .maybeSingle()
+
+  if (!profile || profile.deleted_at) {
+    await client.auth.signOut()
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Tu cuenta no tiene acceso al panel. Contactá al administrador.',
+    })
+  }
+
   return { user: data.user, session: data.session }
 })

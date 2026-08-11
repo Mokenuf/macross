@@ -1,4 +1,8 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import {
+  serverSupabaseClient,
+  serverSupabaseServiceRole,
+  serverSupabaseUser,
+} from '#supabase/server'
 
 export default defineEventHandler(async event => {
   const user = await serverSupabaseUser(event)
@@ -25,16 +29,30 @@ export default defineEventHandler(async event => {
   if (caller.role !== 'manager' && target.trainer_id !== user.sub)
     throw createError({ statusCode: 403, statusMessage: 'No autorizado' })
 
+  // Contraparte del ban del delete: sin desbanear, el cliente reactivado no puede loguearse
+  const admin = serverSupabaseServiceRole(event)
+  const { error: unbanError } = await admin.auth.admin.updateUserById(target.id, {
+    ban_duration: 'none',
+  })
+  if (unbanError)
+    throw createError({
+      statusCode: 500,
+      statusMessage: unbanError.message ?? 'Error al reactivar el cliente',
+    })
+
   const { error } = await client
     .from('clients')
     .update({ deleted_at: null })
     .eq('id', target.id)
     .not('deleted_at', 'is', null)
-  if (error)
+  if (error) {
+    // Rollback: volver a banear para no dejar acceso con la fila todavía soft-deleted
+    await admin.auth.admin.updateUserById(target.id, { ban_duration: '876000h' })
     throw createError({
       statusCode: 500,
       statusMessage: error.message ?? 'Error al reactivar el cliente',
     })
+  }
 
   return { success: true }
 })
