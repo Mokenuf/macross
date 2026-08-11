@@ -3,11 +3,15 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
 
-const { data: user } = useGetMe()
+const { data: user, error } = useGetMe()
 
 const { t, te } = useI18n()
 
 const { logout } = useLogout()
+
+const supabase = useSupabaseClient()
+
+const toast = useToast()
 
 const avatarText = computed(() => {
   const name = user.value?.fullName ?? user.value?.email ?? ''
@@ -79,6 +83,25 @@ const collapsedNavigation = computed<NavigationMenuItem[]>(
     navigation.value.map(item =>
       item.type === 'label' ? { type: 'separator' } : item,
     ) as NavigationMenuItem[],
+)
+
+// `immediate` porque el error llega ya seteado desde SSR/payload: no hay cambio que observar.
+watch(
+  error,
+  async err => {
+    if (!import.meta.client) return
+    if (err?.statusCode !== 401 && err?.statusCode !== 403) return
+
+    // Soltar la sesión y no solo navegar: `guest` rebota a `/` a cualquiera con sesión viva.
+    await supabase.auth.signOut()
+    toast.add({
+      title: t('auth.toasts.sessionRevoked.title'),
+      description: t('auth.toasts.sessionRevoked.description'),
+      color: 'error',
+    })
+    await navigateTo('/auth/login', { external: true })
+  },
+  { immediate: true },
 )
 
 useHead({ title: routeTitle })

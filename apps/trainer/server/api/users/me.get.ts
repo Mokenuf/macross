@@ -17,10 +17,14 @@ export default defineEventHandler(async (event): Promise<AdminUser> => {
     .select('full_name, email, role, avatar_url, phone, nano_id')
     .eq('id', loggedUser.sub)
     .is('deleted_at', null)
-    .single()
+    .maybeSingle()
 
-  if (error || !data) {
+  if (error) {
     throw createError({ statusCode: 500, statusMessage: 'Error al obtener el usuario' })
+  }
+
+  if (!data) {
+    throw createError({ statusCode: 403, statusMessage: 'Tu cuenta no tiene acceso al panel.' })
   }
 
   const adminUser = adminUserSchema.parse(toCamelCase<AdminUser>(data))
