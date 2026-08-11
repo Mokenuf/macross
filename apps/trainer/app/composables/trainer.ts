@@ -89,7 +89,7 @@ export function useUpdateTrainer() {
     try {
       await $fetch(`/api/trainers/${nanoId}`, { method: 'PATCH', body: input })
       await refreshNuxtData('trainers')
-      await refreshNuxtData('me')
+      await refreshNuxtData('user-me')
       await navigateTo('/trainers')
       toast.add({ title: t('trainers.toasts.updated'), color: 'success' })
     } catch (e) {

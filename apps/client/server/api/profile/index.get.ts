@@ -16,10 +16,17 @@ export default defineEventHandler(async (event): Promise<Profile> => {
     )
     .eq('id', user.sub)
     .is('deleted_at', null)
-    .single()
+    .maybeSingle()
 
-  if (error || !data) {
+  if (error) {
     throw createError({ statusCode: 500, statusMessage: 'No se pudo cargar tu perfil' })
+  }
+
+  if (!data) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Tu cuenta está desactivada. Contactá a tu entrenador.',
+    })
   }
 
   return profileSchema.parse(toCamelCase<Profile>(data))
