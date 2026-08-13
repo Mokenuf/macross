@@ -14,8 +14,9 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     env:
-      # Dummies válidas por formato: el build de Nuxt valida estas env (T3 Env + módulo Supabase).
-      # En build no se conecta a nada, solo necesita que existan y tengan forma de URL/string.
+      # Dummies válidas por formato: las consume el build de Nuxt (T3 Env + módulo Supabase)
+      # y el smoke test, que levanta el server con estas mismas env. No se conecta a nada:
+      # solo necesitan existir y tener forma de URL/string.
       SUPABASE_URL: https://example.supabase.co
       SUPABASE_KEY: dummy-publishable-key
       SUPABASE_SECRET_KEY: dummy-secret-key
@@ -32,3 +33,67 @@ jobs:
       - run: pnpm check
       - run: pnpm test
       - run: pnpm build
+      - name: Smoke test (el server arranca y responde)
+        env:
+          PORT: 3000
+        run: |
+          for app in trainer client; do
+            log="$RUNNER_TEMP/$app.log"
+            node "apps/$app/.output/server/index.mjs" > "$log" 2>&1 &
+            pid=$!
+
+            code=""
+            for _ in $(seq 1 30); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/" || true)
+              if [ -n "$code" ] && [ "$code" != "000" ]; then break; fi
+              sleep 1
+            done
+
+            kill "$pid" 2>/dev/null || true
+            wait "$pid" 2>/dev/null || true
+
+            if [ -z "$code" ] || [ "$code" = "000" ] || [ "$code" -ge 500 ]; then
+              echo "::error::$app no respondió (HTTP ${code:-000}) — log del server:"
+              cat "$log"
+              exit 1
+            fi
+            echo "$app OK (HTTP $code)"
+          done
+      - name: PWA del client (el HTML referencia el manifest)
+        env:
+          PORT: 3000
+        run: |
+          log="$RUNNER_TEMP/client-pwa.log"
+          node apps/client/.output/server/index.mjs > "$log" 2>&1 &
+          pid=$!
+
+          html=""
+          for _ in $(seq 1 30); do
+            html=$(curl -sL "http://127.0.0.1:$PORT/" || true)
+            if [ -n "$html" ]; then break; fi
+            sleep 1
+          done
+
+          href=$(printf '%s' "$html" | grep -oiE '<link[^>]*rel="manifest"[^>]*>' | grep -oiE 'href="[^"]+"' | head -1 | cut -d'"' -f2 || true)
+          code=""
+          if [ -n "$href" ]; then
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT$href" || true)
+          fi
+
+          kill "$pid" 2>/dev/null || true
+          wait "$pid" 2>/dev/null || true
+
+          if [ -z "$html" ]; then
+            echo "::error::el client no devolvió HTML — log del server:"
+            cat "$log"
+            exit 1
+          fi
+          if [ -z "$href" ]; then
+            echo "::error::el HTML del client no referencia el manifest — ¿se borró <NuxtPwaAssets /> de app.vue?"
+            exit 1
+          fi
+          if [ "$code" != "200" ]; then
+            echo "::error::el manifest referenciado ($href) no se sirve (HTTP ${code:-000})"
+            exit 1
+          fi
+          echo "manifest OK ($href → HTTP $code)"
