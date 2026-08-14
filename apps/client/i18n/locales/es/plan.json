@@ -7,6 +7,8 @@
     "startWorkout": "Empezar entrenamiento",
     "exerciseOne": "{count} ejercicio",
     "exerciseMany": "{count} ejercicios",
+    "restShort": "desc. {rest}",
+    "optional": "opcional",
     "blockTypes": {
       "single": "Individual",
       "superset": "Superserie",
@@ -19,6 +21,7 @@
     },
     "exercise": {
       "notFound": "No encontramos ese ejercicio en tu planificación.",
+      "completed": "Completado",
       "positionLabel": "Ejercicio {n} de {total}",
       "setSummary": "Serie {current} de {total} · objetivo {reps} reps",
       "videoSoon": "Próximamente",
@@ -27,7 +30,15 @@
       "lastTime": "La vez pasada",
       "noRecord": "Sin registro",
       "completeSet": "Completar serie",
+      "updateSet": "Actualizar serie",
+      "undoSet": "Desmarcar serie",
+      "allSetsDone": "Ejercicio completado",
+      "logError": "No pudimos guardar la serie",
+      "unsyncedOne": "{count} serie sin guardar",
+      "unsyncedMany": "{count} series sin guardar",
+      "retry": "Reintentar",
       "rest": "Descanso",
+      "restSummary": "descanso {rest}",
       "notes": "Nota del entrenador"
     }
   }

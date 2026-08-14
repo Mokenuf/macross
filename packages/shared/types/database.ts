@@ -595,6 +595,7 @@ export type Database = {
         Args: { _slot_id: string }
         Returns: boolean
       }
+      can_log_scheme: { Args: { _scheme_id: string }; Returns: boolean }
       can_view_block: { Args: { _block_id: string }; Returns: boolean }
       can_view_day: { Args: { _day_id: string }; Returns: boolean }
       can_view_exercise: { Args: { _exercise_id: string }; Returns: boolean }
@@ -605,7 +606,9 @@ export type Database = {
       }
       generate_nanoid: { Args: { size?: number }; Returns: string }
       get_user_role: { Args: never; Returns: string }
+      is_active_client: { Args: never; Returns: boolean }
       is_manager: { Args: never; Returns: boolean }
+      is_my_trainer: { Args: { _trainer_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

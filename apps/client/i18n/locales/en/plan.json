@@ -7,6 +7,8 @@
     "startWorkout": "Start workout",
     "exerciseOne": "{count} exercise",
     "exerciseMany": "{count} exercises",
+    "restShort": "{rest} rest",
+    "optional": "optional",
     "blockTypes": {
       "single": "Single",
       "superset": "Superset",
@@ -19,6 +21,7 @@
     },
     "exercise": {
       "notFound": "We couldn't find that exercise in your plan.",
+      "completed": "Completed",
       "positionLabel": "Exercise {n} of {total}",
       "setSummary": "Set {current} of {total} · target {reps} reps",
       "videoSoon": "Coming soon",
@@ -27,7 +30,15 @@
       "lastTime": "Last time",
       "noRecord": "No record",
       "completeSet": "Complete set",
+      "updateSet": "Update set",
+      "undoSet": "Undo set",
+      "allSetsDone": "Exercise completed",
+      "logError": "We couldn't save the set",
+      "unsyncedOne": "{count} set not saved",
+      "unsyncedMany": "{count} sets not saved",
+      "retry": "Retry",
       "rest": "Rest",
+      "restSummary": "{rest} rest",
       "notes": "Trainer's note"
     }
   }
