@@ -4,17 +4,18 @@ import type { RoutineExercise } from '@macross/shared'
 interface PlanExerciseRowProps {
   exercise: RoutineExercise
   to: string
+  week: number
   flat?: boolean
 }
 
-const { exercise, flat = false } = defineProps<PlanExerciseRowProps>()
+const { exercise, flat = false, week } = defineProps<PlanExerciseRowProps>()
 
 const { localizedName } = useLocalizedName()
 const { t } = useI18n()
 
-const scheme = computed(() => currentScheme(exercise))
-const completedSets = computed(() => completedSetCount(exercise))
-const isDone = computed(() => isExerciseDone(exercise))
+const scheme = computed(() => schemeForWeek(exercise, week))
+const completedSets = computed(() => completedSetCount(exercise, week))
+const isDone = computed(() => isExerciseDone(exercise, week))
 
 const prescription = computed(() =>
   scheme.value ? `${scheme.value.sets} × ${scheme.value.reps}` : '—',

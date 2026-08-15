@@ -4,6 +4,14 @@
     "meta": "Week {week} of {weeks} · {days} days",
     "dayLabel": "Day {number}",
     "dayNotFound": "We couldn't find that day in your plan.",
+    "weekPicker": "Pick the week",
+    "weekShort": "Wk {number}",
+    "dayTodo": "you're here",
+    "dayCompleted": "Completed",
+    "phaseDone": {
+      "title": "Phase complete!",
+      "description": "You finished all {weeks} weeks. Your trainer can set up the next one."
+    },
     "startWorkout": "Start workout",
     "continueWorkout": "Continue workout",
     "workoutDone": "Workout complete",
@@ -33,6 +41,7 @@
       "noRecord": "No record",
       "completeSet": "Complete set",
       "updateSet": "Update set",
+      "noWeight": "No weight (bodyweight)",
       "undoSet": "Undo set",
       "allSetsDone": "Exercise completed",
       "logError": "We couldn't save the set",

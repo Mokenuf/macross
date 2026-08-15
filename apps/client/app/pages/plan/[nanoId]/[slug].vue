@@ -13,18 +13,19 @@ const reps = ref('')
 const { routine, loading } = useGetActiveRoutine()
 const selectedSet = ref(1)
 const { t } = useI18n()
+const { week } = usePlanCursor()
 const weight = ref<number | undefined>()
 
 const nanoId = computed(() => String(route.params.nanoId))
 const slug = computed(() => String(route.params.slug))
 
 const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.value) ?? null)
-const dayExercises = computed(() => day.value?.blocks.flatMap(b => b.exercises) ?? [])
-const position = computed(() => dayExercises.value.findIndex(e => e.exercise.slug === slug.value))
-const slot = computed(() => dayExercises.value[position.value] ?? null)
+const exercises = computed(() => (day.value ? dayExercises(day.value) : []))
+const position = computed(() => exercises.value.findIndex(e => e.exercise.slug === slug.value))
+const slot = computed(() => exercises.value[position.value] ?? null)
 
 const scheme = computed<RoutineExerciseScheme | null>(() =>
-  slot.value ? currentScheme(slot.value) : null,
+  slot.value ? schemeForWeek(slot.value, week.value) : null,
 )
 
 const { lastWorkout, loading: loadingLastWorkout } = useGetLastWorkout(() =>
@@ -65,7 +66,7 @@ const eyebrow = computed(() => {
   if (!day.value) return ''
   return [
     t('plan.dayLabel', { number: day.value.dayNumber }),
-    t('plan.exercise.positionLabel', { n: position.value + 1, total: dayExercises.value.length }),
+    t('plan.exercise.positionLabel', { n: position.value + 1, total: exercises.value.length }),
   ].join(' · ')
 })
 
@@ -91,7 +92,7 @@ const lastTimeLabel = computed(() => {
 
 const exerciseName = computed(() => (slot.value ? localizedName(slot.value.exercise) : ''))
 
-const nextExercise = computed(() => dayExercises.value[position.value + 1] ?? null)
+const nextExercise = computed(() => exercises.value[position.value + 1] ?? null)
 
 // Terminado el último ejercicio se vuelve al día, que ya muestra todo tachado.
 const nextExerciseTo = computed(() =>
@@ -349,6 +350,7 @@ const WEIGHT_STEP = 2.5
             size="xl"
             color="primary"
             class="flex-1 justify-center"
+            :disabled="weight === undefined"
             :label="
               selectedLog?.completed ? t('plan.exercise.updateSet') : t('plan.exercise.completeSet')
             "
@@ -364,6 +366,15 @@ const WEIGHT_STEP = 2.5
             @click="saveSet(false)"
           />
         </div>
+
+        <button
+          v-if="weight === undefined"
+          type="button"
+          class="text-muted hover:text-default w-full text-center text-xs font-semibold transition-colors"
+          @click="saveSet(true)"
+        >
+          {{ t('plan.exercise.noWeight') }}
+        </button>
       </div>
 
       <div v-if="slot.notes" class="border-default border-t pt-4">

@@ -9,18 +9,21 @@ definePageMeta({
 })
 
 const { routine, loading } = useGetActiveRoutine()
+const { week } = usePlanCursor()
 
 const nanoId = computed(() => String(route.params.nanoId))
 const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.value) ?? null)
 const heroTitle = computed(() =>
   day.value ? (day.value.label ?? t('plan.dayLabel', { number: day.value.dayNumber })) : '',
 )
-const exercises = computed(() => day.value?.blocks.flatMap(b => b.exercises) ?? [])
+const exercises = computed(() => (day.value ? dayExercises(day.value) : []))
 
 // El ejercicio en curso es el primero con series pendientes, no el primero de la lista.
-const nextExercise = computed(() => exercises.value.find(e => !isExerciseDone(e)) ?? null)
+const nextExercise = computed(
+  () => exercises.value.find(e => !isExerciseDone(e, week.value)) ?? null,
+)
 
-const hasProgress = computed(() => exercises.value.some(e => completedSetCount(e) > 0))
+const hasProgress = computed(() => exercises.value.some(e => completedSetCount(e, week.value) > 0))
 
 useHead({ title: () => heroTitle.value || t('plan.title') })
 
@@ -46,7 +49,8 @@ function exercisesText(blocks: RoutineBlock[]): string {
       </NuxtLink>
       <template v-if="day">
         <p class="text-primary pt-2 text-xs font-semibold tracking-widest uppercase">
-          {{ t('plan.dayLabel', { number: day.dayNumber }) }}
+          {{ t('plan.dayLabel', { number: day.dayNumber }) }} ·
+          {{ t('plan.weekShort', { number: week }) }}
         </p>
         <h1 class="font-logo text-4xl leading-none tracking-wide uppercase">{{ heroTitle }}</h1>
         <p class="text-muted pt-1 text-sm">{{ exercisesText(day.blocks) }}</p>
@@ -85,6 +89,7 @@ function exercisesText(blocks: RoutineBlock[]): string {
               :key="exercise.id"
               :exercise="exercise"
               :to="`/plan/${nanoId}/${exercise.exercise.slug}`"
+              :week="week"
               flat
             />
           </div>
@@ -95,6 +100,7 @@ function exercisesText(blocks: RoutineBlock[]): string {
             :key="exercise.id"
             :exercise="exercise"
             :to="`/plan/${nanoId}/${exercise.exercise.slug}`"
+            :week="week"
           />
         </template>
       </div>

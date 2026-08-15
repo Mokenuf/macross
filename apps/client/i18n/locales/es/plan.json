@@ -4,6 +4,14 @@
     "meta": "Semana {week} de {weeks} · {days} días",
     "dayLabel": "Día {number}",
     "dayNotFound": "No encontramos ese día en tu planificación.",
+    "weekPicker": "Elegí la semana",
+    "weekShort": "Sem {number}",
+    "dayTodo": "te toca",
+    "dayCompleted": "Completado",
+    "phaseDone": {
+      "title": "¡Fase completada!",
+      "description": "Terminaste las {weeks} semanas. Tu entrenador ya puede armarte la próxima."
+    },
     "startWorkout": "Empezar entrenamiento",
     "continueWorkout": "Continuar entrenamiento",
     "workoutDone": "Entrenamiento completado",
@@ -33,6 +41,7 @@
       "noRecord": "Sin registro",
       "completeSet": "Completar serie",
       "updateSet": "Actualizar serie",
+      "noWeight": "Sin peso (peso corporal)",
       "undoSet": "Desmarcar serie",
       "allSetsDone": "Ejercicio completado",
       "logError": "No pudimos guardar la serie",
