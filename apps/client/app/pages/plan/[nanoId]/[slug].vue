@@ -27,6 +27,17 @@ const scheme = computed<RoutineExerciseScheme | null>(
   () => slot.value?.schemes.find(s => s.weekNumber === 1) ?? slot.value?.schemes[0] ?? null,
 )
 
+const { lastWorkout, loading: loadingLastWorkout } = useGetLastWorkout(() =>
+  routine.value && slot.value && day.value && scheme.value
+    ? {
+        exerciseId: slot.value.exercise.id,
+        routineId: routine.value.id,
+        dayNumber: day.value.dayNumber,
+        weekNumber: scheme.value.weekNumber,
+      }
+    : null,
+)
+
 const logs = computed<WorkoutLog[]>(() => scheme.value?.logs ?? [])
 const totalSets = computed(() => scheme.value?.sets ?? 0)
 
@@ -73,6 +84,11 @@ const setSummary = computed(() => {
   return parts.join(' · ')
 })
 
+const lastTimeLabel = computed(() => {
+  if (loadingLastWorkout.value) return '—'
+  return lastWorkout.value ? `${lastWorkout.value.weightKg} kg` : t('plan.exercise.noRecord')
+})
+
 const exerciseName = computed(() => (slot.value ? localizedName(slot.value.exercise) : ''))
 
 const youtubeEmbedUrl = computed(() => {
@@ -101,6 +117,11 @@ watch(
 
 watch([selectedSet, scheme], seedInputs, { immediate: true })
 
+// La vez pasada llega después del montaje: solo siembra si el peso sigue intacto.
+watch(lastWorkout, last => {
+  if (weight.value === undefined) weight.value = last?.weightKg ?? undefined
+})
+
 useHead({ title: () => exerciseName.value || t('plan.title') })
 
 function logFor(setNumber: number): WorkoutLog | null {
@@ -119,7 +140,7 @@ function seedInputs() {
   const own = logFor(selectedSet.value)
   const previous = logs.value.findLast(l => l.setNumber < selectedSet.value)
 
-  weight.value = own?.weightKg ?? previous?.weightKg ?? undefined
+  weight.value = own?.weightKg ?? previous?.weightKg ?? lastWorkout.value?.weightKg ?? undefined
   reps.value = String(own?.actualReps ?? previous?.actualReps ?? prescribedReps.value ?? '')
 }
 
@@ -246,9 +267,7 @@ function formatRest(seconds: number | null): string {
         <div class="text-dimmed flex items-center gap-1.5 text-xs">
           <UIcon name="i-lucide-rotate-ccw" class="size-3.5 shrink-0" />
           {{ t('plan.exercise.lastTime') }}:
-          <span class="text-macross-primary-300 font-semibold">
-            {{ t('plan.exercise.noRecord') }}
-          </span>
+          <span class="text-macross-primary-300 font-semibold">{{ lastTimeLabel }}</span>
         </div>
 
         <div class="flex gap-2">

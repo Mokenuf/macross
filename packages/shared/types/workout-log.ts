@@ -20,5 +20,15 @@ export const createWorkoutLogSchema = z.object({
   completed: z.boolean().optional().default(true),
 })
 
+// La sesión en curso la identifica el front, y son tres campos y no el scheme: editar una fase retira
+// el slot y crea otro, así que una misma sesión puede tener varios schemes (los viejos, fantasmas).
+export const lastWorkoutQueryParamsSchema = z.object({
+  exerciseId: z.uuid(),
+  routineId: z.uuid(),
+  dayNumber: z.coerce.number().int().min(1).max(7),
+  weekNumber: z.coerce.number().int().min(1).max(52),
+})
+
 export type WorkoutLog = z.infer<typeof workoutLogSchema>
 export type CreateWorkoutLog = z.infer<typeof createWorkoutLogSchema>
+export type LastWorkoutQueryParams = z.infer<typeof lastWorkoutQueryParamsSchema>

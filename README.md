@@ -113,7 +113,8 @@ fix/trainer/auth        ─┘
 - PWA instalable con identidad de marca propia (paleta cálida, navegación mobile) y splash de arranque
 - Autenticación completa: login/logout, set-password por invitación, recuperación y cambio de contraseña; login bloqueado para cuentas desactivadas
 - Planificación activa: días, ejercicios con series/reps de la semana y video de cada ejercicio
-- Registro del entrenamiento: peso y reps por serie, series marcadas como hechas y estado de avance por ejercicio en el listado del día. El registro no espera a la red (se guarda apenas se toca y se reintenta solo si la conexión falla), pensado para usarse en el gimnasio. El timer de descanso y el histórico "la vez pasada" llegan en una etapa posterior
+- Registro del entrenamiento: peso y reps por serie, series marcadas como hechas y estado de avance por ejercicio en el listado del día. El registro no espera a la red (se guarda apenas se toca y se reintenta solo si la conexión falla), pensado para usarse en el gimnasio. El timer de descanso llega en una etapa posterior
+- "La vez pasada": el peso máximo de la última vez que se hizo ese ejercicio, cruzando semanas y fases, con el input de peso precargado a partir de ese valor
 - Perfil del cliente con sus datos de entrenamiento y sección de cuenta (contraseña, idioma, cerrar sesión)
 - Interfaz bilingüe es/en, mismo patrón que el dashboard
 
