@@ -4,9 +4,21 @@
     "meta": "Semana {week} de {weeks} · {days} días",
     "dayLabel": "Día {number}",
     "dayNotFound": "No encontramos ese día en tu planificación.",
+    "weekPicker": "Elegí la semana",
+    "weekShort": "Sem {number}",
+    "dayTodo": "te toca",
+    "dayCompleted": "Completado",
+    "phaseDone": {
+      "title": "¡Fase completada!",
+      "description": "Terminaste las {weeks} semanas. Tu entrenador ya puede armarte la próxima."
+    },
     "startWorkout": "Empezar entrenamiento",
+    "continueWorkout": "Continuar entrenamiento",
+    "workoutDone": "Entrenamiento completado",
     "exerciseOne": "{count} ejercicio",
     "exerciseMany": "{count} ejercicios",
+    "restShort": "desc. {rest}",
+    "optional": "opcional",
     "blockTypes": {
       "single": "Individual",
       "superset": "Superserie",
@@ -19,6 +31,7 @@
     },
     "exercise": {
       "notFound": "No encontramos ese ejercicio en tu planificación.",
+      "completed": "Completado",
       "positionLabel": "Ejercicio {n} de {total}",
       "setSummary": "Serie {current} de {total} · objetivo {reps} reps",
       "videoSoon": "Próximamente",
@@ -27,8 +40,25 @@
       "lastTime": "La vez pasada",
       "noRecord": "Sin registro",
       "completeSet": "Completar serie",
-      "rest": "Descanso",
+      "updateSet": "Actualizar serie",
+      "noWeight": "Sin peso (peso corporal)",
+      "undoSet": "Desmarcar serie",
+      "allSetsDone": "Ejercicio completado",
+      "logError": "No pudimos guardar la serie",
+      "unsyncedOne": "{count} serie sin guardar",
+      "unsyncedMany": "{count} series sin guardar",
+      "retry": "Reintentar",
+      "restSummary": "descanso {rest}",
       "notes": "Nota del entrenador"
+    },
+    "rest": {
+      "title": "Descanso",
+      "remaining": "Restante",
+      "add": "+15 s",
+      "skip": "Saltar",
+      "next": "Después:",
+      "nextSet": "{exercise} · Serie {set}",
+      "dayDone": "Día completo"
     }
   }
 }

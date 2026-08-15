@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { blockTypeEnum } from './enums'
 import { equipmentSchema } from './equipment'
 import { queryParamsSchema, type BaseFilters } from './query-params'
+import { workoutLogSchema } from './workout-log'
 
 export const routineExerciseSchemeSchema = z.object({
   id: z.uuid(),
@@ -12,6 +13,7 @@ export const routineExerciseSchemeSchema = z.object({
   reps: z.string(),
   restSeconds: z.number().int().nullable(),
   notes: z.string().nullable(),
+  logs: z.array(workoutLogSchema).optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })

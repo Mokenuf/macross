@@ -12,7 +12,10 @@ const treeSelect = `
       exercises:routine_exercises(
         *,
         exercise:exercises(id, name_es, name_en, video_url, slug, nano_id, equipment(*)),
-        schemes:routine_exercise_schemes(*)
+        schemes:routine_exercise_schemes(
+          *,
+          logs:workout_logs(${workoutLogColumns})
+        )
       )
     )
   )
@@ -35,10 +38,12 @@ export default defineEventHandler(async (event): Promise<Routine | null> => {
     .is('days.deleted_at', null)
     .is('days.blocks.deleted_at', null)
     .is('days.blocks.exercises.deleted_at', null)
+    .is('days.blocks.exercises.schemes.logs.deleted_at', null)
     .order('day_number', { referencedTable: 'days' })
     .order('sort_order', { referencedTable: 'days.blocks' })
     .order('sort_order', { referencedTable: 'days.blocks.exercises' })
     .order('week_number', { referencedTable: 'days.blocks.exercises.schemes' })
+    .order('set_number', { referencedTable: 'days.blocks.exercises.schemes.logs' })
     .maybeSingle()
 
   if (error) {

@@ -4,9 +4,21 @@
     "meta": "Week {week} of {weeks} · {days} days",
     "dayLabel": "Day {number}",
     "dayNotFound": "We couldn't find that day in your plan.",
+    "weekPicker": "Pick the week",
+    "weekShort": "Wk {number}",
+    "dayTodo": "you're here",
+    "dayCompleted": "Completed",
+    "phaseDone": {
+      "title": "Phase complete!",
+      "description": "You finished all {weeks} weeks. Your trainer can set up the next one."
+    },
     "startWorkout": "Start workout",
+    "continueWorkout": "Continue workout",
+    "workoutDone": "Workout complete",
     "exerciseOne": "{count} exercise",
     "exerciseMany": "{count} exercises",
+    "restShort": "{rest} rest",
+    "optional": "optional",
     "blockTypes": {
       "single": "Single",
       "superset": "Superset",
@@ -19,6 +31,7 @@
     },
     "exercise": {
       "notFound": "We couldn't find that exercise in your plan.",
+      "completed": "Completed",
       "positionLabel": "Exercise {n} of {total}",
       "setSummary": "Set {current} of {total} · target {reps} reps",
       "videoSoon": "Coming soon",
@@ -27,8 +40,25 @@
       "lastTime": "Last time",
       "noRecord": "No record",
       "completeSet": "Complete set",
-      "rest": "Rest",
+      "updateSet": "Update set",
+      "noWeight": "No weight (bodyweight)",
+      "undoSet": "Undo set",
+      "allSetsDone": "Exercise completed",
+      "logError": "We couldn't save the set",
+      "unsyncedOne": "{count} set not saved",
+      "unsyncedMany": "{count} sets not saved",
+      "retry": "Retry",
+      "restSummary": "{rest} rest",
       "notes": "Trainer's note"
+    },
+    "rest": {
+      "title": "Rest",
+      "remaining": "Remaining",
+      "add": "+15 s",
+      "skip": "Skip",
+      "next": "Up next:",
+      "nextSet": "{exercise} · Set {set}",
+      "dayDone": "Day complete"
     }
   }
 }

@@ -10,7 +10,7 @@ useHead({
 })
 
 onMounted(() => {
-  // splash de arranque: se va apenas hidrata el cliente
+  // El rAF le da un frame al primer paint: apagar el splash en el mismo tick lo hace parpadear.
   requestAnimationFrame(() => (booting.value = false))
 })
 </script>
