@@ -9,6 +9,21 @@
   --color-surface: #15130f;
   --color-surface-elevated: #1e1a14;
   --color-foreground: #ece7df;
+
+  /* Latido de los últimos 3 s del descanso: cubre el caso en que el aviso sonoro no llega
+     (teléfono en silencio, auriculares, gimnasio ruidoso). Un ciclo por segundo. */
+  --animate-countdown-beat: countdown-beat 1s ease-in-out infinite;
+}
+
+@keyframes countdown-beat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.75;
+  }
 }
 
 @theme static {

@@ -12,15 +12,9 @@ const { exercise, flat = false } = defineProps<PlanExerciseRowProps>()
 const { localizedName } = useLocalizedName()
 const { t } = useI18n()
 
-// Semana fija en 1: todavía no existe el cursor de semana en curso.
-const scheme = computed(
-  () => exercise.schemes.find(s => s.weekNumber === 1) ?? exercise.schemes[0] ?? null,
-)
-
-// Una fila de log por serie (índice único), así que contar las completadas alcanza.
-const completedSets = computed(() => scheme.value?.logs?.filter(log => log.completed).length ?? 0)
-
-const isDone = computed(() => !!scheme.value && completedSets.value >= scheme.value.sets)
+const scheme = computed(() => currentScheme(exercise))
+const completedSets = computed(() => completedSetCount(exercise))
+const isDone = computed(() => isExerciseDone(exercise))
 
 const prescription = computed(() =>
   scheme.value ? `${scheme.value.sets} × ${scheme.value.reps}` : '—',

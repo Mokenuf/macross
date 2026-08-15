@@ -5,6 +5,8 @@
     "dayLabel": "Día {number}",
     "dayNotFound": "No encontramos ese día en tu planificación.",
     "startWorkout": "Empezar entrenamiento",
+    "continueWorkout": "Continuar entrenamiento",
+    "workoutDone": "Entrenamiento completado",
     "exerciseOne": "{count} ejercicio",
     "exerciseMany": "{count} ejercicios",
     "restShort": "desc. {rest}",
@@ -37,9 +39,17 @@
       "unsyncedOne": "{count} serie sin guardar",
       "unsyncedMany": "{count} series sin guardar",
       "retry": "Reintentar",
-      "rest": "Descanso",
       "restSummary": "descanso {rest}",
       "notes": "Nota del entrenador"
+    },
+    "rest": {
+      "title": "Descanso",
+      "remaining": "Restante",
+      "add": "+15 s",
+      "skip": "Saltar",
+      "next": "Después:",
+      "nextSet": "{exercise} · Serie {set}",
+      "dayDone": "Día completo"
     }
   }
 }
