@@ -1,7 +1,28 @@
-import type { ApiError, CreateWorkoutLog, WorkoutLog } from '@macross/shared'
+import type {
+  ApiError,
+  CreateWorkoutLog,
+  LastWorkoutQueryParams,
+  WorkoutLog,
+} from '@macross/shared'
 import type { FetchError } from 'ofetch'
 
 type QueuedLog = CreateWorkoutLog & { attempts: number }
+
+// Los params salen del árbol, que carga async: van como getter para que el fetch espere y se rehaga
+// al navegar entre ejercicios (la page se reusa).
+export function useGetLastWorkout(session: MaybeRefOrGetter<LastWorkoutQueryParams | null>) {
+  const query = computed(() => toValue(session))
+
+  const { data, pending } = useFetch<WorkoutLog | null>('/api/workout-logs/last', {
+    key: () =>
+      `last-workout-${query.value?.exerciseId}-${query.value?.dayNumber}-${query.value?.weekNumber}`,
+    query: () => query.value ?? {},
+    enabled: () => query.value !== null,
+    default: () => null,
+  })
+
+  return { lastWorkout: data, loading: pending }
+}
 
 export function useLogSet() {
   const queue = useState<QueuedLog[]>('workout-log-queue', () => [])
