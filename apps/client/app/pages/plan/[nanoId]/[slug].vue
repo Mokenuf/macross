@@ -8,6 +8,7 @@ definePageMeta({
 const route = useRoute()
 const { localizedName } = useLocalizedName()
 const { isUnsynced, logSet, retryUnsynced, unsyncedCount } = useLogSet()
+const { add, isFinalCountdown, isRunning, progress, remaining, skip, start } = useRestTimer()
 const reps = ref('')
 const { routine, loading } = useGetActiveRoutine()
 const selectedSet = ref(1)
@@ -22,9 +23,8 @@ const dayExercises = computed(() => day.value?.blocks.flatMap(b => b.exercises) 
 const position = computed(() => dayExercises.value.findIndex(e => e.exercise.slug === slug.value))
 const slot = computed(() => dayExercises.value[position.value] ?? null)
 
-// Semana fija en 1: todavía no existe el cursor de semana en curso.
-const scheme = computed<RoutineExerciseScheme | null>(
-  () => slot.value?.schemes.find(s => s.weekNumber === 1) ?? slot.value?.schemes[0] ?? null,
+const scheme = computed<RoutineExerciseScheme | null>(() =>
+  slot.value ? currentScheme(slot.value) : null,
 )
 
 const { lastWorkout, loading: loadingLastWorkout } = useGetLastWorkout(() =>
@@ -91,6 +91,25 @@ const lastTimeLabel = computed(() => {
 
 const exerciseName = computed(() => (slot.value ? localizedName(slot.value.exercise) : ''))
 
+const nextExercise = computed(() => dayExercises.value[position.value + 1] ?? null)
+
+// Terminado el último ejercicio se vuelve al día, que ya muestra todo tachado.
+const nextExerciseTo = computed(() =>
+  nextExercise.value
+    ? `/plan/${nanoId.value}/${nextExercise.value.exercise.slug}`
+    : `/plan/${nanoId.value}`,
+)
+
+const nextLabel = computed(() => {
+  if (firstPendingSet.value !== null) {
+    return t('plan.rest.nextSet', { exercise: exerciseName.value, set: firstPendingSet.value })
+  }
+
+  return nextExercise.value
+    ? t('plan.rest.nextSet', { exercise: localizedName(nextExercise.value.exercise), set: 1 })
+    : t('plan.rest.dayDone')
+})
+
 const youtubeEmbedUrl = computed(() => {
   const videoUrl = slot.value?.exercise.videoUrl
   if (!videoUrl) return null
@@ -105,8 +124,13 @@ const youtubeEmbedUrl = computed(() => {
   }
 })
 
-// Al entrar (y al completar una serie) se cae en la primera pendiente; si no queda ninguna, en la
-// última. immediate porque al montar la selección tiene que salir del ref inicial.
+// Si el descanso venía de la última serie, el overlay ya prometió un destino y hay que cumplirlo.
+watch(isRunning, (running, wasRunning) => {
+  if (running || !wasRunning || firstPendingSet.value !== null) return
+  void navigateTo(nextExerciseTo.value)
+})
+
+// immediate porque al montar la selección tiene que salir del ref inicial.
 watch(
   firstPendingSet,
   next => {
@@ -147,6 +171,8 @@ function seedInputs() {
 function saveSet(completed: boolean) {
   if (!scheme.value) return
 
+  const wasCompleted = selectedLog.value?.completed ?? false
+
   logSet({
     routineExerciseSchemeId: scheme.value.id,
     setNumber: selectedSet.value,
@@ -154,6 +180,14 @@ function saveSet(completed: boolean) {
     actualReps: reps.value === '' ? undefined : Number(reps.value),
     completed,
   })
+
+  // Solo la transición pendiente → completada arranca el descanso: corregir una serie vieja no.
+  if (completed && !wasCompleted && scheme.value.restSeconds) start(scheme.value.restSeconds)
+}
+
+// Reka cae a `min` sin aplicar el paso cuando el campo está vacío, así que el primer + daría 0 kg.
+function onWeightInput(value: number | undefined) {
+  weight.value = weight.value === undefined && value === 0 ? WEIGHT_STEP : value
 }
 
 function formatRest(seconds: number | null): string {
@@ -163,6 +197,8 @@ function formatRest(seconds: number | null): string {
   const rest = seconds % 60
   return rest === 0 ? `${minutes} min` : `${minutes} min ${rest} s`
 }
+
+const WEIGHT_STEP = 2.5
 </script>
 
 <template>
@@ -238,12 +274,13 @@ function formatRest(seconds: number | null): string {
               {{ t('plan.exercise.weight') }}
             </p>
             <UInputNumber
-              v-model="weight"
+              :model-value="weight"
               size="xl"
               :min="0"
               :max="9999"
-              :step="2.5"
+              :step="WEIGHT_STEP"
               :step-snapping="false"
+              @update:model-value="onWeightInput"
               placeholder="—"
               class="w-full"
               :ui="{ base: 'font-logo text-3xl text-center' }"
@@ -337,4 +374,14 @@ function formatRest(seconds: number | null): string {
       </div>
     </template>
   </div>
+
+  <RestTimerOverlay
+    v-if="isRunning"
+    :is-final-countdown="isFinalCountdown"
+    :next-label="nextLabel"
+    :progress="progress"
+    :remaining="remaining"
+    @add="add(15)"
+    @skip="skip"
+  />
 </template>

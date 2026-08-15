@@ -15,9 +15,12 @@ const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.va
 const heroTitle = computed(() =>
   day.value ? (day.value.label ?? t('plan.dayLabel', { number: day.value.dayNumber })) : '',
 )
-const firstExerciseSlug = computed(
-  () => day.value?.blocks.flatMap(b => b.exercises)[0]?.exercise.slug ?? null,
-)
+const exercises = computed(() => day.value?.blocks.flatMap(b => b.exercises) ?? [])
+
+// El ejercicio en curso es el primero con series pendientes, no el primero de la lista.
+const nextExercise = computed(() => exercises.value.find(e => !isExerciseDone(e)) ?? null)
+
+const hasProgress = computed(() => exercises.value.some(e => completedSetCount(e) > 0))
 
 useHead({ title: () => heroTitle.value || t('plan.title') })
 
@@ -97,16 +100,24 @@ function exercisesText(blocks: RoutineBlock[]): string {
       </div>
 
       <div
-        v-if="firstExerciseSlug"
+        v-if="exercises.length"
         class="bg-background/70 sticky bottom-0 z-20 -mx-5 px-5 py-8 backdrop-blur-md"
       >
         <UButton
-          :to="`/plan/${nanoId}/${firstExerciseSlug}`"
-          :label="t('plan.startWorkout')"
+          v-if="nextExercise"
+          :to="`/plan/${nanoId}/${nextExercise.exercise.slug}`"
+          :label="hasProgress ? t('plan.continueWorkout') : t('plan.startWorkout')"
           size="xl"
           block
           leading-icon="i-lucide-play"
         />
+        <div
+          v-else
+          class="bg-secondary/8 ring-secondary/30 text-secondary flex items-center justify-center gap-2 rounded-md py-3.5 font-semibold ring-1"
+        >
+          <UIcon name="i-lucide-circle-check" class="size-5" />
+          {{ t('plan.workoutDone') }}
+        </div>
       </div>
     </template>
   </div>

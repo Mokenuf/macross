@@ -19,7 +19,8 @@ export default defineEventHandler(async event => {
     })
   }
 
-  // El auth.users del cliente soft-deleted sigue vivo hay que bloquearlo.
+  // El soft-delete no toca auth.users, así que el signin de un cliente desactivado funciona igual:
+  // si no lo cortamos acá, entra.
   const { data: profile } = await client
     .from('clients')
     .select('deleted_at')

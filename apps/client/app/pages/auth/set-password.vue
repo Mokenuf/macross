@@ -33,8 +33,9 @@ const fields = computed<AuthFormField[]>(() => [
 ])
 
 onMounted(async () => {
-  // detectSessionInUrl is off, so the hash survives until we read it here.
-  // Invite tokens always win over any session in cookies.
+  // Con detectSessionInUrl apagado el hash sobrevive hasta que lo leemos acá. Los tokens del invite
+  // le ganan a cualquier sesión en cookies: si no, quien ya estaba logueado abre el link y termina
+  // cambiándose su propia contraseña.
   const hash = window.location.hash
   if (!hash.includes('access_token')) return
 
@@ -49,7 +50,7 @@ onMounted(async () => {
     refresh_token: refreshToken,
   })
 
-  // Drop the tokens from the URL so they don't linger in the address bar / history.
+  // Sacar los tokens de la URL para que no queden en la barra de direcciones ni en el historial.
   if (!error) window.history.replaceState(null, '', window.location.pathname)
 })
 

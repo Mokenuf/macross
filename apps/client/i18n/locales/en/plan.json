@@ -5,6 +5,8 @@
     "dayLabel": "Day {number}",
     "dayNotFound": "We couldn't find that day in your plan.",
     "startWorkout": "Start workout",
+    "continueWorkout": "Continue workout",
+    "workoutDone": "Workout complete",
     "exerciseOne": "{count} exercise",
     "exerciseMany": "{count} exercises",
     "restShort": "{rest} rest",
@@ -37,9 +39,17 @@
       "unsyncedOne": "{count} set not saved",
       "unsyncedMany": "{count} sets not saved",
       "retry": "Retry",
-      "rest": "Rest",
       "restSummary": "{rest} rest",
       "notes": "Trainer's note"
+    },
+    "rest": {
+      "title": "Rest",
+      "remaining": "Remaining",
+      "add": "+15 s",
+      "skip": "Skip",
+      "next": "Up next:",
+      "nextSet": "{exercise} · Set {set}",
+      "dayDone": "Day complete"
     }
   }
 }

@@ -6,7 +6,7 @@ import './env'
 const namespaces = ['common', 'nav', 'auth', 'validation', 'plan', 'profile']
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/i18n', '@vite-pwa/nuxt'],
+  modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/i18n', '@vite-pwa/nuxt', '@vueuse/nuxt'],
   // viewport-fit=cover: sin esto env(safe-area-inset-*) devuelve 0 en iOS (nav bajo el home indicator)
   app: {
     head: {
