@@ -7,5 +7,6 @@
   "arrowParens": "avoid",
   "endOfLine": "lf",
   "sortImports": true,
-  "sortTailwindcss": true
+  "sortTailwindcss": true,
+  "sortPackageJson": true
 }

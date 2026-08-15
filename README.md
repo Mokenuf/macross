@@ -7,7 +7,7 @@ Plataforma digital para entrenadores personales. Gestión de clientes, ejercicio
 Dos aplicaciones en un mismo monorepo:
 
 - **Trainer** — Dashboard web (desktop-first) para el entrenador. CRUD de clientes, biblioteca de ejercicios con video, armado de rutinas por fases y semanas, y seguimiento del progreso de cada alumno.
-- **Client** — PWA (mobile-first) para los clientes, instalable desde el navegador como una app más del teléfono. Ver la rutina del día, ver videos de cada ejercicio, registrar pesos por serie, timer de descanso, y notas del entrenador.
+- **Client** — PWA (mobile-first) para los clientes, instalable desde el navegador como una app más del teléfono. Ver la rutina del día, ver videos de cada ejercicio, registrar pesos por serie, timer de descanso, y notas del entrenador. El ciclo completo de una fase: entrenar, registrar y avanzar semana a semana.
 
 ## Stack
 
@@ -111,6 +111,7 @@ fix/trainer/auth        ─┘
 - PWA instalable con identidad de marca propia (paleta cálida, navegación mobile) y splash de arranque
 - Autenticación completa: login/logout, set-password por invitación, recuperación y cambio de contraseña; login bloqueado para cuentas desactivadas
 - Planificación activa: días, ejercicios con series/reps de la semana y video de cada ejercicio
+- Avance por la fase: la semana en curso sale del propio entrenamiento (la primera sesión sin completar), con días completados marcados y el día que toca destacado; se puede cambiar de semana a mano
 - Registro del entrenamiento: peso y reps por serie, series marcadas como hechas y estado de avance por ejercicio en el listado del día. El registro no espera a la red (se guarda apenas se toca y se reintenta solo si la conexión falla), pensado para usarse en el gimnasio
 - Timer de descanso: arranca solo al completar una serie, con cuenta regresiva sonora y vibración en los últimos segundos, y mantiene la pantalla encendida mientras corre
 - "La vez pasada": el peso máximo de la última vez que se hizo ese ejercicio, cruzando semanas y fases, con el input de peso precargado a partir de ese valor
