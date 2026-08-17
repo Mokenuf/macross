@@ -7,6 +7,7 @@ import {
   type RoutineExercise,
   type UpdateRoutine,
 } from '@macross/shared'
+import { insertNodeAt, removeNode, useSortable } from '@vueuse/integrations/useSortable'
 
 import type { BuilderDay, BuilderScheme, RoutineBuilderState } from './types'
 
@@ -41,6 +42,7 @@ const hasWorkouts = computed(() =>
 
 const currentStep = ref(routine ? 1 : 0)
 const activeDay = ref(0)
+const blocksEl = ref<HTMLElement | null>(null)
 
 const state = reactive<RoutineBuilderState>(
   routine
@@ -86,6 +88,14 @@ const selectedClient = computed<Client | undefined>({
 
 const currentDay = computed(() => state.days[activeDay.value])
 
+// useSortable captura la lista una vez y hay un array por día: el getter resuelve al soltar.
+const currentBlocks = computed({
+  get: () => currentDay.value?.blocks ?? [],
+  set: blocks => {
+    if (currentDay.value) currentDay.value.blocks = blocks
+  },
+})
+
 const duplicateTarget = computed(() => nextEmptyDayIndex(state.days, activeDay.value))
 
 const canDuplicateDay = computed(
@@ -97,6 +107,21 @@ const canDuplicateDay = computed(
 const step1Valid = computed(() => state.name.trim().length > 0 && state.clientId.length > 0)
 
 const canSubmit = computed(() => state.days.every(dayComplete))
+
+useSortable(blocksEl, currentBlocks, {
+  handle: '[data-drag-block]',
+  animation: 150,
+  ghostClass: 'opacity-40',
+  // El contenedor está detrás de un v-else: sin esto no engancha en un día recién creado.
+  watchElement: true,
+  onUpdate: e => {
+    if (e.oldIndex == null || e.newIndex == null) return
+    // Se revierte el nodo que ya movió Sortable para que Vue quede como única fuente de verdad.
+    removeNode(e.item)
+    insertNodeAt(e.from, e.item, e.oldIndex)
+    moveBlock(e.oldIndex, e.newIndex)
+  },
+})
 
 // Un slot creado a mitad de fase solo tiene schemes desde la semana en curso, así que las semanas
 // sin prescripción se rellenan con la más cercana: la matriz nunca muestra una celda vacía (y esas
@@ -207,6 +232,10 @@ function addBlock() {
 function updateBlocks(update: (blocks: BuilderDay['blocks']) => BuilderDay['blocks']) {
   const day = currentDay.value
   if (day) day.blocks = update(day.blocks)
+}
+
+function moveBlock(from: number, to: number) {
+  updateBlocks(blocks => moveItem(blocks, from, to))
 }
 
 function submit() {
@@ -441,30 +470,34 @@ function back() {
           v-if="currentDay.blocks.length === 0"
           :message="t('routines.builder.emptyDay')"
         />
-        <RoutineBuilderBlock
-          v-for="(block, i) in currentDay.blocks"
-          :key="i"
-          :block
-          :index="i"
-          :weeks="state.weeks"
-          :start-week="startWeek"
-          :options="exercises"
-          :can-group="i < currentDay.blocks.length - 1"
-          @remove="updateBlocks(blocks => blocks.toSpliced(i, 1))"
-          @remove-exercise="ei => updateBlocks(blocks => removeExerciseAt(blocks, i, ei))"
-          @add-exercise="
-            updateBlocks(blocks =>
-              addExerciseToBlock(blocks, i, makeExercise(state.weeks, startWeek)),
-            )
-          "
-          @group="updateBlocks(blocks => groupWithNext(blocks, i))"
-          @set-type="
-            type =>
+        <!-- Contenedor propio: hermanado con el botón de abajo, Sortable lo dejaría arrastrar. -->
+        <div v-else ref="blocksEl" class="space-y-4">
+          <RoutineBuilderBlock
+            v-for="(block, i) in currentDay.blocks"
+            :key="i"
+            :block
+            :index="i"
+            :total="currentDay.blocks.length"
+            :weeks="state.weeks"
+            :start-week="startWeek"
+            :options="exercises"
+            @remove="updateBlocks(blocks => blocks.toSpliced(i, 1))"
+            @remove-exercise="ei => updateBlocks(blocks => removeExerciseAt(blocks, i, ei))"
+            @add-exercise="
               updateBlocks(blocks =>
-                setBlockType(blocks, i, type, makeExercise(state.weeks, startWeek)),
+                addExerciseToBlock(blocks, i, makeExercise(state.weeks, startWeek)),
               )
-          "
-        />
+            "
+            @group="updateBlocks(blocks => groupWithNext(blocks, i))"
+            @move="to => moveBlock(i, to)"
+            @set-type="
+              type =>
+                updateBlocks(blocks =>
+                  setBlockType(blocks, i, type, makeExercise(state.weeks, startWeek)),
+                )
+            "
+          />
+        </div>
 
         <UButton
           :label="t('routines.builder.addBlock')"

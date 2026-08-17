@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import type { BlockType, Exercise } from '@macross/shared'
 import { BlockTypes } from '@macross/shared'
+import { insertNodeAt, removeNode, useSortable } from '@vueuse/integrations/useSortable'
 
 import type { BuilderBlock, BuilderExercise, BuilderScheme } from './types'
 
 interface RoutineBuilderBlockProps {
   block: BuilderBlock
   index: number
+  total: number
   weeks: number
   startWeek: number
   options: Exercise[]
-  canGroup: boolean
 }
 
 interface RoutineBuilderBlockEmits {
@@ -18,11 +19,11 @@ interface RoutineBuilderBlockEmits {
   removeExercise: [number]
   addExercise: []
   group: []
+  move: [number]
   setType: [BlockType]
 }
 
-const { block, canGroup, index, options, startWeek, weeks } =
-  defineProps<RoutineBuilderBlockProps>()
+const { block, index, options, startWeek, total, weeks } = defineProps<RoutineBuilderBlockProps>()
 const emit = defineEmits<RoutineBuilderBlockEmits>()
 
 const { t, locale } = useI18n()
@@ -30,12 +31,37 @@ const { localizedName } = useLocalizedName()
 
 const editing = ref<{ exercise: number; week: number } | null>(null)
 const open = ref(true)
+const rowsEl = ref<HTMLElement | null>(null)
 
 const nameKey = computed(() => (locale.value === 'en' ? 'nameEn' : 'nameEs'))
 const blockLetter = computed(() => String.fromCharCode(65 + index))
 // En un bloque de un solo ejercicio la nota del bloque sería un segundo lugar para escribir lo
 // mismo que la nota del ejercicio.
 const isGrouped = computed(() => block.exercises.length > 1)
+const isLast = computed(() => index === total - 1)
+// El `+` es la semántica de la agrupación (se hacen juntos), no un separador cualquiera.
+const summary = computed(() => block.exercises.map(exerciseName).join(' + '))
+
+// Keyeado por índice: `block` apunta a otro objeto al reordenar, el getter resuelve al soltar.
+const exercises = computed({
+  get: () => block.exercises,
+  set: value => {
+    block.exercises = value
+  },
+})
+
+useSortable(rowsEl, exercises, {
+  handle: '[data-drag-slot]',
+  animation: 150,
+  ghostClass: 'opacity-40',
+  onUpdate: e => {
+    if (e.oldIndex == null || e.newIndex == null) return
+    // Se revierte el nodo que ya movió Sortable para que Vue quede como única fuente de verdad.
+    removeNode(e.item)
+    insertNodeAt(e.from, e.item, e.oldIndex)
+    moveExercise(e.oldIndex, e.newIndex)
+  },
+})
 
 let snapshot: BuilderScheme | null = null
 
@@ -46,6 +72,10 @@ function cells(exercise: BuilderExercise) {
     const week = i + 1
     return { week, scheme: exercise.schemes.find(scheme => scheme.weekNumber === week) }
   })
+}
+
+function moveExercise(from: number, to: number) {
+  exercises.value = moveItem(exercises.value, from, to)
 }
 
 function exerciseName(exercise: BuilderExercise) {
@@ -111,6 +141,12 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
         :class="open ? 'border-default border-b' : ''"
       >
         <UIcon
+          name="i-lucide-grip-vertical"
+          data-drag-block
+          class="text-dimmed size-4 shrink-0 cursor-grab active:cursor-grabbing"
+          @click.stop
+        />
+        <UIcon
           :name="open ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
           class="text-dimmed size-4"
         />
@@ -132,14 +168,36 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
           />
         </div>
 
+        <span v-if="!open" class="text-muted min-w-0 flex-1 truncate text-sm">{{ summary }}</span>
+
         <div class="ml-auto flex items-center gap-1" @click.stop>
+          <UTooltip :text="t('routines.builder.moveUp')">
+            <UButton
+              icon="i-lucide-chevron-up"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              :disabled="index === 0"
+              @click="emit('move', index - 1)"
+            />
+          </UTooltip>
+          <UTooltip :text="t('routines.builder.moveDown')">
+            <UButton
+              icon="i-lucide-chevron-down"
+              color="neutral"
+              variant="ghost"
+              size="xs"
+              :disabled="isLast"
+              @click="emit('move', index + 1)"
+            />
+          </UTooltip>
           <UTooltip :text="t('routines.builder.groupWithNext')">
             <UButton
               icon="i-lucide-combine"
               color="neutral"
               variant="ghost"
               size="xs"
-              :disabled="!canGroup"
+              :disabled="isLast"
               @click="emit('group')"
             />
           </UTooltip>
@@ -165,10 +223,16 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                <tr v-for="(exercise, ei) in block.exercises" :key="ei">
+              <tbody ref="rowsEl">
+                <tr v-for="(exercise, ei) in exercises" :key="ei">
                   <td class="px-2 py-1.5">
                     <div class="flex items-center gap-1">
+                      <UIcon
+                        v-if="isGrouped"
+                        name="i-lucide-grip-vertical"
+                        data-drag-slot
+                        class="text-dimmed size-4 shrink-0 cursor-grab active:cursor-grabbing"
+                      />
                       <UInputMenu
                         :model-value="selectedExercise(exercise)"
                         :items="options"
@@ -212,6 +276,28 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                               :placeholder="t('routines.builder.exerciseNotesPlaceholder')"
                               class="w-full"
                             />
+                            <div v-if="isGrouped" class="flex gap-2">
+                              <UButton
+                                :label="t('routines.builder.moveUp')"
+                                icon="i-lucide-chevron-up"
+                                color="neutral"
+                                variant="ghost"
+                                size="xs"
+                                block
+                                :disabled="ei === 0"
+                                @click="moveExercise(ei, ei - 1)"
+                              />
+                              <UButton
+                                :label="t('routines.builder.moveDown')"
+                                icon="i-lucide-chevron-down"
+                                color="neutral"
+                                variant="ghost"
+                                size="xs"
+                                block
+                                :disabled="ei === exercises.length - 1"
+                                @click="moveExercise(ei, ei + 1)"
+                              />
+                            </div>
                             <UButton
                               :label="t('routines.builder.removeExercise')"
                               icon="i-lucide-trash-2"

@@ -13,6 +13,7 @@ import {
   isDayComplete,
   isSchemeLocked,
   makeExercise,
+  moveItem,
   nextEmptyDayIndex,
   removeExerciseAt,
   setBlockType,
@@ -356,5 +357,41 @@ describe('removeExerciseAt', () => {
 
   it('saca el bloque entero cuando se va el último ejercicio', () => {
     expect(removeExerciseAt([blockOf()], 0, 0)).toEqual([])
+  })
+})
+
+describe('moveItem', () => {
+  it('baja un ítem a la posición pedida', () => {
+    expect(moveItem(['a', 'b', 'c'], 0, 2)).toEqual(['b', 'c', 'a'])
+  })
+
+  it('sube un ítem a la posición pedida', () => {
+    expect(moveItem(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b'])
+  })
+
+  it('no muta el array original', () => {
+    const items = ['a', 'b', 'c']
+    moveItem(items, 0, 2)
+
+    expect(items).toEqual(['a', 'b', 'c'])
+  })
+
+  it('devuelve el mismo array cuando el movimiento no va a ningún lado', () => {
+    const items = ['a', 'b', 'c']
+
+    expect(moveItem(items, 1, 1)).toBe(items)
+  })
+
+  it('devuelve el mismo array cuando el destino cae fuera de rango', () => {
+    const items = ['a', 'b', 'c']
+
+    expect(moveItem(items, 0, -1)).toBe(items)
+    expect(moveItem(items, 0, 3)).toBe(items)
+  })
+
+  it('devuelve el mismo array cuando el origen no existe', () => {
+    const items = ['a', 'b', 'c']
+
+    expect(moveItem(items, 5, 0)).toBe(items)
   })
 })
