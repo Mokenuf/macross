@@ -20,7 +20,7 @@ const nanoId = computed(() => String(route.params.nanoId))
 const slug = computed(() => String(route.params.slug))
 
 const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.value) ?? null)
-const exercises = computed(() => (day.value ? dayExercises(day.value) : []))
+const exercises = computed(() => (day.value ? dayExercises(day.value, week.value) : []))
 const position = computed(() => exercises.value.findIndex(e => e.exercise.slug === slug.value))
 const slot = computed(() => exercises.value[position.value] ?? null)
 

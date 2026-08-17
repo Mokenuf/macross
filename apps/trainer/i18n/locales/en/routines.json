@@ -79,7 +79,9 @@
       "next": "Next",
       "save": "Save",
       "activate": "Activate this routine",
-      "activateHint": "Activating deactivates the client's current active routine (one active per client)."
+      "activateHint": "Activating deactivates the client's current active routine (one active per client).",
+      "inProgressTitle": "This phase is already underway",
+      "inProgressHint": "The client has already logged sets: the cells they trained are locked. Anything you add or change applies from week {week} on."
     },
     "form": {
       "client": "Client",
@@ -100,13 +102,21 @@
       "duplicateDay": "Duplicate day",
       "removeDay": "Remove day",
       "emptyDay": "This day has no exercises yet",
-      "addExercise": "Add exercise",
+      "addBlock": "Add block",
+      "addExerciseToBlock": "Add exercise to block",
+      "removeExercise": "Remove exercise",
+      "groupWithNext": "Group with the next block",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
       "noExercise": "No exercise",
       "exercisePlaceholder": "Search exercise…",
+      "exerciseNotesPlaceholder": "Note for this exercise…",
+      "blockNotesPlaceholder": "Block note (e.g. no rest in between)",
       "blockTypes": {
         "single": "Single",
         "superset": "Superset",
-        "dropset": "Dropset"
+        "dropset": "Dropset",
+        "circuit": "Circuit"
       },
       "week": "Wk {n}",
       "sets": "Sets",
@@ -114,7 +124,14 @@
       "repsPlaceholder": "12",
       "rest": "Rest (sec)",
       "restPlaceholder": "90",
-      "optional": "Optional"
+      "optional": "Optional",
+      "optionalHint": "Does not block the day if the client skips it",
+      "cellHeader": "Editing · {name} · Wk {n}",
+      "cellDone": "Done",
+      "applyToRest": "Apply to the following weeks",
+      "lockedTrained": "The client already logged sets here",
+      "lockedPast": "Week already closed",
+      "notApplicable": "This exercise starts on week {n}"
     },
     "toasts": {
       "created": "Routine created",

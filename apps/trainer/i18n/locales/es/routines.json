@@ -79,7 +79,9 @@
       "next": "Siguiente",
       "save": "Guardar",
       "activate": "Activar esta rutina",
-      "activateHint": "Al activar se desactiva la rutina activa actual del cliente (una activa por cliente)."
+      "activateHint": "Al activar se desactiva la rutina activa actual del cliente (una activa por cliente).",
+      "inProgressTitle": "Esta fase ya está en curso",
+      "inProgressHint": "El cliente ya registró series: las celdas que entrenó quedan bloqueadas. Lo que agregues o cambies aplica desde la semana {week}."
     },
     "form": {
       "client": "Cliente",
@@ -100,13 +102,21 @@
       "duplicateDay": "Duplicar día",
       "removeDay": "Quitar día",
       "emptyDay": "Este día no tiene ejercicios todavía",
-      "addExercise": "Agregar ejercicio",
+      "addBlock": "Agregar bloque",
+      "addExerciseToBlock": "Agregar ejercicio al bloque",
+      "removeExercise": "Quitar ejercicio",
+      "groupWithNext": "Agrupar con el bloque siguiente",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
       "noExercise": "Sin ejercicio",
       "exercisePlaceholder": "Buscar ejercicio…",
+      "exerciseNotesPlaceholder": "Nota para este ejercicio…",
+      "blockNotesPlaceholder": "Nota del bloque (ej: sin descanso entre los dos)",
       "blockTypes": {
         "single": "Single",
         "superset": "Superserie",
-        "dropset": "Dropset"
+        "dropset": "Dropset",
+        "circuit": "Circuito"
       },
       "week": "Sem {n}",
       "sets": "Series",
@@ -114,7 +124,14 @@
       "repsPlaceholder": "12",
       "rest": "Descanso (seg)",
       "restPlaceholder": "90",
-      "optional": "Opcional"
+      "optional": "Opcional",
+      "optionalHint": "No traba el día si el cliente no lo hace",
+      "cellHeader": "Editando · {name} · Sem {n}",
+      "cellDone": "Listo",
+      "applyToRest": "Aplicar a las siguientes",
+      "lockedTrained": "El cliente ya registró series acá",
+      "lockedPast": "Semana ya cerrada",
+      "notApplicable": "Este ejercicio arranca en la semana {n}"
     },
     "toasts": {
       "created": "Rutina creada",

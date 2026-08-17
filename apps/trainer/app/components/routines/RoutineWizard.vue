@@ -2,12 +2,14 @@
 import {
   type BaseResponse,
   type Client,
-  type CreateRoutine,
   type Exercise,
   type Routine,
+  type RoutineExercise,
+  type UpdateRoutine,
 } from '@macross/shared'
+import { insertNodeAt, removeNode, useSortable } from '@vueuse/integrations/useSortable'
 
-import type { BuilderDay, BuilderExercise, RoutineBuilderState } from '@/types/routine-builder'
+import type { BuilderDay, BuilderScheme, RoutineBuilderState } from './types'
 
 interface RoutineWizardProps {
   loading?: boolean
@@ -15,7 +17,7 @@ interface RoutineWizardProps {
 }
 
 interface RoutineWizardEmits {
-  submit: [CreateRoutine]
+  submit: [UpdateRoutine]
 }
 
 const { loading = false, routine } = defineProps<RoutineWizardProps>()
@@ -29,8 +31,18 @@ const DEFAULT_DAYS = 3
 const isEdit = computed(() => !!routine)
 const firstStep = computed(() => (isEdit.value ? 1 : 0))
 
+const startWeek = computed(() => routine?.startWeek ?? 1)
+const hasWorkouts = computed(() =>
+  (routine?.days ?? [])
+    .flatMap(day => day.blocks)
+    .flatMap(block => block.exercises)
+    .flatMap(slot => slot.schemes)
+    .some(scheme => (scheme.trainedSets ?? 0) > 0),
+)
+
 const currentStep = ref(routine ? 1 : 0)
 const activeDay = ref(0)
+const blocksEl = ref<HTMLElement | null>(null)
 
 const state = reactive<RoutineBuilderState>(
   routine
@@ -76,21 +88,68 @@ const selectedClient = computed<Client | undefined>({
 
 const currentDay = computed(() => state.days[activeDay.value])
 
+// useSortable captura la lista una vez y hay un array por día: el getter resuelve al soltar.
+const currentBlocks = computed({
+  get: () => currentDay.value?.blocks ?? [],
+  set: blocks => {
+    if (currentDay.value) currentDay.value.blocks = blocks
+  },
+})
+
+const duplicateTarget = computed(() => nextEmptyDayIndex(state.days, activeDay.value))
+
+const canDuplicateDay = computed(
+  () =>
+    !!currentDay.value?.blocks.length &&
+    (duplicateTarget.value >= 0 || state.days.length < MAX_DAYS),
+)
+
 const step1Valid = computed(() => state.name.trim().length > 0 && state.clientId.length > 0)
 
 const canSubmit = computed(() => state.days.every(dayComplete))
 
-function makeDay(): BuilderDay {
-  return { label: '', exercises: [] }
+useSortable(blocksEl, currentBlocks, {
+  handle: '[data-drag-block]',
+  animation: 150,
+  ghostClass: 'opacity-40',
+  // El contenedor está detrás de un v-else: sin esto no engancha en un día recién creado.
+  watchElement: true,
+  onUpdate: e => {
+    if (e.oldIndex == null || e.newIndex == null) return
+    // Se revierte el nodo que ya movió Sortable para que Vue quede como única fuente de verdad.
+    removeNode(e.item)
+    insertNodeAt(e.from, e.item, e.oldIndex)
+    moveBlock(e.oldIndex, e.newIndex)
+  },
+})
+
+// Un slot creado a mitad de fase solo tiene schemes desde la semana en curso, así que las semanas
+// sin prescripción se rellenan con la más cercana: la matriz nunca muestra una celda vacía (y esas
+// semanas quedan bloqueadas igual, así que el relleno no viaja al server).
+function seedSchemes(slot: RoutineExercise, weeks: number): BuilderScheme[] {
+  const byWeek = new Map(slot.schemes.map(scheme => [scheme.weekNumber, scheme]))
+  const nearest = (week: number) =>
+    slot.schemes.toSorted(
+      (a, b) => Math.abs(a.weekNumber - week) - Math.abs(b.weekNumber - week),
+    )[0]
+
+  return Array.from({ length: weeks }, (_, i) => {
+    const week = i + 1
+    const scheme = byWeek.get(week)
+    const source = scheme ?? nearest(week)
+
+    return makeScheme(week, {
+      sets: source?.sets,
+      reps: source?.reps,
+      restSeconds: source?.restSeconds,
+      notes: scheme?.notes ?? undefined,
+      trainedSets: scheme?.trainedSets ?? 0,
+    })
+  })
 }
 
-function makeExercise(): BuilderExercise {
-  return { exercise: null, sets: 3, reps: '', restSeconds: null, optional: false, notes: '' }
-}
-
-// Edición = full-replace flat: se aplanan los bloques (cada slot → fila suelta) y se toma la
-// prescripción de la semana 1 (en el modelo flat las N semanas nacen iguales). La progresión por
-// semana no sobrevive a este colapso — lo preserva el editor de matriz por semana del builder completo.
+// Los ids de día, bloque y slot viajan de vuelta en el submit: son los que dejan que el PATCH
+// empareje filas vivas en vez de reemplazar el árbol y resetearle el progreso al cliente.
 function seedFromRoutine(r: Routine): RoutineBuilderState {
   return {
     name: r.name,
@@ -99,33 +158,30 @@ function seedFromRoutine(r: Routine): RoutineBuilderState {
     notes: r.notes ?? '',
     activate: r.active,
     days: (r.days ?? []).map(d => ({
+      id: d.id,
       label: d.label ?? '',
-      exercises: d.blocks.flatMap(block =>
-        block.exercises.map(slot => {
-          const week1 = slot.schemes.find(s => s.weekNumber === 1) ?? slot.schemes[0]
-          return {
-            exercise: {
-              id: slot.exercise.id,
-              nameEs: slot.exercise.nameEs,
-              nameEn: slot.exercise.nameEn,
-            },
-            sets: week1?.sets ?? 3,
-            reps: week1?.reps ?? '',
-            restSeconds: week1?.restSeconds ?? null,
-            optional: slot.optional,
-            notes: slot.notes ?? '',
-          }
-        }),
-      ),
+      blocks: d.blocks.map(block => ({
+        id: block.id,
+        type: block.type,
+        notes: block.notes ?? '',
+        exercises: block.exercises.map(slot => ({
+          id: slot.id,
+          exercise: {
+            id: slot.exercise.id,
+            nameEs: slot.exercise.nameEs,
+            nameEn: slot.exercise.nameEn,
+          },
+          optional: slot.optional,
+          notes: slot.notes ?? '',
+          schemes: seedSchemes(slot, r.weeks),
+        })),
+      })),
     })),
   }
 }
 
 function dayComplete(day: BuilderDay) {
-  return (
-    day.exercises.length > 0 &&
-    day.exercises.every(e => e.exercise && e.reps.trim().length > 0 && e.sets >= 1)
-  )
+  return isDayComplete(day, startWeek.value)
 }
 
 function setDaysCount(n: number) {
@@ -140,6 +196,26 @@ function addDay() {
   activeDay.value = state.days.length - 1
 }
 
+// El día destino conserva su id: es la fila, no el contenido. Reusarla evita retirarla e insertar
+// otra por nada (y en edición sería un día vacío que ya existe en la DB).
+function duplicateDay() {
+  const source = currentDay.value
+  if (!source) return
+
+  const target = duplicateTarget.value
+  const clone = cloneDay(source, startWeek.value)
+
+  if (target >= 0) {
+    state.days[target] = { ...clone, id: state.days[target]?.id }
+    activeDay.value = target
+    return
+  }
+
+  if (state.days.length >= MAX_DAYS) return
+  state.days.push(clone)
+  activeDay.value = state.days.length - 1
+}
+
 function removeDay(index: number) {
   state.days.splice(index, 1)
   if (activeDay.value >= state.days.length) activeDay.value = Math.max(0, state.days.length - 1)
@@ -149,12 +225,56 @@ function selectDay(index: number) {
   activeDay.value = index
 }
 
-function addExercise() {
-  currentDay.value?.exercises.push(makeExercise())
+function addBlock() {
+  currentDay.value?.blocks.push(makeBlock(state.weeks, startWeek.value))
 }
 
-function removeExercise(exIndex: number) {
-  currentDay.value?.exercises.splice(exIndex, 1)
+function updateBlocks(update: (blocks: BuilderDay['blocks']) => BuilderDay['blocks']) {
+  const day = currentDay.value
+  if (day) day.blocks = update(day.blocks)
+}
+
+function moveBlock(from: number, to: number) {
+  updateBlocks(blocks => moveItem(blocks, from, to))
+}
+
+function submit() {
+  const payload: UpdateRoutine = {
+    name: state.name.trim(),
+    clientId: state.clientId || undefined,
+    daysPerWeek: state.days.length,
+    weeks: state.weeks,
+    notes: state.notes.trim() || undefined,
+    isTemplate: false,
+    activate: state.activate,
+    days: state.days.map(d => ({
+      id: d.id,
+      label: d.label.trim() || undefined,
+      blocks: d.blocks
+        .map(b => ({
+          id: b.id,
+          type: b.type,
+          notes: b.notes.trim() || undefined,
+          exercises: b.exercises
+            .filter(e => e.exercise)
+            .map(e => ({
+              id: e.id,
+              exerciseId: e.exercise!.id,
+              optional: e.optional,
+              notes: e.notes.trim() || undefined,
+              schemes: e.schemes.map(scheme => ({
+                weekNumber: scheme.weekNumber,
+                sets: scheme.sets,
+                reps: scheme.reps.trim(),
+                restSeconds: scheme.restSeconds ?? undefined,
+                notes: scheme.notes.trim() || undefined,
+              })),
+            })),
+        }))
+        .filter(b => b.exercises.length > 0),
+    })),
+  }
+  emit('submit', payload)
 }
 
 function next() {
@@ -164,37 +284,20 @@ function next() {
 function back() {
   if (currentStep.value > firstStep.value) currentStep.value -= 1
 }
-
-function submit() {
-  const payload: CreateRoutine = {
-    name: state.name.trim(),
-    clientId: state.clientId || undefined,
-    daysPerWeek: state.days.length,
-    weeks: state.weeks,
-    notes: state.notes.trim() || undefined,
-    isTemplate: false,
-    activate: state.activate,
-    days: state.days.map(d => ({
-      label: d.label.trim() || undefined,
-      exercises: d.exercises
-        .filter(e => e.exercise)
-        .map(e => ({
-          exerciseId: e.exercise!.id,
-          sets: e.sets,
-          reps: e.reps.trim(),
-          restSeconds: e.restSeconds ?? undefined,
-          optional: e.optional,
-          notes: e.notes.trim() || undefined,
-        })),
-    })),
-  }
-  emit('submit', payload)
-}
 </script>
 
 <template>
   <div class="space-y-6">
     <UStepper :items="steps" v-model="currentStep" disabled class="w-full" />
+
+    <UAlert
+      v-if="hasWorkouts"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-history"
+      :title="t('routines.wizard.inProgressTitle')"
+      :description="t('routines.wizard.inProgressHint', { week: startWeek })"
+    />
 
     <!-- Copiar rutina y crear desde template todavía no están disponibles -->
     <div v-if="currentStep === 0" class="grid gap-3 sm:grid-cols-3">
@@ -343,14 +446,14 @@ function submit() {
               class="w-full"
             />
           </UFormField>
-          <!-- Duplicar día llega con el builder completo -->
           <UButton
             :label="t('routines.builder.duplicateDay')"
             icon="i-lucide-copy"
             color="neutral"
             variant="ghost"
             size="sm"
-            disabled
+            :disabled="!canDuplicateDay"
+            @click="duplicateDay"
           />
           <UButton
             v-if="state.days.length > 1"
@@ -364,25 +467,44 @@ function submit() {
         </div>
 
         <BaseEmptyState
-          v-if="currentDay.exercises.length === 0"
+          v-if="currentDay.blocks.length === 0"
           :message="t('routines.builder.emptyDay')"
         />
-        <RoutineBuilderExercise
-          v-for="(exercise, i) in currentDay.exercises"
-          :key="i"
-          :exercise
-          :index="i"
-          :weeks="state.weeks"
-          :options="exercises"
-          @remove="removeExercise(i)"
-        />
+        <!-- Contenedor propio: hermanado con el botón de abajo, Sortable lo dejaría arrastrar. -->
+        <div v-else ref="blocksEl" class="space-y-4">
+          <RoutineBuilderBlock
+            v-for="(block, i) in currentDay.blocks"
+            :key="i"
+            :block
+            :index="i"
+            :total="currentDay.blocks.length"
+            :weeks="state.weeks"
+            :start-week="startWeek"
+            :options="exercises"
+            @remove="updateBlocks(blocks => blocks.toSpliced(i, 1))"
+            @remove-exercise="ei => updateBlocks(blocks => removeExerciseAt(blocks, i, ei))"
+            @add-exercise="
+              updateBlocks(blocks =>
+                addExerciseToBlock(blocks, i, makeExercise(state.weeks, startWeek)),
+              )
+            "
+            @group="updateBlocks(blocks => groupWithNext(blocks, i))"
+            @move="to => moveBlock(i, to)"
+            @set-type="
+              type =>
+                updateBlocks(blocks =>
+                  setBlockType(blocks, i, type, makeExercise(state.weeks, startWeek)),
+                )
+            "
+          />
+        </div>
 
         <UButton
-          :label="t('routines.builder.addExercise')"
+          :label="t('routines.builder.addBlock')"
           icon="i-lucide-plus"
           color="neutral"
           variant="outline"
-          @click="addExercise"
+          @click="addBlock"
         />
       </div>
     </div>

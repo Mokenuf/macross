@@ -3,16 +3,22 @@ import { routineSchema, updateRoutineSchema } from '@macross/shared'
 
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 
-// Ids internos del árbol viejo a retirar. La query cruda sale `any` (el auto-tipado de Database de
-// @nuxtjs/supabase no aguanta el typecheck — bug nuxt-modules/supabase#535), así que afirmamos el
-// shape con toCamelCase como en toda la codebase. No es contrato al cliente → sin Zod.
-type OldTree = {
-  id: string
-  routineDays: {
-    id: string
-    routineBlocks: { id: string; routineExercises: { id: string }[] }[]
-  }[]
-}
+const oldTreeSelect = `
+  id,
+  days:routine_days(
+    id, day_number, label,
+    blocks:routine_blocks(
+      id, type, sort_order, notes,
+      exercises:routine_exercises(
+        id, exercise_id, optional, notes,
+        schemes:routine_exercise_schemes(
+          id, week_number, sets, reps, rest_seconds, notes,
+          logs:workout_logs(completed, deleted_at)
+        )
+      )
+    )
+  )
+`
 
 export default defineEventHandler(async (event): Promise<Routine> => {
   const user = await serverSupabaseUser(event)
@@ -24,53 +30,33 @@ export default defineEventHandler(async (event): Promise<Routine> => {
   const body = await readValidatedBody<UpdateRoutine>(event, updateRoutineSchema.parse)
   const client = await serverSupabaseClient(event)
 
-  // Ids del árbol viejo (vivos) para retirarlo tras insertar el nuevo. RLS gatea la pertenencia.
   const { data: existing, error: fetchError } = await client
     .from('routines')
-    .select('id, routine_days(id, routine_blocks(id, routine_exercises(id)))')
+    .select(oldTreeSelect)
     .eq('nano_id', nanoId)
     .is('deleted_at', null)
-    .is('routine_days.deleted_at', null)
-    .is('routine_days.routine_blocks.deleted_at', null)
-    .is('routine_days.routine_blocks.routine_exercises.deleted_at', null)
+    .is('days.deleted_at', null)
+    .is('days.blocks.deleted_at', null)
+    .is('days.blocks.exercises.deleted_at', null)
+    .order('day_number', { referencedTable: 'days' })
+    .order('sort_order', { referencedTable: 'days.blocks' })
     .single()
 
   if (fetchError || !existing) {
     throw createError({ statusCode: 404, statusMessage: 'Rutina no encontrada' })
   }
 
-  const tree = toCamelCase<OldTree>(existing)
-  const oldDayIds = tree.routineDays.map(d => d.id)
-  const oldBlockIds = tree.routineDays.flatMap(d => d.routineBlocks.map(b => b.id))
-  const oldSlotIds = tree.routineDays.flatMap(d =>
-    d.routineBlocks.flatMap(b => b.routineExercises.map(s => s.id)),
-  )
+  const old = toCamelCase<OldRoutineTree>(existing)
+  const startWeek = findStartWeek(old, body.weeks)
+  const plan = diffRoutineTree(body, old, startWeek)
 
-  const { dayRows, blockRows, slotRows, schemeRows } = buildRoutineTree(body, tree.id)
-  const newDayIds = dayRows.map(d => d.id)
-
-  // Rollback del árbol nuevo (recién insertado, aún sin logs): el cascade limpia todo lo colgado.
-  // La rutina vieja queda intacta porque todavía no la retiramos.
-  async function abortNewTree(statusCode: number, message: string): Promise<never> {
-    await client.from('routine_days').delete().in('id', newDayIds)
-    throw createError({ statusCode, statusMessage: message })
+  async function run(label: string, op: PromiseLike<{ error: { message?: string } | null }>) {
+    const { error } = await op
+    if (error) throw createError({ statusCode: 500, statusMessage: error.message ?? label })
   }
 
-  const { error: daysError } = await client.from('routine_days').insert(dayRows)
-  if (daysError) await abortNewTree(500, daysError.message ?? 'Error al crear los días')
-
-  const { error: blocksError } = await client.from('routine_blocks').insert(blockRows)
-  if (blocksError) await abortNewTree(500, blocksError.message ?? 'Error al crear los bloques')
-
-  const { error: slotsError } = await client.from('routine_exercises').insert(slotRows)
-  if (slotsError) await abortNewTree(500, slotsError.message ?? 'Error al crear los ejercicios')
-
-  const { error: schemesError } = await client.from('routine_exercise_schemes').insert(schemeRows)
-  if (schemesError)
-    await abortNewTree(500, schemesError.message ?? 'Error al crear la prescripción')
-
-  // Escalares: última operación reversible antes del cutover. Si falla (ej: 23505 al reasignar a
-  // un cliente que ya tiene rutina activa), se revierte el árbol nuevo y la vieja queda intacta.
+  // Los escalares van primero porque son lo único que puede fallar por conflicto (23505 al reasignar
+  // a un cliente que ya tiene activa): si revienta, el árbol todavía no se tocó.
   const { data: updated, error: updateError } = await client
     .from('routines')
     .update({
@@ -81,25 +67,88 @@ export default defineEventHandler(async (event): Promise<Routine> => {
       notes: body.notes ?? null,
       is_template: body.isTemplate,
     })
-    .eq('id', tree.id)
+    .eq('id', old.id)
     .select()
     .single()
 
   if (updateError || !updated) {
     if (updateError?.code === '23505')
-      await abortNewTree(409, 'El cliente ya tiene una rutina activa')
-    await abortNewTree(500, updateError?.message ?? 'Error al actualizar la rutina')
+      throw createError({ statusCode: 409, statusMessage: 'El cliente ya tiene una rutina activa' })
+    throw createError({
+      statusCode: 500,
+      statusMessage: updateError?.message ?? 'Error al actualizar la rutina',
+    })
   }
 
-  // Retiro del árbol viejo (soft-delete). Los días al final = cutover atómico de visibilidad (el
-  // read filtra days.deleted_at). Las schemes viejas NO se tocan: sostienen los workout_logs.
+  if (plan.blockTempShift.length)
+    await run(
+      'Error al reordenar los bloques',
+      client.from('routine_blocks').upsert(plan.blockTempShift),
+    )
+
+  if (plan.slotTempShift.length)
+    await run(
+      'Error al reordenar los ejercicios',
+      client.from('routine_exercises').upsert(plan.slotTempShift),
+    )
+
+  if (plan.dayInserts.length)
+    await run('Error al crear los días', client.from('routine_days').insert(plan.dayInserts))
+
+  if (plan.blockInserts.length)
+    await run('Error al crear los bloques', client.from('routine_blocks').insert(plan.blockInserts))
+
+  if (plan.slotInserts.length)
+    await run(
+      'Error al crear los ejercicios',
+      client.from('routine_exercises').insert(plan.slotInserts),
+    )
+
+  if (plan.schemeInserts.length)
+    await run(
+      'Error al crear la prescripción',
+      client.from('routine_exercise_schemes').insert(plan.schemeInserts),
+    )
+
+  if (plan.blockUpdates.length)
+    await run(
+      'Error al reordenar los bloques',
+      client.from('routine_blocks').upsert(plan.blockUpdates),
+    )
+
+  // Retiro al final: hasta acá todo lo nuevo ya existe, así que una falla deja duplicados visibles
+  // (recuperable volviendo a guardar) en vez de un día sin ejercicios.
   const now = new Date().toISOString()
-  if (oldSlotIds.length > 0)
-    await client.from('routine_exercises').update({ deleted_at: now }).in('id', oldSlotIds)
-  if (oldBlockIds.length > 0)
-    await client.from('routine_blocks').update({ deleted_at: now }).in('id', oldBlockIds)
-  if (oldDayIds.length > 0)
-    await client.from('routine_days').update({ deleted_at: now }).in('id', oldDayIds)
+  if (plan.retireSlotIds.length)
+    await run(
+      'Error al retirar ejercicios',
+      client.from('routine_exercises').update({ deleted_at: now }).in('id', plan.retireSlotIds),
+    )
+  if (plan.retireBlockIds.length)
+    await run(
+      'Error al retirar bloques',
+      client.from('routine_blocks').update({ deleted_at: now }).in('id', plan.retireBlockIds),
+    )
+  if (plan.retireDayIds.length)
+    await run(
+      'Error al retirar días',
+      client.from('routine_days').update({ deleted_at: now }).in('id', plan.retireDayIds),
+    )
+
+  if (plan.dayUpdates.length)
+    await run('Error al actualizar los días', client.from('routine_days').upsert(plan.dayUpdates))
+
+  if (plan.slotUpdates.length)
+    await run(
+      'Error al actualizar los ejercicios',
+      client.from('routine_exercises').upsert(plan.slotUpdates),
+    )
+
+  if (plan.schemeUpdates.length)
+    await run(
+      'Error al actualizar la prescripción',
+      client.from('routine_exercise_schemes').upsert(plan.schemeUpdates),
+    )
 
   const routine = routineSchema.parse(toCamelCase<Routine>(updated))
 

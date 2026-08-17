@@ -1,5 +1,7 @@
 export * from './exercise-transform'
 export * from './generate-slug'
 export * from './parse-pivot'
+export * from './routine-diff'
+export * from './routine-transform'
 export * from './routine-tree'
 export * from './to-camel-case'
