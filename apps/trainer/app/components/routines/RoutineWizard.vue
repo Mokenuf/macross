@@ -2,9 +2,9 @@
 import {
   type BaseResponse,
   type Client,
-  type CreateRoutine,
   type Exercise,
   type Routine,
+  type UpdateRoutine,
 } from '@macross/shared'
 
 import type { BuilderDay, BuilderExercise, RoutineBuilderState } from '@/types/routine-builder'
@@ -15,7 +15,7 @@ interface RoutineWizardProps {
 }
 
 interface RoutineWizardEmits {
-  submit: [CreateRoutine]
+  submit: [UpdateRoutine]
 }
 
 const { loading = false, routine } = defineProps<RoutineWizardProps>()
@@ -88,9 +88,9 @@ function makeExercise(): BuilderExercise {
   return { exercise: null, sets: 3, reps: '', restSeconds: null, optional: false, notes: '' }
 }
 
-// Edición = full-replace flat: se aplanan los bloques (cada slot → fila suelta) y se toma la
-// prescripción de la semana 1 (en el modelo flat las N semanas nacen iguales). La progresión por
-// semana no sobrevive a este colapso — lo preserva el editor de matriz por semana del builder completo.
+// Edición: se aplanan los bloques (cada slot → fila suelta) y se toma la prescripción de la semana 1
+// (en el modelo flat las N semanas nacen iguales). La progresión por semana no sobrevive a este
+// colapso — lo preserva el editor de matriz por semana del builder completo.
 function seedFromRoutine(r: Routine): RoutineBuilderState {
   return {
     name: r.name,
@@ -99,11 +99,13 @@ function seedFromRoutine(r: Routine): RoutineBuilderState {
     notes: r.notes ?? '',
     activate: r.active,
     days: (r.days ?? []).map(d => ({
+      id: d.id,
       label: d.label ?? '',
       exercises: d.blocks.flatMap(block =>
         block.exercises.map(slot => {
           const week1 = slot.schemes.find(s => s.weekNumber === 1) ?? slot.schemes[0]
           return {
+            id: slot.id,
             exercise: {
               id: slot.exercise.id,
               nameEs: slot.exercise.nameEs,
@@ -166,7 +168,7 @@ function back() {
 }
 
 function submit() {
-  const payload: CreateRoutine = {
+  const payload: UpdateRoutine = {
     name: state.name.trim(),
     clientId: state.clientId || undefined,
     daysPerWeek: state.days.length,
@@ -175,10 +177,12 @@ function submit() {
     isTemplate: false,
     activate: state.activate,
     days: state.days.map(d => ({
+      id: d.id,
       label: d.label.trim() || undefined,
       exercises: d.exercises
         .filter(e => e.exercise)
         .map(e => ({
+          id: e.id,
           exerciseId: e.exercise!.id,
           sets: e.sets,
           reps: e.reps.trim(),

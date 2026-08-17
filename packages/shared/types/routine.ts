@@ -111,7 +111,21 @@ export const createRoutineSchema = z.object({
   days: z.array(createRoutineDaySchema).min(1),
 })
 
-export const updateRoutineSchema = createRoutineSchema.extend({})
+// Los ids dejan que el PATCH empareje filas vivas en vez de reemplazar el árbol (así los
+// workout_logs siguen colgando de schemes vivas); ausente = fila nueva. Los bloques no viajan: el
+// builder flat no los tiene como concepto y el server los resuelve por el slot.
+export const updateRoutineExerciseSchema = createRoutineExerciseSchema.extend({
+  id: z.uuid().optional(),
+})
+
+export const updateRoutineDaySchema = createRoutineDaySchema.extend({
+  id: z.uuid().optional(),
+  exercises: z.array(updateRoutineExerciseSchema).default([]),
+})
+
+export const updateRoutineSchema = createRoutineSchema.extend({
+  days: z.array(updateRoutineDaySchema).min(1),
+})
 
 export const routineStatusSchema = z.enum(['all', 'active', 'inactive']).default('active')
 
@@ -132,6 +146,9 @@ export type Routine = z.infer<typeof routineSchema>
 export type CreateRoutineExercise = z.infer<typeof createRoutineExerciseSchema>
 export type CreateRoutineDay = z.infer<typeof createRoutineDaySchema>
 export type CreateRoutine = z.infer<typeof createRoutineSchema>
+
+export type UpdateRoutineExercise = z.infer<typeof updateRoutineExerciseSchema>
+export type UpdateRoutineDay = z.infer<typeof updateRoutineDaySchema>
 export type UpdateRoutine = z.infer<typeof updateRoutineSchema>
 
 export type RoutineStatus = z.infer<typeof routineStatusSchema>

@@ -9,11 +9,13 @@ import { describe, expect, it } from 'vitest'
 
 import {
   completedSetCount,
+  dayExercises,
   findPlanCursor,
   isDayDone,
   isExerciseDone,
   isWeekDone,
   schemeForWeek,
+  weekBlocks,
 } from '../../app/utils/workout-progress'
 
 const UUID = '00000000-0000-4000-8000-000000000000'
@@ -115,13 +117,33 @@ function makeRoutine(days: RoutineDay[], weeks = 4): Routine {
   }
 }
 
-// Cuatro semanas prescriptas de 3 series; `donePerWeek` dice cuántas quedaron hechas en cada una.
-function exerciseWithWeeks(donePerWeek: number[], optional = false) {
+// Semanas prescriptas de 3 series; el valor dice cuántas quedaron hechas, y `null` = sin prescripción.
+function exerciseWithWeeks(donePerWeek: (number | null)[], optional = false) {
   return makeExercise(
-    donePerWeek.map((done, i) => makeScheme(i + 1, 3, done)),
+    donePerWeek.flatMap((done, i) => (done === null ? [] : [makeScheme(i + 1, 3, done)])),
     optional,
   )
 }
+
+describe('weekBlocks', () => {
+  it('deja afuera los ejercicios sin prescripción para esa semana', () => {
+    const day = makeDay(1, [
+      exerciseWithWeeks([3, 3, null, null]),
+      exerciseWithWeeks([null, null, 0, 0]),
+    ])
+
+    expect(dayExercises(day, 1)).toHaveLength(1)
+    expect(dayExercises(day, 3)).toHaveLength(1)
+    expect(dayExercises(day, 1)[0]).not.toBe(dayExercises(day, 3)[0])
+  })
+
+  it('descarta el bloque que se queda sin ejercicios', () => {
+    const day = makeDay(1, [exerciseWithWeeks([null, null, 0, 0])])
+
+    expect(weekBlocks(day, 1)).toEqual([])
+    expect(weekBlocks(day, 3)).toHaveLength(1)
+  })
+})
 
 describe('schemeForWeek', () => {
   it('devuelve null si la semana no tiene prescripción, sin caer a otra', () => {
@@ -187,6 +209,16 @@ describe('isDayDone', () => {
   it('un día sin ejercicios cuenta como hecho', () => {
     expect(isDayDone(makeDay(1, []), 1)).toBe(true)
   })
+
+  it('un ejercicio sin prescripción para esa semana no la traba', () => {
+    const day = makeDay(1, [
+      exerciseWithWeeks([3, 3, null, null]),
+      exerciseWithWeeks([null, null, 0, 0]),
+    ])
+
+    expect(isDayDone(day, 1)).toBe(true)
+    expect(isDayDone(day, 3)).toBe(false)
+  })
 })
 
 describe('isWeekDone', () => {
@@ -235,6 +267,16 @@ describe('findPlanCursor', () => {
     const routine = makeRoutine([makeDay(1, [exerciseWithWeeks([3, 3])])], 2)
 
     expect(findPlanCursor(routine)).toBeNull()
+  })
+
+  // Es la propiedad que hace seguro cambiar un ejercicio a mitad de fase: el slot nuevo no tiene
+  // prescripción para las semanas cerradas, así que no puede tirar el cursor para atrás.
+  it('un ejercicio que arranca en una semana posterior no vuelve atrás el cursor', () => {
+    const routine = makeRoutine([
+      makeDay(1, [exerciseWithWeeks([3, 3, 0, 0]), exerciseWithWeeks([null, null, 0, 0])]),
+    ])
+
+    expect(findPlanCursor(routine)).toMatchObject({ week: 3 })
   })
 
   it('devuelve null si no hay rutina', () => {

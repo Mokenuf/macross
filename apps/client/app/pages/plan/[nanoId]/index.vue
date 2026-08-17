@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { RoutineBlock } from '@macross/shared'
-
 const route = useRoute()
 const { t } = useI18n()
 
@@ -16,7 +14,8 @@ const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.va
 const heroTitle = computed(() =>
   day.value ? (day.value.label ?? t('plan.dayLabel', { number: day.value.dayNumber })) : '',
 )
-const exercises = computed(() => (day.value ? dayExercises(day.value) : []))
+const blocks = computed(() => (day.value ? weekBlocks(day.value, week.value) : []))
+const exercises = computed(() => blocks.value.flatMap(block => block.exercises))
 
 // El ejercicio en curso es el primero con series pendientes, no el primero de la lista.
 const nextExercise = computed(
@@ -31,8 +30,7 @@ function blockLetter(index: number): string {
   return String.fromCharCode(65 + index)
 }
 
-function exercisesText(blocks: RoutineBlock[]): string {
-  const count = blocks.reduce((sum, block) => sum + block.exercises.length, 0)
+function exercisesText(count: number): string {
   return count === 1 ? t('plan.exerciseOne', { count }) : t('plan.exerciseMany', { count })
 }
 </script>
@@ -53,7 +51,7 @@ function exercisesText(blocks: RoutineBlock[]): string {
           {{ t('plan.weekShort', { number: week }) }}
         </p>
         <h1 class="font-logo text-4xl leading-none tracking-wide uppercase">{{ heroTitle }}</h1>
-        <p class="text-muted pt-1 text-sm">{{ exercisesText(day.blocks) }}</p>
+        <p class="text-muted pt-1 text-sm">{{ exercisesText(exercises.length) }}</p>
       </template>
     </div>
 
@@ -71,7 +69,7 @@ function exercisesText(blocks: RoutineBlock[]): string {
 
     <template v-else>
       <div class="space-y-3 pt-1 pb-2">
-        <template v-for="(block, bi) in day.blocks" :key="block.id">
+        <template v-for="(block, bi) in blocks" :key="block.id">
           <div
             v-if="block.type !== 'single'"
             class="ring-accented overflow-hidden rounded-md ring-1"

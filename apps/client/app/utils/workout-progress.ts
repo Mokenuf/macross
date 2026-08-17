@@ -1,7 +1,19 @@
 import type { Routine, RoutineDay, RoutineExercise } from '@macross/shared'
 
-export function dayExercises(day: RoutineDay) {
-  return day.blocks.flatMap(block => block.exercises)
+// Un ejercicio sin prescripción para esa semana no pertenece a esa semana: no se muestra ni la
+// traba. Es lo que deja que un ejercicio cambiado a mitad de fase arranque en la semana en curso
+// sin volver "incompletas" las semanas que el cliente ya cerró.
+export function weekBlocks(day: RoutineDay, week: number) {
+  return day.blocks
+    .map(block => ({
+      ...block,
+      exercises: block.exercises.filter(exercise => schemeForWeek(exercise, week)),
+    }))
+    .filter(block => block.exercises.length > 0)
+}
+
+export function dayExercises(day: RoutineDay, week: number) {
+  return weekBlocks(day, week).flatMap(block => block.exercises)
 }
 
 // Sin fallback a otra semana: los logs irían contra sus filas y le pisarían el historial.
@@ -20,7 +32,7 @@ export function isExerciseDone(exercise: RoutineExercise, week: number) {
 }
 
 export function isDayDone(day: RoutineDay, week: number) {
-  const exercises = dayExercises(day)
+  const exercises = dayExercises(day, week)
   if (!exercises.length) return true
 
   // Un opcional sin hacer no traba el día; si fueran todos opcionales, nacería "completado".

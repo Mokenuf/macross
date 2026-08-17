@@ -7,6 +7,7 @@ export interface BuilderExerciseRef {
 }
 
 export interface BuilderExercise {
+  id?: string
   exercise: BuilderExerciseRef | null
   sets: number
   reps: string
@@ -16,6 +17,7 @@ export interface BuilderExercise {
 }
 
 export interface BuilderDay {
+  id?: string
   label: string
   exercises: BuilderExercise[]
 }

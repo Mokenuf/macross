@@ -14,7 +14,7 @@ const { currentWeek, isPhaseDone, setWeek, suggestedDay, week } = usePlanCursor(
 useHead({ title: t('plan.title') })
 
 function exercisesText(day: RoutineDay): string {
-  const count = dayExercises(day).length
+  const count = dayExercises(day, week.value).length
   return count === 1 ? t('plan.exerciseOne', { count }) : t('plan.exerciseMany', { count })
 }
 
