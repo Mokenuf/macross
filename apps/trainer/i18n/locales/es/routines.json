@@ -81,7 +81,7 @@
       "activate": "Activar esta rutina",
       "activateHint": "Al activar se desactiva la rutina activa actual del cliente (una activa por cliente).",
       "inProgressTitle": "Esta fase ya está en curso",
-      "inProgressHint": "El cliente registró entrenamientos. Los cambios que hagas aplican desde la semana {week}; lo anterior queda como está."
+      "inProgressHint": "El cliente ya registró series: las celdas que entrenó quedan bloqueadas. Lo que agregues o cambies aplica desde la semana {week}."
     },
     "form": {
       "client": "Cliente",
@@ -116,7 +116,13 @@
       "repsPlaceholder": "12",
       "rest": "Descanso (seg)",
       "restPlaceholder": "90",
-      "optional": "Opcional"
+      "optional": "Opcional",
+      "cellHeader": "Editando · {name} · Sem {n}",
+      "cellDone": "Listo",
+      "applyToRest": "Aplicar a las siguientes",
+      "lockedTrained": "El cliente ya registró series acá",
+      "lockedPast": "Semana ya cerrada",
+      "notApplicable": "Este ejercicio arranca en la semana {n}"
     },
     "toasts": {
       "created": "Rutina creada",

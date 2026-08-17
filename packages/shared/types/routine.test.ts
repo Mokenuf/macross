@@ -4,16 +4,19 @@ import { blockTypeEnum } from './enums'
 import {
   createRoutineExerciseSchema,
   createRoutineSchema,
+  createRoutineSchemeSchema,
   routineQueryParamsSchema,
   routineStatusSchema,
 } from './routine'
 
 const uuid = '123e4567-e89b-12d3-a456-426614174000'
 
+const scheme = { weekNumber: 1, sets: 4, reps: '12' }
+
 const validCreate = {
   name: 'Fase 1',
   daysPerWeek: 2,
-  days: [{ label: 'Día 1', exercises: [{ exerciseId: uuid, sets: 4, reps: '12' }] }],
+  days: [{ label: 'Día 1', exercises: [{ exerciseId: uuid, schemes: [scheme] }] }],
 }
 
 describe('createRoutineSchema', () => {
@@ -80,36 +83,55 @@ describe('createRoutineSchema', () => {
 })
 
 describe('createRoutineExerciseSchema', () => {
-  it('coerce sets y rechaza < 1', () => {
-    expect(
-      createRoutineExerciseSchema.safeParse({ exerciseId: uuid, sets: '4', reps: '12' }).success,
-    ).toBe(true)
-    expect(
-      createRoutineExerciseSchema.safeParse({ exerciseId: uuid, sets: 0, reps: '12' }).success,
-    ).toBe(false)
-  })
-
-  it('rechaza reps vacío', () => {
-    expect(
-      createRoutineExerciseSchema.safeParse({ exerciseId: uuid, sets: 4, reps: '' }).success,
-    ).toBe(false)
-  })
-
-  it('coerce restSeconds de string a number', () => {
+  it('parsea una prescripción distinta por semana', () => {
     const result = createRoutineExerciseSchema.safeParse({
       exerciseId: uuid,
-      sets: 4,
-      reps: '12',
-      restSeconds: '90',
+      schemes: [
+        { weekNumber: 1, sets: 3, reps: '10' },
+        { weekNumber: 4, sets: 4, reps: '8', restSeconds: 120, notes: 'bajar el peso' },
+      ],
     })
     expect(result.success).toBe(true)
-    if (result.success) expect(result.data.restSeconds).toBe(90)
+    if (result.success) {
+      expect(result.data.schemes.map(s => s.weekNumber)).toEqual([1, 4])
+      expect(result.data.schemes[1].notes).toBe('bajar el peso')
+    }
+  })
+
+  it('requiere al menos una semana', () => {
+    expect(createRoutineExerciseSchema.safeParse({ exerciseId: uuid, schemes: [] }).success).toBe(
+      false,
+    )
   })
 
   it('aplica optional default false', () => {
-    const result = createRoutineExerciseSchema.safeParse({ exerciseId: uuid, sets: 4, reps: '12' })
+    const result = createRoutineExerciseSchema.safeParse({ exerciseId: uuid, schemes: [scheme] })
     expect(result.success).toBe(true)
     if (result.success) expect(result.data.optional).toBe(false)
+  })
+})
+
+describe('createRoutineSchemeSchema', () => {
+  it('coerce weekNumber y rechaza < 1', () => {
+    const result = createRoutineSchemeSchema.safeParse({ ...scheme, weekNumber: '2' })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.weekNumber).toBe(2)
+    expect(createRoutineSchemeSchema.safeParse({ ...scheme, weekNumber: 0 }).success).toBe(false)
+  })
+
+  it('coerce sets y rechaza < 1', () => {
+    expect(createRoutineSchemeSchema.safeParse({ ...scheme, sets: '4' }).success).toBe(true)
+    expect(createRoutineSchemeSchema.safeParse({ ...scheme, sets: 0 }).success).toBe(false)
+  })
+
+  it('rechaza reps vacío', () => {
+    expect(createRoutineSchemeSchema.safeParse({ ...scheme, reps: '' }).success).toBe(false)
+  })
+
+  it('coerce restSeconds de string a number', () => {
+    const result = createRoutineSchemeSchema.safeParse({ ...scheme, restSeconds: '90' })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.restSeconds).toBe(90)
   })
 })
 

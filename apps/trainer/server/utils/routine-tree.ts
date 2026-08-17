@@ -1,8 +1,8 @@
 import type { CreateRoutine } from '@macross/shared'
 
 // Desarme del builder flat → árbol: cada ejercicio del día es un bloque `single` con un único
-// slot, y su prescripción se replica en N schemes idénticas (una por semana). Los ids se generan
-// acá para correlacionar padre↔hijo sin depender del orden de vuelta de los batch inserts.
+// slot, y su prescripción viaja por semana. Los ids se generan acá para correlacionar padre↔hijo
+// sin depender del orden de vuelta de los batch inserts.
 export function buildRoutineTree(body: CreateRoutine, routineId: string) {
   const days = body.days.map((day, i) => ({
     id: crypto.randomUUID(),
@@ -44,15 +44,22 @@ export function buildRoutineTree(body: CreateRoutine, routineId: string) {
     notes: s.exercise.notes ?? null,
   }))
 
+  // Se recorre el rango de semanas y se busca la prescripción, en vez de mapear el array del body:
+  // así una semana fuera de rango o repetida no puede llegar a la DB sin validarla en el schema.
   const schemeRows = slots.flatMap(s =>
-    Array.from({ length: body.weeks }, (_, w) => ({
-      routine_exercise_id: s.slotId,
-      week_number: w + 1,
-      sets: s.exercise.sets,
-      reps: s.exercise.reps,
-      rest_seconds: s.exercise.restSeconds ?? null,
-      notes: null,
-    })),
+    Array.from({ length: body.weeks }, (_, w) => w + 1).flatMap(week => {
+      const scheme = s.exercise.schemes.find(candidate => candidate.weekNumber === week)
+      if (!scheme) return []
+
+      return {
+        routine_exercise_id: s.slotId,
+        week_number: week,
+        sets: scheme.sets,
+        reps: scheme.reps,
+        rest_seconds: scheme.restSeconds ?? null,
+        notes: scheme.notes ?? null,
+      }
+    }),
   )
 
   return { dayRows, blockRows, slotRows, schemeRows }

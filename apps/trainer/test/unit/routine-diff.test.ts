@@ -68,8 +68,16 @@ function makeBody(days: unknown[], weeks = 4): UpdateRoutine {
   })
 }
 
+function weekInput(weekNumber: number, overrides: Record<string, unknown> = {}) {
+  return { weekNumber, sets: 3, reps: '10', restSeconds: 120, ...overrides }
+}
+
 function exerciseInput(overrides: Record<string, unknown> = {}) {
-  return { exerciseId: EX_1, sets: 3, reps: '10', restSeconds: 120, ...overrides }
+  return {
+    exerciseId: EX_1,
+    schemes: [weekInput(1), weekInput(2), weekInput(3), weekInput(4)],
+    ...overrides,
+  }
 }
 
 describe('findStartWeek', () => {
@@ -155,6 +163,90 @@ describe('diffRoutineTree', () => {
     expect(plan.schemeInserts).toEqual([])
   })
 
+  it('aterriza la prescripción de cada semana en su propia scheme', () => {
+    const untrained = makeTree([
+      makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [0, 0, 0, 0]))]),
+    ])
+    const body = makeBody([
+      {
+        id: DAY_1,
+        exercises: [
+          exerciseInput({
+            id: SLOT_A,
+            schemes: [
+              weekInput(1, { sets: 3, reps: '12' }),
+              weekInput(2, { sets: 3, reps: '10' }),
+              weekInput(3, { sets: 4, reps: '8' }),
+              weekInput(4, { sets: 5, reps: '6', restSeconds: 180 }),
+            ],
+          }),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, untrained, 1)
+
+    expect(plan.schemeUpdates.map(s => [s.week_number, s.sets, s.reps])).toEqual([
+      [1, 3, '12'],
+      [2, 3, '10'],
+      [3, 4, '8'],
+      [4, 5, '6'],
+    ])
+    expect(plan.schemeUpdates.at(-1)?.rest_seconds).toBe(180)
+  })
+
+  // El bloqueo es por celda y no por semana: el picker de /plan deja al cliente registrar series en
+  // cualquier semana, así que "ya entrenado" no coincide con "anterior al cursor".
+  it('no reescribe una celda que el cliente ya entrenó', () => {
+    const trained = makeTree([
+      makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 3, 1, 0]))]),
+    ])
+    const body = makeBody([{ id: DAY_1, exercises: [exerciseInput({ id: SLOT_A })] }])
+    const plan = diffRoutineTree(body, trained, 3)
+
+    expect(plan.schemeUpdates.map(s => s.week_number)).toEqual([4])
+    expect(plan.schemeInserts).toEqual([])
+  })
+
+  it('una serie desmarcada no cierra la celda', () => {
+    const slot = makeSlot(SLOT_A, EX_1, [0, 0, 0, 0])
+    slot.schemes[2]!.logs = [{ completed: false, deletedAt: null }]
+
+    const body = makeBody([{ id: DAY_1, exercises: [exerciseInput({ id: SLOT_A })] }])
+    const plan = diffRoutineTree(
+      body,
+      makeTree([makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, slot)])]),
+      3,
+    )
+
+    expect(plan.schemeUpdates.map(s => s.week_number)).toEqual([3, 4])
+  })
+
+  // Los schemes sostienen los workout_logs y no se borran, así que una semana ausente en el body no
+  // se puede desprescribir: queda como está.
+  it('una semana que el body no trae no se toca', () => {
+    const body = makeBody([
+      { id: DAY_1, exercises: [exerciseInput({ id: SLOT_A, schemes: [weekInput(3)] })] },
+    ])
+    const plan = diffRoutineTree(body, tree, 3)
+
+    expect(plan.schemeUpdates.map(s => s.week_number)).toEqual([3])
+    expect(plan.schemeInserts).toEqual([])
+  })
+
+  it('la nota de la semana la manda el body, no la scheme vieja', () => {
+    const body = makeBody([
+      {
+        id: DAY_1,
+        exercises: [
+          exerciseInput({ id: SLOT_A, schemes: [weekInput(3, { notes: 'Semana de descarga' })] }),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, tree, 3)
+
+    expect(plan.schemeUpdates[0]?.notes).toBe('Semana de descarga')
+  })
+
   it('crea las schemes que falten dentro del rango de semanas', () => {
     const partial = makeTree([
       makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 3, null, null]))]),
@@ -204,6 +296,7 @@ describe('diffRoutineTree', () => {
     expect(plan.retireSlotIds).toEqual([])
     expect(plan.blockInserts).toHaveLength(1)
     expect(plan.blockInserts[0]).toMatchObject({ routine_day_id: DAY_1, sort_order: 2 })
+    expect(plan.schemeInserts.map(s => s.week_number)).toEqual([3, 4])
   })
 
   it('sacar un ejercicio retira su slot y su bloque, y renumera el resto', () => {
