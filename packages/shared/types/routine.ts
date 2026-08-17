@@ -80,6 +80,9 @@ export const routineSchema = z.object({
     .nullable()
     .optional(),
   days: z.array(routineDaySchema).optional(),
+  // Derivado, solo en el detalle: la primera semana sin cerrar. Es desde donde el PATCH aplica los
+  // cambios, y lo que el wizard avisa antes de dejar editar una fase ya empezada.
+  startWeek: z.number().int().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),

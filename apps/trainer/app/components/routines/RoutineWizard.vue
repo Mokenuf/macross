@@ -29,6 +29,15 @@ const DEFAULT_DAYS = 3
 const isEdit = computed(() => !!routine)
 const firstStep = computed(() => (isEdit.value ? 1 : 0))
 
+const startWeek = computed(() => routine?.startWeek ?? 1)
+const hasWorkouts = computed(() =>
+  (routine?.days ?? [])
+    .flatMap(day => day.blocks)
+    .flatMap(block => block.exercises)
+    .flatMap(slot => slot.schemes)
+    .some(scheme => scheme.logs?.length),
+)
+
 const currentStep = ref(routine ? 1 : 0)
 const activeDay = ref(0)
 
@@ -199,6 +208,15 @@ function submit() {
 <template>
   <div class="space-y-6">
     <UStepper :items="steps" v-model="currentStep" disabled class="w-full" />
+
+    <UAlert
+      v-if="hasWorkouts"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-history"
+      :title="t('routines.wizard.inProgressTitle')"
+      :description="t('routines.wizard.inProgressHint', { week: startWeek })"
+    />
 
     <!-- Copiar rutina y crear desde template todavía no están disponibles -->
     <div v-if="currentStep === 0" class="grid gap-3 sm:grid-cols-3">

@@ -1,6 +1,6 @@
 import type { UpdateRoutine } from '@macross/shared'
 
-export type OldLog = { completed: boolean; deletedAt: string | null }
+export type OldLog = { completed: boolean; deletedAt?: string | null }
 
 export type OldScheme = {
   id: string
@@ -9,7 +9,7 @@ export type OldScheme = {
   reps: string
   restSeconds: number | null
   notes: string | null
-  logs: OldLog[] | null
+  logs?: OldLog[] | null
 }
 
 export type OldSlot = {
