@@ -1,8 +1,7 @@
 import type { CreateRoutine } from '@macross/shared'
 
-// Desarme del builder flat → árbol: cada ejercicio del día es un bloque `single` con un único
-// slot, y su prescripción viaja por semana. Los ids se generan acá para correlacionar padre↔hijo
-// sin depender del orden de vuelta de los batch inserts.
+// Los ids se generan acá para correlacionar padre↔hijo sin depender del orden de vuelta de los
+// batch inserts.
 export function buildRoutineTree(body: CreateRoutine, routineId: string) {
   const days = body.days.map((day, i) => ({
     id: crypto.randomUUID(),
@@ -17,29 +16,37 @@ export function buildRoutineTree(body: CreateRoutine, routineId: string) {
     label: d.day.label ?? null,
   }))
 
-  const slots = days.flatMap(d =>
-    d.day.exercises.map((exercise, j) => ({
-      blockId: crypto.randomUUID(),
-      slotId: crypto.randomUUID(),
+  const blocks = days.flatMap(d =>
+    d.day.blocks.map((block, j) => ({
+      id: crypto.randomUUID(),
       dayId: d.id,
       sortOrder: j,
+      block,
+    })),
+  )
+
+  const blockRows = blocks.map(b => ({
+    id: b.id,
+    routine_day_id: b.dayId,
+    type: b.block.type,
+    sort_order: b.sortOrder,
+    notes: b.block.notes ?? null,
+  }))
+
+  const slots = blocks.flatMap(b =>
+    b.block.exercises.map((exercise, k) => ({
+      id: crypto.randomUUID(),
+      blockId: b.id,
+      sortOrder: k,
       exercise,
     })),
   )
 
-  const blockRows = slots.map(s => ({
-    id: s.blockId,
-    routine_day_id: s.dayId,
-    type: 'single' as const,
-    sort_order: s.sortOrder,
-    notes: null,
-  }))
-
   const slotRows = slots.map(s => ({
-    id: s.slotId,
+    id: s.id,
     routine_block_id: s.blockId,
     exercise_id: s.exercise.exerciseId,
-    sort_order: 0,
+    sort_order: s.sortOrder,
     optional: s.exercise.optional,
     notes: s.exercise.notes ?? null,
   }))
@@ -52,7 +59,7 @@ export function buildRoutineTree(body: CreateRoutine, routineId: string) {
       if (!scheme) return []
 
       return {
-        routine_exercise_id: s.slotId,
+        routine_exercise_id: s.id,
         week_number: week,
         sets: scheme.sets,
         reps: scheme.reps,

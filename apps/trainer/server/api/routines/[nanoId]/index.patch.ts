@@ -86,6 +86,12 @@ export default defineEventHandler(async (event): Promise<Routine> => {
       client.from('routine_blocks').upsert(plan.blockTempShift),
     )
 
+  if (plan.slotTempShift.length)
+    await run(
+      'Error al reordenar los ejercicios',
+      client.from('routine_exercises').upsert(plan.slotTempShift),
+    )
+
   if (plan.dayInserts.length)
     await run('Error al crear los días', client.from('routine_days').insert(plan.dayInserts))
 

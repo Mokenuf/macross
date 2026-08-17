@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { blockTypeEnum } from './enums'
 import {
+  createRoutineBlockSchema,
   createRoutineExerciseSchema,
   createRoutineSchema,
   createRoutineSchemeSchema,
@@ -16,7 +17,7 @@ const scheme = { weekNumber: 1, sets: 4, reps: '12' }
 const validCreate = {
   name: 'Fase 1',
   daysPerWeek: 2,
-  days: [{ label: 'Día 1', exercises: [{ exerciseId: uuid, schemes: [scheme] }] }],
+  days: [{ label: 'Día 1', blocks: [{ exercises: [{ exerciseId: uuid, schemes: [scheme] }] }] }],
 }
 
 describe('createRoutineSchema', () => {
@@ -75,10 +76,40 @@ describe('createRoutineSchema', () => {
     expect(createRoutineSchema.safeParse({ ...validCreate, days: [] }).success).toBe(false)
   })
 
-  it('un día sin exercises default-ea a []', () => {
+  it('un día sin blocks default-ea a []', () => {
     const result = createRoutineSchema.safeParse({ ...validCreate, days: [{ label: 'Día 1' }] })
     expect(result.success).toBe(true)
-    if (result.success) expect(result.data.days[0].exercises).toEqual([])
+    if (result.success) expect(result.data.days[0].blocks).toEqual([])
+  })
+})
+
+describe('createRoutineBlockSchema', () => {
+  const exercise = { exerciseId: uuid, schemes: [scheme] }
+
+  it('aplica type default single', () => {
+    const result = createRoutineBlockSchema.safeParse({ exercises: [exercise] })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.type).toBe('single')
+  })
+
+  it('acepta una superserie de dos ejercicios', () => {
+    const result = createRoutineBlockSchema.safeParse({
+      type: 'superset',
+      notes: 'sin descanso entre los dos',
+      exercises: [exercise, exercise],
+    })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.exercises).toHaveLength(2)
+  })
+
+  it('rechaza un bloque sin ejercicios', () => {
+    expect(createRoutineBlockSchema.safeParse({ exercises: [] }).success).toBe(false)
+  })
+
+  it('rechaza un type fuera del enum', () => {
+    expect(
+      createRoutineBlockSchema.safeParse({ type: 'giant-set', exercises: [exercise] }).success,
+    ).toBe(false)
   })
 })
 

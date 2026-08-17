@@ -8,7 +8,7 @@ import {
   type UpdateRoutine,
 } from '@macross/shared'
 
-import type { BuilderDay, BuilderExercise, BuilderScheme, RoutineBuilderState } from './types'
+import type { BuilderDay, BuilderScheme, RoutineBuilderState } from './types'
 
 interface RoutineWizardProps {
   loading?: boolean
@@ -90,35 +90,13 @@ const duplicateTarget = computed(() => nextEmptyDayIndex(state.days, activeDay.v
 
 const canDuplicateDay = computed(
   () =>
-    !!currentDay.value?.exercises.length &&
+    !!currentDay.value?.blocks.length &&
     (duplicateTarget.value >= 0 || state.days.length < MAX_DAYS),
 )
 
 const step1Valid = computed(() => state.name.trim().length > 0 && state.clientId.length > 0)
 
 const canSubmit = computed(() => state.days.every(dayComplete))
-
-function makeDay(): BuilderDay {
-  return { label: '', exercises: [] }
-}
-
-function makeScheme(weekNumber: number, from?: Partial<BuilderScheme>): BuilderScheme {
-  return {
-    weekNumber,
-    sets: from?.sets ?? 3,
-    reps: from?.reps ?? '',
-    restSeconds: from?.restSeconds ?? null,
-    notes: from?.notes ?? '',
-    trainedSets: from?.trainedSets ?? 0,
-  }
-}
-
-// Un ejercicio agregado a una fase en curso arranca en la semana en curso: el server no inserta
-// nada antes, así que esas semanas no existen para él y no se guardan vacías.
-function makeExercise(weeks: number, from: number): BuilderExercise {
-  const schemes = Array.from({ length: weeks - from + 1 }, (_, i) => makeScheme(from + i))
-  return { exercise: null, optional: false, notes: '', schemes }
-}
 
 // Un slot creado a mitad de fase solo tiene schemes desde la semana en curso, así que las semanas
 // sin prescripción se rellenan con la más cercana: la matriz nunca muestra una celda vacía (y esas
@@ -145,8 +123,8 @@ function seedSchemes(slot: RoutineExercise, weeks: number): BuilderScheme[] {
   })
 }
 
-// Edición: se aplanan los bloques (cada slot → fila suelta) y la progresión de cada semana se
-// preserva celda por celda.
+// Los ids de día, bloque y slot viajan de vuelta en el submit: son los que dejan que el PATCH
+// empareje filas vivas en vez de reemplazar el árbol y resetearle el progreso al cliente.
 function seedFromRoutine(r: Routine): RoutineBuilderState {
   return {
     name: r.name,
@@ -157,21 +135,22 @@ function seedFromRoutine(r: Routine): RoutineBuilderState {
     days: (r.days ?? []).map(d => ({
       id: d.id,
       label: d.label ?? '',
-      exercises: d.blocks.flatMap(block =>
-        block.exercises.map(slot => {
-          return {
-            id: slot.id,
-            exercise: {
-              id: slot.exercise.id,
-              nameEs: slot.exercise.nameEs,
-              nameEn: slot.exercise.nameEn,
-            },
-            optional: slot.optional,
-            notes: slot.notes ?? '',
-            schemes: seedSchemes(slot, r.weeks),
-          }
-        }),
-      ),
+      blocks: d.blocks.map(block => ({
+        id: block.id,
+        type: block.type,
+        notes: block.notes ?? '',
+        exercises: block.exercises.map(slot => ({
+          id: slot.id,
+          exercise: {
+            id: slot.exercise.id,
+            nameEs: slot.exercise.nameEs,
+            nameEn: slot.exercise.nameEn,
+          },
+          optional: slot.optional,
+          notes: slot.notes ?? '',
+          schemes: seedSchemes(slot, r.weeks),
+        })),
+      })),
     })),
   }
 }
@@ -221,20 +200,13 @@ function selectDay(index: number) {
   activeDay.value = index
 }
 
-function addExercise() {
-  currentDay.value?.exercises.push(makeExercise(state.weeks, startWeek.value))
+function addBlock() {
+  currentDay.value?.blocks.push(makeBlock(state.weeks, startWeek.value))
 }
 
-function removeExercise(exIndex: number) {
-  currentDay.value?.exercises.splice(exIndex, 1)
-}
-
-function next() {
-  if (currentStep.value < 2) currentStep.value += 1
-}
-
-function back() {
-  if (currentStep.value > firstStep.value) currentStep.value -= 1
+function updateBlocks(update: (blocks: BuilderDay['blocks']) => BuilderDay['blocks']) {
+  const day = currentDay.value
+  if (day) day.blocks = update(day.blocks)
 }
 
 function submit() {
@@ -249,24 +221,39 @@ function submit() {
     days: state.days.map(d => ({
       id: d.id,
       label: d.label.trim() || undefined,
-      exercises: d.exercises
-        .filter(e => e.exercise)
-        .map(e => ({
-          id: e.id,
-          exerciseId: e.exercise!.id,
-          optional: e.optional,
-          notes: e.notes.trim() || undefined,
-          schemes: e.schemes.map(scheme => ({
-            weekNumber: scheme.weekNumber,
-            sets: scheme.sets,
-            reps: scheme.reps.trim(),
-            restSeconds: scheme.restSeconds ?? undefined,
-            notes: scheme.notes.trim() || undefined,
-          })),
-        })),
+      blocks: d.blocks
+        .map(b => ({
+          id: b.id,
+          type: b.type,
+          notes: b.notes.trim() || undefined,
+          exercises: b.exercises
+            .filter(e => e.exercise)
+            .map(e => ({
+              id: e.id,
+              exerciseId: e.exercise!.id,
+              optional: e.optional,
+              notes: e.notes.trim() || undefined,
+              schemes: e.schemes.map(scheme => ({
+                weekNumber: scheme.weekNumber,
+                sets: scheme.sets,
+                reps: scheme.reps.trim(),
+                restSeconds: scheme.restSeconds ?? undefined,
+                notes: scheme.notes.trim() || undefined,
+              })),
+            })),
+        }))
+        .filter(b => b.exercises.length > 0),
     })),
   }
   emit('submit', payload)
+}
+
+function next() {
+  if (currentStep.value < 2) currentStep.value += 1
+}
+
+function back() {
+  if (currentStep.value > firstStep.value) currentStep.value -= 1
 }
 </script>
 
@@ -451,26 +438,40 @@ function submit() {
         </div>
 
         <BaseEmptyState
-          v-if="currentDay.exercises.length === 0"
+          v-if="currentDay.blocks.length === 0"
           :message="t('routines.builder.emptyDay')"
         />
-        <RoutineBuilderExercise
-          v-for="(exercise, i) in currentDay.exercises"
+        <RoutineBuilderBlock
+          v-for="(block, i) in currentDay.blocks"
           :key="i"
-          :exercise
+          :block
           :index="i"
           :weeks="state.weeks"
           :start-week="startWeek"
           :options="exercises"
-          @remove="removeExercise(i)"
+          :can-group="i < currentDay.blocks.length - 1"
+          @remove="updateBlocks(blocks => blocks.toSpliced(i, 1))"
+          @remove-exercise="ei => updateBlocks(blocks => removeExerciseAt(blocks, i, ei))"
+          @add-exercise="
+            updateBlocks(blocks =>
+              addExerciseToBlock(blocks, i, makeExercise(state.weeks, startWeek)),
+            )
+          "
+          @group="updateBlocks(blocks => groupWithNext(blocks, i))"
+          @set-type="
+            type =>
+              updateBlocks(blocks =>
+                setBlockType(blocks, i, type, makeExercise(state.weeks, startWeek)),
+              )
+          "
         />
 
         <UButton
-          :label="t('routines.builder.addExercise')"
+          :label="t('routines.builder.addBlock')"
           icon="i-lucide-plus"
           color="neutral"
           variant="outline"
-          @click="addExercise"
+          @click="addBlock"
         />
       </div>
     </div>

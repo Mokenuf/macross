@@ -51,6 +51,10 @@ function makeBlock(id: string, sortOrder: number, slot: OldSlot): OldBlock {
   return { id, type: 'single', sortOrder, notes: null, exercises: [slot] }
 }
 
+function makeSuperset(id: string, sortOrder: number, slots: OldSlot[]): OldBlock {
+  return { id, type: 'superset', sortOrder, notes: null, exercises: slots }
+}
+
 function makeDay(id: string, dayNumber: number, blocks: OldBlock[]): OldDay {
   return { id, dayNumber, label: `Día ${dayNumber}`, blocks }
 }
@@ -80,6 +84,10 @@ function exerciseInput(overrides: Record<string, unknown> = {}) {
   }
 }
 
+function blockInput(exercises: unknown[], overrides: Record<string, unknown> = {}) {
+  return { exercises, ...overrides }
+}
+
 describe('findStartWeek', () => {
   it('arranca en 1 cuando no hay nada registrado', () => {
     const tree = makeTree([
@@ -106,6 +114,19 @@ describe('findStartWeek', () => {
     ])
 
     expect(findStartWeek(tree, 4)).toBe(2)
+  })
+
+  it('cuenta los ejercicios de una superserie como dos', () => {
+    const tree = makeTree([
+      makeDay(DAY_1, 1, [
+        makeSuperset(BLOCK_A, 0, [
+          makeSlot(SLOT_A, EX_1, [3, 0, 0, 0]),
+          makeSlot(SLOT_B, EX_2, [0, 0, 0, 0]),
+        ]),
+      ]),
+    ])
+
+    expect(findStartWeek(tree, 4)).toBe(1)
   })
 
   // Es la propiedad que hace estable el cambio de ejercicio a mitad de fase: el slot nuevo no tiene
@@ -141,7 +162,10 @@ describe('diffRoutineTree', () => {
   const untouched = [
     {
       id: DAY_1,
-      exercises: [exerciseInput({ id: SLOT_A }), exerciseInput({ id: SLOT_B, exerciseId: EX_2 })],
+      blocks: [
+        blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A }),
+        blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })], { id: BLOCK_B }),
+      ],
     },
   ]
 
@@ -152,6 +176,7 @@ describe('diffRoutineTree', () => {
     expect(plan.retireBlockIds).toEqual([])
     expect(plan.retireSlotIds).toEqual([])
     expect(plan.dayInserts).toEqual([])
+    expect(plan.blockInserts).toEqual([])
     expect(plan.slotInserts).toEqual([])
     expect(plan.slotUpdates).toHaveLength(2)
   })
@@ -170,16 +195,21 @@ describe('diffRoutineTree', () => {
     const body = makeBody([
       {
         id: DAY_1,
-        exercises: [
-          exerciseInput({
-            id: SLOT_A,
-            schemes: [
-              weekInput(1, { sets: 3, reps: '12' }),
-              weekInput(2, { sets: 3, reps: '10' }),
-              weekInput(3, { sets: 4, reps: '8' }),
-              weekInput(4, { sets: 5, reps: '6', restSeconds: 180 }),
+        blocks: [
+          blockInput(
+            [
+              exerciseInput({
+                id: SLOT_A,
+                schemes: [
+                  weekInput(1, { sets: 3, reps: '12' }),
+                  weekInput(2, { sets: 3, reps: '10' }),
+                  weekInput(3, { sets: 4, reps: '8' }),
+                  weekInput(4, { sets: 5, reps: '6', restSeconds: 180 }),
+                ],
+              }),
             ],
-          }),
+            { id: BLOCK_A },
+          ),
         ],
       },
     ])
@@ -200,7 +230,9 @@ describe('diffRoutineTree', () => {
     const trained = makeTree([
       makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 3, 1, 0]))]),
     ])
-    const body = makeBody([{ id: DAY_1, exercises: [exerciseInput({ id: SLOT_A })] }])
+    const body = makeBody([
+      { id: DAY_1, blocks: [blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A })] },
+    ])
     const plan = diffRoutineTree(body, trained, 3)
 
     expect(plan.schemeUpdates.map(s => s.week_number)).toEqual([4])
@@ -211,7 +243,9 @@ describe('diffRoutineTree', () => {
     const slot = makeSlot(SLOT_A, EX_1, [0, 0, 0, 0])
     slot.schemes[2]!.logs = [{ completed: false, deletedAt: null }]
 
-    const body = makeBody([{ id: DAY_1, exercises: [exerciseInput({ id: SLOT_A })] }])
+    const body = makeBody([
+      { id: DAY_1, blocks: [blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A })] },
+    ])
     const plan = diffRoutineTree(
       body,
       makeTree([makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, slot)])]),
@@ -225,7 +259,12 @@ describe('diffRoutineTree', () => {
   // se puede desprescribir: queda como está.
   it('una semana que el body no trae no se toca', () => {
     const body = makeBody([
-      { id: DAY_1, exercises: [exerciseInput({ id: SLOT_A, schemes: [weekInput(3)] })] },
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_A, schemes: [weekInput(3)] })], { id: BLOCK_A }),
+        ],
+      },
     ])
     const plan = diffRoutineTree(body, tree, 3)
 
@@ -237,8 +276,16 @@ describe('diffRoutineTree', () => {
     const body = makeBody([
       {
         id: DAY_1,
-        exercises: [
-          exerciseInput({ id: SLOT_A, schemes: [weekInput(3, { notes: 'Semana de descarga' })] }),
+        blocks: [
+          blockInput(
+            [
+              exerciseInput({
+                id: SLOT_A,
+                schemes: [weekInput(3, { notes: 'Semana de descarga' })],
+              }),
+            ],
+            { id: BLOCK_A },
+          ),
         ],
       },
     ])
@@ -251,7 +298,9 @@ describe('diffRoutineTree', () => {
     const partial = makeTree([
       makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 3, null, null]))]),
     ])
-    const body = makeBody([{ id: DAY_1, exercises: [exerciseInput({ id: SLOT_A })] }])
+    const body = makeBody([
+      { id: DAY_1, blocks: [blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A })] },
+    ])
     const plan = diffRoutineTree(body, partial, 3)
 
     expect(plan.schemeUpdates).toEqual([])
@@ -264,19 +313,23 @@ describe('diffRoutineTree', () => {
     const body = makeBody([
       {
         id: DAY_1,
-        exercises: [
-          exerciseInput({ id: SLOT_A, exerciseId: EX_2 }),
-          exerciseInput({ id: SLOT_B, exerciseId: EX_2 }),
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_A, exerciseId: EX_2 })], { id: BLOCK_A }),
+          blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })], { id: BLOCK_B }),
         ],
       },
     ])
     const plan = diffRoutineTree(body, tree, 3)
 
     expect(plan.retireSlotIds).toEqual([SLOT_A])
-    expect(plan.retireBlockIds).toEqual([BLOCK_A])
+    expect(plan.retireBlockIds).toEqual([])
     expect(plan.retireDayIds).toEqual([])
     expect(plan.slotInserts).toHaveLength(1)
-    expect(plan.slotInserts[0]).toMatchObject({ exercise_id: EX_2, sort_order: 0 })
+    expect(plan.slotInserts[0]).toMatchObject({
+      exercise_id: EX_2,
+      routine_block_id: BLOCK_A,
+      sort_order: 0,
+    })
     expect(plan.schemeInserts.map(s => s.week_number)).toEqual([3, 4])
   })
 
@@ -284,10 +337,10 @@ describe('diffRoutineTree', () => {
     const body = makeBody([
       {
         id: DAY_1,
-        exercises: [
-          exerciseInput({ id: SLOT_A }),
-          exerciseInput({ id: SLOT_B, exerciseId: EX_2 }),
-          exerciseInput({ exerciseId: EX_2 }),
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A }),
+          blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })], { id: BLOCK_B }),
+          blockInput([exerciseInput({ exerciseId: EX_2 })]),
         ],
       },
     ])
@@ -296,12 +349,16 @@ describe('diffRoutineTree', () => {
     expect(plan.retireSlotIds).toEqual([])
     expect(plan.blockInserts).toHaveLength(1)
     expect(plan.blockInserts[0]).toMatchObject({ routine_day_id: DAY_1, sort_order: 2 })
+    expect(plan.slotInserts[0]).toMatchObject({ routine_block_id: plan.blockInserts[0]!.id })
     expect(plan.schemeInserts.map(s => s.week_number)).toEqual([3, 4])
   })
 
   it('sacar un ejercicio retira su slot y su bloque, y renumera el resto', () => {
     const body = makeBody([
-      { id: DAY_1, exercises: [exerciseInput({ id: SLOT_B, exerciseId: EX_2 })] },
+      {
+        id: DAY_1,
+        blocks: [blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })], { id: BLOCK_B })],
+      },
     ])
     const plan = diffRoutineTree(body, tree, 3)
 
@@ -312,12 +369,79 @@ describe('diffRoutineTree', () => {
     ])
   })
 
+  // Agrupar es la edición que más importa que no destruya: si el slot se retirara, el cliente
+  // perdería de vista todo lo que ya entrenó de ese ejercicio.
+  it('agrupar dos ejercicios en una superserie preserva los dos slots', () => {
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput(
+            [exerciseInput({ id: SLOT_A }), exerciseInput({ id: SLOT_B, exerciseId: EX_2 })],
+            { id: BLOCK_A, type: 'superset', notes: 'sin descanso entre los dos' },
+          ),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, tree, 3)
+
+    expect(plan.retireSlotIds).toEqual([])
+    expect(plan.slotInserts).toEqual([])
+    expect(plan.retireBlockIds).toEqual([BLOCK_B])
+    expect(plan.blockUpdates).toEqual([
+      {
+        id: BLOCK_A,
+        routine_day_id: DAY_1,
+        type: 'superset',
+        sort_order: 0,
+        notes: 'sin descanso entre los dos',
+      },
+    ])
+    expect(plan.slotUpdates.map(s => [s.id, s.routine_block_id, s.sort_order])).toEqual([
+      [SLOT_A, BLOCK_A, 0],
+      [SLOT_B, BLOCK_A, 1],
+    ])
+    expect(plan.schemeUpdates.map(s => s.week_number)).toEqual([3, 4, 3, 4])
+  })
+
+  it('desagrupar mueve el slot a un bloque nuevo sin retirarlo', () => {
+    const grouped = makeTree([
+      makeDay(DAY_1, 1, [
+        makeSuperset(BLOCK_A, 0, [
+          makeSlot(SLOT_A, EX_1, [3, 3, 0, 0]),
+          makeSlot(SLOT_B, EX_2, [3, 3, 0, 0]),
+        ]),
+      ]),
+    ])
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A }),
+          blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })]),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, grouped, 3)
+
+    expect(plan.retireSlotIds).toEqual([])
+    expect(plan.retireBlockIds).toEqual([])
+    expect(plan.blockInserts).toHaveLength(1)
+    expect(plan.blockUpdates[0]).toMatchObject({ id: BLOCK_A, type: 'single', sort_order: 0 })
+    expect(plan.slotUpdates.map(s => [s.id, s.routine_block_id, s.sort_order])).toEqual([
+      [SLOT_A, BLOCK_A, 0],
+      [SLOT_B, plan.blockInserts[0]!.id, 0],
+    ])
+  })
+
   it('sacar un día lo retira con todo lo que cuelga', () => {
     const twoDays = makeTree([
       makeDay(DAY_1, 1, [makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [0, 0, 0, 0]))]),
       makeDay(DAY_2, 2, [makeBlock(BLOCK_B, 0, makeSlot(SLOT_B, EX_2, [0, 0, 0, 0]))]),
     ])
-    const body = makeBody([{ id: DAY_1, exercises: [exerciseInput({ id: SLOT_A })] }])
+    const body = makeBody([
+      { id: DAY_1, blocks: [blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A })] },
+    ])
     const plan = diffRoutineTree(body, twoDays, 1)
 
     expect(plan.retireDayIds).toEqual([DAY_2])
@@ -327,11 +451,8 @@ describe('diffRoutineTree', () => {
 
   it('un día nuevo se inserta con su posición y sin id previo', () => {
     const body = makeBody([
-      {
-        id: DAY_1,
-        exercises: [exerciseInput({ id: SLOT_A }), exerciseInput({ id: SLOT_B, exerciseId: EX_2 })],
-      },
-      { label: 'Día nuevo', exercises: [exerciseInput()] },
+      ...untouched,
+      { label: 'Día nuevo', blocks: [blockInput([exerciseInput()])] },
     ])
     const plan = diffRoutineTree(body, tree, 3)
 
@@ -350,7 +471,10 @@ describe('diffRoutineTree', () => {
     const body = makeBody([
       {
         id: DAY_1,
-        exercises: [exerciseInput({ id: SLOT_B, exerciseId: EX_2 }), exerciseInput({ id: SLOT_A })],
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })], { id: BLOCK_B }),
+          blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A }),
+        ],
       },
     ])
     const plan = diffRoutineTree(body, tree, 3)
@@ -360,10 +484,46 @@ describe('diffRoutineTree', () => {
 
     expect(plan.blockTempShift.map(b => b.id)).toEqual([BLOCK_A, BLOCK_B])
     expect(new Set(temps).size).toBe(temps.length)
-    expect(Math.min(...temps)).toBeGreaterThan(Math.max(...(finals as number[])))
+    expect(Math.min(...temps)).toBeGreaterThan(Math.max(...finals))
     expect(plan.blockUpdates).toEqual([
       { id: BLOCK_B, routine_day_id: DAY_1, type: 'single', sort_order: 0, notes: null },
       { id: BLOCK_A, routine_day_id: DAY_1, type: 'single', sort_order: 1, notes: null },
+    ])
+  })
+
+  // Mismo índice, un nivel más abajo: unique(routine_block_id, sort_order). Recién se ejercita con
+  // bloques de más de un ejercicio, donde reordenar o mover un slot pisa una posición ocupada.
+  it('el corrimiento temporal saca a todos los slots vivos del rango final', () => {
+    const grouped = makeTree([
+      makeDay(DAY_1, 1, [
+        makeSuperset(BLOCK_A, 0, [
+          makeSlot(SLOT_A, EX_1, [3, 3, 0, 0]),
+          makeSlot(SLOT_B, EX_2, [3, 3, 0, 0]),
+        ]),
+      ]),
+    ])
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput(
+            [exerciseInput({ id: SLOT_B, exerciseId: EX_2 }), exerciseInput({ id: SLOT_A })],
+            { id: BLOCK_A, type: 'superset' },
+          ),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, grouped, 3)
+
+    const temps = plan.slotTempShift.map(s => s.sort_order)
+    const finals = plan.slotUpdates.map(s => s.sort_order)
+
+    expect(plan.slotTempShift.map(s => s.id)).toEqual([SLOT_A, SLOT_B])
+    expect(new Set(temps).size).toBe(temps.length)
+    expect(Math.min(...temps)).toBeGreaterThan(Math.max(...finals))
+    expect(plan.slotUpdates.map(s => [s.id, s.sort_order])).toEqual([
+      [SLOT_B, 0],
+      [SLOT_A, 1],
     ])
   })
 })
