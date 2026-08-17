@@ -65,9 +65,10 @@ type SchemeRow = {
   notes: string | null
 }
 
-// Los sort_order de bloque se reasignan en dos pasadas contra el índice único parcial
-// (routine_day_id, sort_order) where deleted_at is null: Postgres lo chequea fila por fila, así que
-// mover A→1 mientras B sigue en 1 explota. Esta base saca a todos los vivos del rango final primero.
+// Los sort_order se reasignan en dos pasadas contra los índices únicos parciales de bloque
+// (routine_day_id, sort_order) y de slot (routine_block_id, sort_order): Postgres los chequea fila
+// por fila, así que mover A→1 mientras B sigue en 1 explota. Esta base saca a todos los vivos del
+// rango final primero, y de paso libera el rango para las filas nuevas.
 const TEMP_SORT_BASE = 1000
 
 function trainedSetCount(scheme: OldScheme) {
@@ -112,12 +113,16 @@ export function findStartWeek(old: OldRoutineTree, weeks: number) {
 
 export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startWeek: number) {
   const oldDays = new Map(old.days.map(day => [day.id, day]))
-  const oldSlots = new Map<string, { slot: OldSlot; block: OldBlock }>()
+  const oldBlocks = new Map<string, OldBlock>()
+  const oldSlots = new Map<string, OldSlot>()
   for (const day of old.days)
-    for (const block of day.blocks)
-      for (const slot of block.exercises) oldSlots.set(slot.id, { slot, block })
+    for (const block of day.blocks) {
+      oldBlocks.set(block.id, block)
+      for (const slot of block.exercises) oldSlots.set(slot.id, slot)
+    }
 
   const keptDayIds = new Set<string>()
+  const keptBlockIds = new Set<string>()
   const keptSlotIds = new Set<string>()
 
   const dayInserts: DayRow[] = []
@@ -141,87 +146,93 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
       dayInserts.push({ ...dayRow, routine_id: old.id })
     }
 
-    day.exercises.forEach((exercise, sortOrder) => {
-      const existing = exercise.id ? oldSlots.get(exercise.id) : undefined
+    day.blocks.forEach((block, blockIndex) => {
+      const existingBlock = block.id ? oldBlocks.get(block.id) : undefined
+      const blockId = existingBlock?.id ?? crypto.randomUUID()
+      const blockRow = {
+        id: blockId,
+        routine_day_id: dayId,
+        type: block.type,
+        sort_order: blockIndex,
+        notes: block.notes ?? null,
+      }
 
-      // Cambiar el ejercicio de un slot re-apuntaría sus logs viejos a otro ejercicio: se retira el
-      // slot (conserva sus schemes y su historial) y nace uno nuevo desde la semana en curso.
-      if (!existing || existing.slot.exerciseId !== exercise.exerciseId) {
-        const blockId = crypto.randomUUID()
-        const slotId = crypto.randomUUID()
+      if (existingBlock) {
+        keptBlockIds.add(blockId)
+        blockUpdates.push(blockRow)
+      } else {
+        blockInserts.push(blockRow)
+      }
 
-        blockInserts.push({
-          id: blockId,
-          routine_day_id: dayId,
-          type: 'single',
-          sort_order: sortOrder,
-          notes: null,
-        })
-        slotInserts.push({
-          id: slotId,
+      block.exercises.forEach((exercise, sortOrder) => {
+        const existing = exercise.id ? oldSlots.get(exercise.id) : undefined
+
+        // Cambiar el ejercicio de un slot re-apuntaría sus logs viejos a otro ejercicio: se retira el
+        // slot (conserva sus schemes y su historial) y nace uno nuevo desde la semana en curso.
+        if (!existing || existing.exerciseId !== exercise.exerciseId) {
+          const slotId = crypto.randomUUID()
+
+          slotInserts.push({
+            id: slotId,
+            routine_block_id: blockId,
+            exercise_id: exercise.exerciseId,
+            sort_order: sortOrder,
+            optional: exercise.optional,
+            notes: exercise.notes ?? null,
+          })
+          for (let week = startWeek; week <= body.weeks; week++) {
+            const prescription = prescriptionForWeek(exercise, week)
+            if (!prescription) continue
+
+            schemeInserts.push({
+              routine_exercise_id: slotId,
+              week_number: week,
+              sets: prescription.sets,
+              reps: prescription.reps,
+              rest_seconds: prescription.restSeconds ?? null,
+              notes: prescription.notes ?? null,
+            })
+          }
+          return
+        }
+
+        keptSlotIds.add(existing.id)
+
+        // Agrupar o desagrupar mueve el slot de bloque: es un update de routine_block_id y no un
+        // retiro, así que los logs que cuelgan de sus schemes siguen visibles para el cliente.
+        slotUpdates.push({
+          id: existing.id,
           routine_block_id: blockId,
-          exercise_id: exercise.exerciseId,
-          sort_order: 0,
+          exercise_id: existing.exerciseId,
+          sort_order: sortOrder,
           optional: exercise.optional,
           notes: exercise.notes ?? null,
         })
+
+        // La prescripción de las semanas ya transitadas no se toca: es lo que el cliente entrenó.
         for (let week = startWeek; week <= body.weeks; week++) {
           const prescription = prescriptionForWeek(exercise, week)
+          // El builder no deja guardar con una semana incompleta, así que esto no debería pasar; si
+          // pasa, la scheme vieja queda como está: sostiene workout_logs y no se puede borrar.
           if (!prescription) continue
 
-          schemeInserts.push({
-            routine_exercise_id: slotId,
+          const scheme = oldSchemeForWeek(existing, week)
+          // Lo ya entrenado no se toca, y se decide por celda y no por semana: con el picker de /plan
+          // el cliente puede registrar series en cualquier semana, no solo en la que va transitando.
+          if (scheme && trainedSetCount(scheme) > 0) continue
+          const values = {
+            routine_exercise_id: existing.id,
             week_number: week,
             sets: prescription.sets,
             reps: prescription.reps,
             rest_seconds: prescription.restSeconds ?? null,
             notes: prescription.notes ?? null,
-          })
+          }
+
+          if (scheme) schemeUpdates.push({ ...values, id: scheme.id })
+          else schemeInserts.push(values)
         }
-        return
-      }
-
-      keptSlotIds.add(existing.slot.id)
-
-      blockUpdates.push({
-        id: existing.block.id,
-        routine_day_id: dayId,
-        type: existing.block.type,
-        sort_order: sortOrder,
-        notes: existing.block.notes,
       })
-      slotUpdates.push({
-        id: existing.slot.id,
-        routine_block_id: existing.block.id,
-        exercise_id: existing.slot.exerciseId,
-        sort_order: 0,
-        optional: exercise.optional,
-        notes: exercise.notes ?? null,
-      })
-
-      // La prescripción de las semanas ya transitadas no se toca: es lo que el cliente entrenó.
-      for (let week = startWeek; week <= body.weeks; week++) {
-        const prescription = prescriptionForWeek(exercise, week)
-        // El builder no deja guardar con una semana incompleta, así que esto no debería pasar; si
-        // pasa, la scheme vieja queda como está: sostiene workout_logs y no se puede borrar.
-        if (!prescription) continue
-
-        const scheme = oldSchemeForWeek(existing.slot, week)
-        // Lo ya entrenado no se toca, y se decide por celda y no por semana: con el picker de /plan
-        // el cliente puede registrar series en cualquier semana, no solo en la que va transitando.
-        if (scheme && trainedSetCount(scheme) > 0) continue
-        const values = {
-          routine_exercise_id: existing.slot.id,
-          week_number: week,
-          sets: prescription.sets,
-          reps: prescription.reps,
-          rest_seconds: prescription.restSeconds ?? null,
-          notes: prescription.notes ?? null,
-        }
-
-        if (scheme) schemeUpdates.push({ ...values, id: scheme.id })
-        else schemeInserts.push(values)
-      }
     })
   })
 
@@ -232,7 +243,7 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
   for (const day of old.days) {
     if (!keptDayIds.has(day.id)) retireDayIds.push(day.id)
     for (const block of day.blocks) {
-      if (!block.exercises.some(slot => keptSlotIds.has(slot.id))) retireBlockIds.push(block.id)
+      if (!keptBlockIds.has(block.id)) retireBlockIds.push(block.id)
       for (const slot of block.exercises) if (!keptSlotIds.has(slot.id)) retireSlotIds.push(slot.id)
     }
   }
@@ -247,8 +258,22 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
     })),
   )
 
+  const slotTempShift = old.days.flatMap(day =>
+    day.blocks.flatMap((block, i) =>
+      block.exercises.map((slot, j) => ({
+        id: slot.id,
+        routine_block_id: block.id,
+        exercise_id: slot.exerciseId,
+        sort_order: TEMP_SORT_BASE + i * TEMP_SORT_BASE + j,
+        optional: slot.optional,
+        notes: slot.notes,
+      })),
+    ),
+  )
+
   return {
     blockTempShift,
+    slotTempShift,
     dayInserts,
     dayUpdates,
     blockInserts,

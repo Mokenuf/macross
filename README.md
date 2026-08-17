@@ -102,8 +102,8 @@ fix/trainer/auth        ─┘
 - Autenticación completa: login/logout, alta por invitación por mail (set-password), y recuperación de contraseña
 - Biblioteca de ejercicios con video, grupos musculares y equipamiento (catálogo compartido), con búsqueda y filtros combinables
 - Gestión de clientes: alta por invitación, ficha con datos de entrenamiento y notas de seguimiento, scoping por rol (el trainer ve los suyos; el manager, todos), soft delete y reactivación
-- Rutinas ("fases"): armado por wizard con progresión semana a semana, duplicar días, activación por cliente (una activa a la vez) y edición del árbol completo
-- Editar una fase en curso preserva lo ya entrenado: las series registradas quedan bloqueadas y los cambios aplican desde la semana en curso
+- Rutinas ("fases"): armado por wizard con progresión semana a semana, agrupación de ejercicios en superseries y dropsets, duplicar días, activación por cliente (una activa a la vez) y edición del árbol completo
+- Editar una fase en curso preserva lo ya entrenado: las series registradas quedan bloqueadas, los cambios aplican desde la semana en curso y agrupar o reagrupar ejercicios no borra el progreso del cliente
 - Gestión de entrenadores con roles (manager / trainer), restringida a managers
 - Permisos por rol, filtros sincronizados con la URL e interfaz bilingüe es/en (incluye validaciones y contenido de catálogo)
 

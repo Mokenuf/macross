@@ -1,3 +1,5 @@
+import type { BlockType } from '@macross/shared'
+
 // createRoutineSchema solo lleva exerciseId; el builder guarda el ref del ejercicio para mostrar el nombre.
 
 export interface BuilderExerciseRef {
@@ -25,10 +27,17 @@ export interface BuilderExercise {
   schemes: BuilderScheme[]
 }
 
+export interface BuilderBlock {
+  id?: string
+  type: BlockType
+  notes: string
+  exercises: BuilderExercise[]
+}
+
 export interface BuilderDay {
   id?: string
   label: string
-  exercises: BuilderExercise[]
+  blocks: BuilderBlock[]
 }
 
 export interface RoutineBuilderState {

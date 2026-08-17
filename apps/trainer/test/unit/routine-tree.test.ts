@@ -15,54 +15,57 @@ function buildBody(input: unknown): CreateRoutine {
   return createRoutineSchema.parse(input)
 }
 
+const SQUAT = {
+  exerciseId: SQUAT_ID,
+  schemes: [
+    { weekNumber: 1, sets: 3, reps: '10', restSeconds: 120 },
+    { weekNumber: 2, sets: 3, reps: '10', restSeconds: 120 },
+    { weekNumber: 3, sets: 4, reps: '8', restSeconds: 150 },
+    { weekNumber: 4, sets: 4, reps: '6-8', restSeconds: 150, notes: 'Tope de carga' },
+  ],
+}
+
+const BENCH = {
+  exerciseId: BENCH_ID,
+  notes: 'Bajar lento',
+  optional: true,
+  schemes: [
+    { weekNumber: 1, sets: 3, reps: '8-10' },
+    { weekNumber: 2, sets: 3, reps: '8-10' },
+    { weekNumber: 3, sets: 3, reps: '8-10' },
+    { weekNumber: 4, sets: 3, reps: '8-10' },
+  ],
+}
+
+const ROW = {
+  exerciseId: ROW_ID,
+  schemes: [
+    { weekNumber: 1, sets: 3, reps: '12' },
+    { weekNumber: 2, sets: 3, reps: '12' },
+  ],
+}
+
 const ONE_DAY_INPUT = {
   name: 'Fase 1',
   daysPerWeek: 1,
   weeks: 4,
-  days: [
-    {
-      label: 'Pierna',
-      exercises: [
-        {
-          exerciseId: SQUAT_ID,
-          schemes: [
-            { weekNumber: 1, sets: 3, reps: '10', restSeconds: 120 },
-            { weekNumber: 2, sets: 3, reps: '10', restSeconds: 120 },
-            { weekNumber: 3, sets: 4, reps: '8', restSeconds: 150 },
-            { weekNumber: 4, sets: 4, reps: '6-8', restSeconds: 150, notes: 'Tope de carga' },
-          ],
-        },
-        {
-          exerciseId: BENCH_ID,
-          notes: 'Bajar lento',
-          optional: true,
-          schemes: [
-            { weekNumber: 1, sets: 3, reps: '8-10' },
-            { weekNumber: 2, sets: 3, reps: '8-10' },
-            { weekNumber: 3, sets: 3, reps: '8-10' },
-            { weekNumber: 4, sets: 3, reps: '8-10' },
-          ],
-        },
-      ],
-    },
-  ],
+  days: [{ label: 'Pierna', blocks: [{ exercises: [SQUAT] }, { exercises: [BENCH] }] }],
 }
 
 const TWO_DAYS_INPUT = {
   ...ONE_DAY_INPUT,
   daysPerWeek: 2,
+  days: [...ONE_DAY_INPUT.days, { label: 'Espalda', blocks: [{ exercises: [ROW] }] }],
+}
+
+const SUPERSET_INPUT = {
+  ...ONE_DAY_INPUT,
   days: [
-    ...ONE_DAY_INPUT.days,
     {
-      label: 'Espalda',
-      exercises: [
-        {
-          exerciseId: ROW_ID,
-          schemes: [
-            { weekNumber: 1, sets: 3, reps: '12' },
-            { weekNumber: 2, sets: 3, reps: '12' },
-          ],
-        },
+      label: 'Empuje',
+      blocks: [
+        { type: 'superset', notes: 'sin descanso entre los dos', exercises: [SQUAT, BENCH] },
+        { exercises: [ROW] },
       ],
     },
   ],
@@ -74,7 +77,7 @@ function schemesOf(tree: ReturnType<typeof buildRoutineTree>, exerciseId: string
 }
 
 describe('buildRoutineTree', () => {
-  it('arma un bloque single con un único slot por cada ejercicio del día', () => {
+  it('arma una fila de bloque por bloque del día', () => {
     const { dayRows, blockRows, slotRows } = buildRoutineTree(buildBody(ONE_DAY_INPUT), ROUTINE_ID)
 
     expect(dayRows).toHaveLength(1)
@@ -82,6 +85,17 @@ describe('buildRoutineTree', () => {
     expect(slotRows).toHaveLength(2)
     expect(blockRows.every(b => b.type === 'single')).toBe(true)
     expect(slotRows.every(s => s.sort_order === 0)).toBe(true)
+  })
+
+  it('agrupa los ejercicios de una superserie en un solo bloque', () => {
+    const { blockRows, slotRows } = buildRoutineTree(buildBody(SUPERSET_INPUT), ROUTINE_ID)
+
+    expect(blockRows.map(b => b.type)).toEqual(['superset', 'single'])
+    expect(blockRows[0]?.notes).toBe('sin descanso entre los dos')
+
+    const grouped = slotRows.filter(s => s.routine_block_id === blockRows[0]?.id)
+    expect(grouped.map(s => s.exercise_id)).toEqual([SQUAT_ID, BENCH_ID])
+    expect(grouped.map(s => s.sort_order)).toEqual([0, 1])
   })
 
   it('correlaciona cada fila con su padre', () => {
@@ -108,6 +122,16 @@ describe('buildRoutineTree', () => {
     // unique(routine_day_id, sort_order) where deleted_at is null
     for (const day of dayRows) {
       const orders = blockRows.filter(b => b.routine_day_id === day.id).map(b => b.sort_order)
+      expect(orders).toEqual(orders.map((_, i) => i))
+    }
+  })
+
+  it('reinicia el sort_order de slots en cada bloque', () => {
+    const { blockRows, slotRows } = buildRoutineTree(buildBody(SUPERSET_INPUT), ROUTINE_ID)
+
+    // unique(routine_block_id, sort_order) where deleted_at is null
+    for (const block of blockRows) {
+      const orders = slotRows.filter(s => s.routine_block_id === block.id).map(s => s.sort_order)
       expect(orders).toEqual(orders.map((_, i) => i))
     }
   })
@@ -143,12 +167,16 @@ describe('buildRoutineTree', () => {
         weeks: 1,
         days: [
           {
-            exercises: [
+            blocks: [
               {
-                exerciseId: SQUAT_ID,
-                schemes: [
-                  { weekNumber: 1, sets: 3, reps: '10' },
-                  { weekNumber: 1, sets: 5, reps: '5' },
+                exercises: [
+                  {
+                    exerciseId: SQUAT_ID,
+                    schemes: [
+                      { weekNumber: 1, sets: 3, reps: '10' },
+                      { weekNumber: 1, sets: 5, reps: '5' },
+                    ],
+                  },
                 ],
               },
             ],
@@ -177,10 +205,11 @@ describe('buildRoutineTree', () => {
     const squat = tree.slotRows.find(s => s.exercise_id === SQUAT_ID)
 
     expect(squat?.notes).toBeNull()
+    expect(tree.blockRows.every(b => b.notes === null)).toBe(true)
     expect(schemesOf(tree, BENCH_ID).every(s => s.rest_seconds === null)).toBe(true)
   })
 
-  it('un día sin ejercicios genera solo la fila del día', () => {
+  it('un día sin bloques genera solo la fila del día', () => {
     const { dayRows, blockRows, slotRows, schemeRows } = buildRoutineTree(
       buildBody({ ...ONE_DAY_INPUT, days: [{}] }),
       ROUTINE_ID,

@@ -104,7 +104,7 @@ export const createRoutineSchemeSchema = z.object({
 })
 
 // El scheme no lleva id: `(slot, weekNumber)` ya lo identifica (índice único en la DB), así que el
-// server lo resuelve por semana. Mismo criterio que los bloques.
+// server lo resuelve por semana.
 export const createRoutineExerciseSchema = z.object({
   exerciseId: z.uuid(),
   optional: z.boolean().optional().default(false),
@@ -112,9 +112,15 @@ export const createRoutineExerciseSchema = z.object({
   schemes: z.array(createRoutineSchemeSchema).min(1),
 })
 
+export const createRoutineBlockSchema = z.object({
+  type: blockTypeEnum.optional().default('single'),
+  notes: z.string().optional(),
+  exercises: z.array(createRoutineExerciseSchema).min(1),
+})
+
 export const createRoutineDaySchema = z.object({
   label: z.string().optional(),
-  exercises: z.array(createRoutineExerciseSchema).default([]),
+  blocks: z.array(createRoutineBlockSchema).default([]),
 })
 
 export const createRoutineSchema = z.object({
@@ -130,15 +136,21 @@ export const createRoutineSchema = z.object({
 })
 
 // Los ids dejan que el PATCH empareje filas vivas en vez de reemplazar el árbol (así los
-// workout_logs siguen colgando de schemes vivas); ausente = fila nueva. Los bloques no viajan: el
-// builder flat no los tiene como concepto y el server los resuelve por el slot.
+// workout_logs siguen colgando de schemes vivas); ausente = fila nueva.
 export const updateRoutineExerciseSchema = createRoutineExerciseSchema.extend({
   id: z.uuid().optional(),
 })
 
+// Un slot puede venir con id dentro de un bloque distinto al que tenía: agrupar dos ejercicios ya
+// entrenados es re-apuntar el slot, no retirarlo (retirarlo le borraría el progreso al cliente).
+export const updateRoutineBlockSchema = createRoutineBlockSchema.extend({
+  id: z.uuid().optional(),
+  exercises: z.array(updateRoutineExerciseSchema).min(1),
+})
+
 export const updateRoutineDaySchema = createRoutineDaySchema.extend({
   id: z.uuid().optional(),
-  exercises: z.array(updateRoutineExerciseSchema).default([]),
+  blocks: z.array(updateRoutineBlockSchema).default([]),
 })
 
 export const updateRoutineSchema = createRoutineSchema.extend({
@@ -163,10 +175,12 @@ export type Routine = z.infer<typeof routineSchema>
 
 export type CreateRoutineScheme = z.infer<typeof createRoutineSchemeSchema>
 export type CreateRoutineExercise = z.infer<typeof createRoutineExerciseSchema>
+export type CreateRoutineBlock = z.infer<typeof createRoutineBlockSchema>
 export type CreateRoutineDay = z.infer<typeof createRoutineDaySchema>
 export type CreateRoutine = z.infer<typeof createRoutineSchema>
 
 export type UpdateRoutineExercise = z.infer<typeof updateRoutineExerciseSchema>
+export type UpdateRoutineBlock = z.infer<typeof updateRoutineBlockSchema>
 export type UpdateRoutineDay = z.infer<typeof updateRoutineDaySchema>
 export type UpdateRoutine = z.infer<typeof updateRoutineSchema>
 
