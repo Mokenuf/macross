@@ -79,7 +79,9 @@
       "next": "Next",
       "save": "Save",
       "activate": "Activate this routine",
-      "activateHint": "Activating deactivates the client's current active routine (one active per client)."
+      "activateHint": "Activating deactivates the client's current active routine (one active per client).",
+      "inProgressTitle": "This phase is already underway",
+      "inProgressHint": "The client has logged workouts. Your changes apply from week {week} onward; everything before stays as is."
     },
     "form": {
       "client": "Client",

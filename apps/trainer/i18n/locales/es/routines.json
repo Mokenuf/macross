@@ -79,7 +79,9 @@
       "next": "Siguiente",
       "save": "Guardar",
       "activate": "Activar esta rutina",
-      "activateHint": "Al activar se desactiva la rutina activa actual del cliente (una activa por cliente)."
+      "activateHint": "Al activar se desactiva la rutina activa actual del cliente (una activa por cliente).",
+      "inProgressTitle": "Esta fase ya está en curso",
+      "inProgressHint": "El cliente registró entrenamientos. Los cambios que hagas aplican desde la semana {week}; lo anterior queda como está."
     },
     "form": {
       "client": "Cliente",

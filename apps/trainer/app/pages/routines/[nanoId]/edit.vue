@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CreateRoutine } from '@macross/shared'
+import type { UpdateRoutine } from '@macross/shared'
 import type { BreadcrumbItem } from '@nuxt/ui'
 
 definePageMeta({ layout: 'admin', middleware: 'auth', title: 'routines.edit.title' })
@@ -20,7 +20,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
   { label: t('common.actions.edit') },
 ])
 
-function onSubmit(data: CreateRoutine) {
+function onSubmit(data: UpdateRoutine) {
   update(nanoId, data)
 }
 </script>

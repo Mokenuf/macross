@@ -2,9 +2,9 @@
 import {
   type BaseResponse,
   type Client,
-  type CreateRoutine,
   type Exercise,
   type Routine,
+  type UpdateRoutine,
 } from '@macross/shared'
 
 import type { BuilderDay, BuilderExercise, RoutineBuilderState } from '@/types/routine-builder'
@@ -15,7 +15,7 @@ interface RoutineWizardProps {
 }
 
 interface RoutineWizardEmits {
-  submit: [CreateRoutine]
+  submit: [UpdateRoutine]
 }
 
 const { loading = false, routine } = defineProps<RoutineWizardProps>()
@@ -28,6 +28,15 @@ const DEFAULT_DAYS = 3
 
 const isEdit = computed(() => !!routine)
 const firstStep = computed(() => (isEdit.value ? 1 : 0))
+
+const startWeek = computed(() => routine?.startWeek ?? 1)
+const hasWorkouts = computed(() =>
+  (routine?.days ?? [])
+    .flatMap(day => day.blocks)
+    .flatMap(block => block.exercises)
+    .flatMap(slot => slot.schemes)
+    .some(scheme => scheme.logs?.length),
+)
 
 const currentStep = ref(routine ? 1 : 0)
 const activeDay = ref(0)
@@ -88,9 +97,9 @@ function makeExercise(): BuilderExercise {
   return { exercise: null, sets: 3, reps: '', restSeconds: null, optional: false, notes: '' }
 }
 
-// Edición = full-replace flat: se aplanan los bloques (cada slot → fila suelta) y se toma la
-// prescripción de la semana 1 (en el modelo flat las N semanas nacen iguales). La progresión por
-// semana no sobrevive a este colapso — lo preserva el editor de matriz por semana del builder completo.
+// Edición: se aplanan los bloques (cada slot → fila suelta) y se toma la prescripción de la semana 1
+// (en el modelo flat las N semanas nacen iguales). La progresión por semana no sobrevive a este
+// colapso — lo preserva el editor de matriz por semana del builder completo.
 function seedFromRoutine(r: Routine): RoutineBuilderState {
   return {
     name: r.name,
@@ -99,11 +108,13 @@ function seedFromRoutine(r: Routine): RoutineBuilderState {
     notes: r.notes ?? '',
     activate: r.active,
     days: (r.days ?? []).map(d => ({
+      id: d.id,
       label: d.label ?? '',
       exercises: d.blocks.flatMap(block =>
         block.exercises.map(slot => {
           const week1 = slot.schemes.find(s => s.weekNumber === 1) ?? slot.schemes[0]
           return {
+            id: slot.id,
             exercise: {
               id: slot.exercise.id,
               nameEs: slot.exercise.nameEs,
@@ -166,7 +177,7 @@ function back() {
 }
 
 function submit() {
-  const payload: CreateRoutine = {
+  const payload: UpdateRoutine = {
     name: state.name.trim(),
     clientId: state.clientId || undefined,
     daysPerWeek: state.days.length,
@@ -175,10 +186,12 @@ function submit() {
     isTemplate: false,
     activate: state.activate,
     days: state.days.map(d => ({
+      id: d.id,
       label: d.label.trim() || undefined,
       exercises: d.exercises
         .filter(e => e.exercise)
         .map(e => ({
+          id: e.id,
           exerciseId: e.exercise!.id,
           sets: e.sets,
           reps: e.reps.trim(),
@@ -195,6 +208,15 @@ function submit() {
 <template>
   <div class="space-y-6">
     <UStepper :items="steps" v-model="currentStep" disabled class="w-full" />
+
+    <UAlert
+      v-if="hasWorkouts"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-history"
+      :title="t('routines.wizard.inProgressTitle')"
+      :description="t('routines.wizard.inProgressHint', { week: startWeek })"
+    />
 
     <!-- Copiar rutina y crear desde template todavía no están disponibles -->
     <div v-if="currentStep === 0" class="grid gap-3 sm:grid-cols-3">

@@ -608,6 +608,7 @@ export type Database = {
       get_user_role: { Args: never; Returns: string }
       is_active_client: { Args: never; Returns: boolean }
       is_manager: { Args: never; Returns: boolean }
+      is_my_client: { Args: { _client_id: string }; Returns: boolean }
       is_my_trainer: { Args: { _trainer_id: string }; Returns: boolean }
     }
     Enums: {

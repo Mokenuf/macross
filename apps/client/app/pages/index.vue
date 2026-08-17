@@ -22,7 +22,7 @@ const dayTitle = computed(() => {
 const dayMeta = computed(() => {
   const day = suggestedDay.value
   if (!day || !routine.value) return ''
-  const count = dayExercises(day).length
+  const count = dayExercises(day, week.value).length
   return [
     routine.value.name,
     t('plan.weekShort', { number: week.value }),
