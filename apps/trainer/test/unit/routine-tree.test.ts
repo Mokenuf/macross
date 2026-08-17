@@ -23,8 +23,26 @@ const ONE_DAY_INPUT = {
     {
       label: 'Pierna',
       exercises: [
-        { exerciseId: SQUAT_ID, sets: 4, reps: '10', restSeconds: 120 },
-        { exerciseId: BENCH_ID, sets: 3, reps: '8-10', notes: 'Bajar lento', optional: true },
+        {
+          exerciseId: SQUAT_ID,
+          schemes: [
+            { weekNumber: 1, sets: 3, reps: '10', restSeconds: 120 },
+            { weekNumber: 2, sets: 3, reps: '10', restSeconds: 120 },
+            { weekNumber: 3, sets: 4, reps: '8', restSeconds: 150 },
+            { weekNumber: 4, sets: 4, reps: '6-8', restSeconds: 150, notes: 'Tope de carga' },
+          ],
+        },
+        {
+          exerciseId: BENCH_ID,
+          notes: 'Bajar lento',
+          optional: true,
+          schemes: [
+            { weekNumber: 1, sets: 3, reps: '8-10' },
+            { weekNumber: 2, sets: 3, reps: '8-10' },
+            { weekNumber: 3, sets: 3, reps: '8-10' },
+            { weekNumber: 4, sets: 3, reps: '8-10' },
+          ],
+        },
       ],
     },
   ],
@@ -35,8 +53,24 @@ const TWO_DAYS_INPUT = {
   daysPerWeek: 2,
   days: [
     ...ONE_DAY_INPUT.days,
-    { label: 'Espalda', exercises: [{ exerciseId: ROW_ID, sets: 3, reps: '12' }] },
+    {
+      label: 'Espalda',
+      exercises: [
+        {
+          exerciseId: ROW_ID,
+          schemes: [
+            { weekNumber: 1, sets: 3, reps: '12' },
+            { weekNumber: 2, sets: 3, reps: '12' },
+          ],
+        },
+      ],
+    },
   ],
+}
+
+function schemesOf(tree: ReturnType<typeof buildRoutineTree>, exerciseId: string) {
+  const slot = tree.slotRows.find(s => s.exercise_id === exerciseId)
+  return tree.schemeRows.filter(s => s.routine_exercise_id === slot?.id)
 }
 
 describe('buildRoutineTree', () => {
@@ -78,46 +112,72 @@ describe('buildRoutineTree', () => {
     }
   })
 
-  it('replica la prescripción en una scheme idéntica por semana', () => {
-    const { slotRows, schemeRows } = buildRoutineTree(buildBody(ONE_DAY_INPUT), ROUTINE_ID)
+  it('escribe una scheme por semana con su propia prescripción', () => {
+    const tree = buildRoutineTree(buildBody(ONE_DAY_INPUT), ROUTINE_ID)
+    const squat = schemesOf(tree, SQUAT_ID)
 
-    expect(schemeRows).toHaveLength(8)
+    expect(tree.schemeRows).toHaveLength(8)
+    expect(squat.map(s => s.week_number)).toEqual([1, 2, 3, 4])
+    expect(squat.map(s => s.sets)).toEqual([3, 3, 4, 4])
+    expect(squat.map(s => s.reps)).toEqual(['10', '10', '8', '6-8'])
+    expect(squat.map(s => s.rest_seconds)).toEqual([120, 120, 150, 150])
+  })
 
-    const squat = slotRows.find(s => s.exercise_id === SQUAT_ID)
-    const squatSchemes = schemeRows.filter(s => s.routine_exercise_id === squat?.id)
+  it('una semana sin prescripción no genera fila', () => {
+    const tree = buildRoutineTree(buildBody(TWO_DAYS_INPUT), ROUTINE_ID)
 
-    expect(squatSchemes.map(s => s.week_number)).toEqual([1, 2, 3, 4])
-    expect(squatSchemes.every(s => s.sets === 4 && s.reps === '10' && s.rest_seconds === 120)).toBe(
-      true,
+    expect(schemesOf(tree, ROW_ID).map(s => s.week_number)).toEqual([1, 2])
+  })
+
+  it('descarta las semanas fuera del rango de weeks', () => {
+    const tree = buildRoutineTree(buildBody({ ...ONE_DAY_INPUT, weeks: 2 }), ROUTINE_ID)
+
+    expect(tree.schemeRows).toHaveLength(4)
+    expect(new Set(tree.schemeRows.map(s => s.week_number))).toEqual(new Set([1, 2]))
+  })
+
+  it('descarta una semana repetida en vez de romper el índice único', () => {
+    const tree = buildRoutineTree(
+      buildBody({
+        ...ONE_DAY_INPUT,
+        weeks: 1,
+        days: [
+          {
+            exercises: [
+              {
+                exerciseId: SQUAT_ID,
+                schemes: [
+                  { weekNumber: 1, sets: 3, reps: '10' },
+                  { weekNumber: 1, sets: 5, reps: '5' },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+      ROUTINE_ID,
     )
+
+    expect(tree.schemeRows).toHaveLength(1)
+    expect(tree.schemeRows[0]?.sets).toBe(3)
   })
 
-  it('respeta el weeks del body en vez de asumir 4', () => {
-    const { schemeRows } = buildRoutineTree(buildBody({ ...ONE_DAY_INPUT, weeks: 2 }), ROUTINE_ID)
-
-    expect(schemeRows).toHaveLength(4)
-    expect(new Set(schemeRows.map(s => s.week_number))).toEqual(new Set([1, 2]))
-  })
-
-  it('manda la nota del ejercicio al slot y deja las schemes sin nota', () => {
-    const { slotRows, schemeRows } = buildRoutineTree(buildBody(ONE_DAY_INPUT), ROUTINE_ID)
-
-    const bench = slotRows.find(s => s.exercise_id === BENCH_ID)
+  it('separa la nota estable del slot de la nota de la semana', () => {
+    const tree = buildRoutineTree(buildBody(ONE_DAY_INPUT), ROUTINE_ID)
+    const bench = tree.slotRows.find(s => s.exercise_id === BENCH_ID)
 
     expect(bench?.notes).toBe('Bajar lento')
     expect(bench?.optional).toBe(true)
-    expect(schemeRows.every(s => s.notes === null)).toBe(true)
+    expect(schemesOf(tree, BENCH_ID).every(s => s.notes === null)).toBe(true)
+    expect(schemesOf(tree, SQUAT_ID).map(s => s.notes)).toEqual([null, null, null, 'Tope de carga'])
   })
 
   it('convierte los campos ausentes a null (Supabase no acepta undefined)', () => {
-    const { slotRows, schemeRows } = buildRoutineTree(buildBody(ONE_DAY_INPUT), ROUTINE_ID)
-
-    const squat = slotRows.find(s => s.exercise_id === SQUAT_ID)
-    const bench = slotRows.find(s => s.exercise_id === BENCH_ID)
-    const benchSchemes = schemeRows.filter(s => s.routine_exercise_id === bench?.id)
+    const tree = buildRoutineTree(buildBody(ONE_DAY_INPUT), ROUTINE_ID)
+    const squat = tree.slotRows.find(s => s.exercise_id === SQUAT_ID)
 
     expect(squat?.notes).toBeNull()
-    expect(benchSchemes.every(s => s.rest_seconds === null)).toBe(true)
+    expect(schemesOf(tree, BENCH_ID).every(s => s.rest_seconds === null)).toBe(true)
   })
 
   it('un día sin ejercicios genera solo la fila del día', () => {

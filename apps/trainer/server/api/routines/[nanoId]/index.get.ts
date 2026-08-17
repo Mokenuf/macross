@@ -51,9 +51,7 @@ export default defineEventHandler(async (event): Promise<Routine> => {
   }
 
   const routine = routineSchema.parse(toCamelCase<Routine>(data))
+  const startWeek = findStartWeek({ id: routine.id, days: routine.days ?? [] }, routine.weeks)
 
-  return {
-    ...routine,
-    startWeek: findStartWeek({ id: routine.id, days: routine.days ?? [] }, routine.weeks),
-  }
+  return { ...toRoutineResponse(routine), startWeek }
 })

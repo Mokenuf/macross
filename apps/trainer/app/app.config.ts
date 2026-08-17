@@ -1,7 +1,12 @@
 const inputSurface = 'bg-macross-gray-950'
 const controlSize = 'px-3 py-2.5 text-sm gap-2'
+// Los controles traen `rounded-md`, que NuxtUI resuelve como --ui-radius * 1.5 = 12px: más redondeado
+// que el mock. Se baja a `rounded-sm` (= --ui-radius, 8px) para que matcheen la celda de la matriz y
+// los wells segmentados. No se toca --ui-radius, que arrastraría cards y botones.
+const controlShape = 'rounded-sm'
 
 const control = {
+  slots: { base: controlShape },
   variants: {
     variant: { outline: inputSurface },
     size: { md: { base: controlSize } },
@@ -11,6 +16,7 @@ const control = {
 // UInputNumber tipa su variante `size` como string (aplica al slot base), no como objeto
 // { base } como UInput/UTextarea → su override necesita el shape string o no matchea la altura.
 const inputNumberControl = {
+  slots: { base: controlShape },
   variants: {
     variant: { outline: inputSurface },
     size: { md: controlSize },
@@ -18,7 +24,7 @@ const inputNumberControl = {
 }
 
 const selectControl = {
-  slots: { content: 'bg-elevated' },
+  slots: { base: controlShape, content: 'bg-elevated' },
   variants: {
     variant: { outline: inputSurface },
     size: { md: { base: controlSize, trailingIcon: 'size-3.5', itemTrailingIcon: 'size-4' } },
@@ -91,6 +97,7 @@ export default defineAppConfig({
       },
     },
     input: {
+      slots: { base: controlShape },
       variants: {
         variant: { outline: inputSurface },
         size: { md: { base: controlSize, leadingIcon: 'size-4' } },

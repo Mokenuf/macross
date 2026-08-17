@@ -1,4 +1,4 @@
-import type { UpdateRoutine } from '@macross/shared'
+import type { UpdateRoutine, UpdateRoutineExercise } from '@macross/shared'
 
 export type OldLog = { completed: boolean; deletedAt?: string | null }
 
@@ -70,8 +70,16 @@ type SchemeRow = {
 // mover A→1 mientras B sigue en 1 explota. Esta base saca a todos los vivos del rango final primero.
 const TEMP_SORT_BASE = 1000
 
-function schemeForWeek(slot: OldSlot, week: number) {
+function trainedSetCount(scheme: OldScheme) {
+  return (scheme.logs ?? []).filter(log => log.completed && !log.deletedAt).length
+}
+
+function oldSchemeForWeek(slot: OldSlot, week: number) {
   return slot.schemes.find(scheme => scheme.weekNumber === week) ?? null
+}
+
+function prescriptionForWeek(exercise: UpdateRoutineExercise, week: number) {
+  return exercise.schemes.find(scheme => scheme.weekNumber === week) ?? null
 }
 
 // Un ejercicio sin prescripción para esa semana no pertenece a esa semana: no la traba. Es lo que
@@ -80,16 +88,15 @@ function schemeForWeek(slot: OldSlot, week: number) {
 function isOldDayDone(day: OldDay, week: number) {
   const slots = day.blocks
     .flatMap(block => block.exercises)
-    .filter(slot => schemeForWeek(slot, week))
+    .filter(slot => oldSchemeForWeek(slot, week))
 
   if (!slots.length) return true
 
   const required = slots.filter(slot => !slot.optional)
 
   return (required.length ? required : slots).every(slot => {
-    const scheme = schemeForWeek(slot, week)!
-    const done = (scheme.logs ?? []).filter(log => log.completed && !log.deletedAt).length
-    return done >= scheme.sets
+    const scheme = oldSchemeForWeek(slot, week)!
+    return trainedSetCount(scheme) >= scheme.sets
   })
 }
 
@@ -159,13 +166,16 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
           notes: exercise.notes ?? null,
         })
         for (let week = startWeek; week <= body.weeks; week++) {
+          const prescription = prescriptionForWeek(exercise, week)
+          if (!prescription) continue
+
           schemeInserts.push({
             routine_exercise_id: slotId,
             week_number: week,
-            sets: exercise.sets,
-            reps: exercise.reps,
-            rest_seconds: exercise.restSeconds ?? null,
-            notes: null,
+            sets: prescription.sets,
+            reps: prescription.reps,
+            rest_seconds: prescription.restSeconds ?? null,
+            notes: prescription.notes ?? null,
           })
         }
         return
@@ -191,17 +201,26 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
 
       // La prescripción de las semanas ya transitadas no se toca: es lo que el cliente entrenó.
       for (let week = startWeek; week <= body.weeks; week++) {
-        const scheme = schemeForWeek(existing.slot, week)
+        const prescription = prescriptionForWeek(exercise, week)
+        // El builder no deja guardar con una semana incompleta, así que esto no debería pasar; si
+        // pasa, la scheme vieja queda como está: sostiene workout_logs y no se puede borrar.
+        if (!prescription) continue
+
+        const scheme = oldSchemeForWeek(existing.slot, week)
+        // Lo ya entrenado no se toca, y se decide por celda y no por semana: con el picker de /plan
+        // el cliente puede registrar series en cualquier semana, no solo en la que va transitando.
+        if (scheme && trainedSetCount(scheme) > 0) continue
         const values = {
           routine_exercise_id: existing.slot.id,
           week_number: week,
-          sets: exercise.sets,
-          reps: exercise.reps,
-          rest_seconds: exercise.restSeconds ?? null,
+          sets: prescription.sets,
+          reps: prescription.reps,
+          rest_seconds: prescription.restSeconds ?? null,
+          notes: prescription.notes ?? null,
         }
 
-        if (scheme) schemeUpdates.push({ ...values, id: scheme.id, notes: scheme.notes })
-        else schemeInserts.push({ ...values, notes: null })
+        if (scheme) schemeUpdates.push({ ...values, id: scheme.id })
+        else schemeInserts.push(values)
       }
     })
   })

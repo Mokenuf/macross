@@ -81,7 +81,7 @@
       "activate": "Activate this routine",
       "activateHint": "Activating deactivates the client's current active routine (one active per client).",
       "inProgressTitle": "This phase is already underway",
-      "inProgressHint": "The client has logged workouts. Your changes apply from week {week} onward; everything before stays as is."
+      "inProgressHint": "The client has already logged sets: the cells they trained are locked. Anything you add or change applies from week {week} on."
     },
     "form": {
       "client": "Client",
@@ -116,7 +116,13 @@
       "repsPlaceholder": "12",
       "rest": "Rest (sec)",
       "restPlaceholder": "90",
-      "optional": "Optional"
+      "optional": "Optional",
+      "cellHeader": "Editing · {name} · Wk {n}",
+      "cellDone": "Done",
+      "applyToRest": "Apply to the following weeks",
+      "lockedTrained": "The client already logged sets here",
+      "lockedPast": "Week already closed",
+      "notApplicable": "This exercise starts on week {n}"
     },
     "toasts": {
       "created": "Routine created",

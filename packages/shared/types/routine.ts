@@ -13,7 +13,11 @@ export const routineExerciseSchemeSchema = z.object({
   reps: z.string(),
   restSeconds: z.number().int().nullable(),
   notes: z.string().nullable(),
+  // Dos consumidores, dos shapes: la PWA necesita las filas (peso y reps por serie); el builder del
+  // trainer solo el conteo, para bloquear la celda ya entrenada. El read del trainer sirve el
+  // conteo en vez de los logs, así el candado no depende de cuántos logs embeba el endpoint.
   logs: z.array(workoutLogSchema).optional(),
+  trainedSets: z.number().int().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 })
@@ -88,13 +92,24 @@ export const routineSchema = z.object({
   deletedAt: z.string().nullable(),
 })
 
+// Una semana ausente NO es un dato faltante: significa que el ejercicio no se prescribe esa semana
+// (el read ya lo modela así, `schemeForWeek` devuelve null y la PWA no lo dibuja). Por eso el array
+// es rango abierto y no una tupla de 4.
+export const createRoutineSchemeSchema = z.object({
+  weekNumber: z.coerce.number().int().min(1),
+  sets: z.coerce.number().int().min(1),
+  reps: z.string().min(1),
+  restSeconds: z.coerce.number().int().nonnegative().optional(),
+  notes: z.string().optional(),
+})
+
+// El scheme no lleva id: `(slot, weekNumber)` ya lo identifica (índice único en la DB), así que el
+// server lo resuelve por semana. Mismo criterio que los bloques.
 export const createRoutineExerciseSchema = z.object({
   exerciseId: z.uuid(),
   optional: z.boolean().optional().default(false),
   notes: z.string().optional(),
-  sets: z.coerce.number().int().min(1),
-  reps: z.string().min(1),
-  restSeconds: z.coerce.number().int().nonnegative().optional(),
+  schemes: z.array(createRoutineSchemeSchema).min(1),
 })
 
 export const createRoutineDaySchema = z.object({
@@ -146,6 +161,7 @@ export type RoutineBlock = z.infer<typeof routineBlockSchema>
 export type RoutineDay = z.infer<typeof routineDaySchema>
 export type Routine = z.infer<typeof routineSchema>
 
+export type CreateRoutineScheme = z.infer<typeof createRoutineSchemeSchema>
 export type CreateRoutineExercise = z.infer<typeof createRoutineExerciseSchema>
 export type CreateRoutineDay = z.infer<typeof createRoutineDaySchema>
 export type CreateRoutine = z.infer<typeof createRoutineSchema>
