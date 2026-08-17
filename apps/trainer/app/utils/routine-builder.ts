@@ -36,6 +36,14 @@ export function isDayComplete(day: BuilderDay, startWeek: number) {
   )
 }
 
+// Dos superficies mueven lo mismo (el drag y los ↑/↓): un solo lugar donde el movimiento se define.
+export function moveItem<T>(items: T[], from: number, to: number): T[] {
+  const item = items[from]
+  if (item === undefined || from === to || to < 0 || to >= items.length) return items
+
+  return items.toSpliced(from, 1).toSpliced(to, 0, item)
+}
+
 export function makeScheme(weekNumber: number, from?: Partial<BuilderScheme>): BuilderScheme {
   return {
     weekNumber,

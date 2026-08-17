@@ -106,6 +106,8 @@
       "addExerciseToBlock": "Agregar ejercicio al bloque",
       "removeExercise": "Quitar ejercicio",
       "groupWithNext": "Agrupar con el bloque siguiente",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
       "noExercise": "Sin ejercicio",
       "exercisePlaceholder": "Buscar ejercicio…",
       "exerciseNotesPlaceholder": "Nota para este ejercicio…",
