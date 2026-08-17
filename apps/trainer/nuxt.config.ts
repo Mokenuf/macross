@@ -43,6 +43,12 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: { scan: true },
   },
+  // Nuxt solo incluye test/nuxt/ en su contexto de TS; sin esto los unit tests no los ve `nuxt typecheck`
+  typescript: {
+    tsConfig: {
+      include: ['../test/**/*'],
+    },
+  },
   supabase: {
     cookiePrefix: 'sb-trainer',
     redirect: false,
