@@ -8,6 +8,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "cross-env SKIP_ENV_VALIDATION=1 nuxt prepare",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
@@ -30,6 +32,7 @@
     "@vueuse/nuxt": "^14.4.0",
     "cross-env": "^10.1.0",
     "typescript": "^6.0.3",
+    "vitest": "^4.1.10",
     "vue-tsc": "^3.3.9"
   }
 }
