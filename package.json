@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev:trainer": "turbo run dev --filter=@macross/trainer",
+    "dev:trainer:prod": "turbo run dev:prod --filter=@macross/trainer",
     "dev:client": "turbo run dev --filter=@macross/client",
+    "dev:client:prod": "turbo run dev:prod --filter=@macross/client",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "turbo run test",

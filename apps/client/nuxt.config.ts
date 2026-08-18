@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import './env'
 
 const namespaces = ['common', 'nav', 'auth', 'validation', 'plan', 'profile']
+const isLocalDb = process.env.SUPABASE_URL?.includes('127.0.0.1')
 
 export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/i18n', '@vite-pwa/nuxt', '@vueuse/nuxt'],
@@ -63,7 +64,7 @@ export default defineNuxtConfig({
     },
   },
   supabase: {
-    cookiePrefix: 'sb-client',
+    cookiePrefix: isLocalDb ? 'sb-client-local' : 'sb-client',
     redirect: false,
     types: '@macross/shared/types/database.ts',
     clientOptions: {

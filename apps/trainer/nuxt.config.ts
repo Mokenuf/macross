@@ -18,6 +18,8 @@ const namespaces = [
   'routines',
 ]
 
+const isLocalDb = process.env.SUPABASE_URL?.includes('127.0.0.1')
+
 export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/supabase', '@vueuse/nuxt', '@nuxtjs/i18n'],
   alias: {
@@ -50,7 +52,7 @@ export default defineNuxtConfig({
     },
   },
   supabase: {
-    cookiePrefix: 'sb-trainer',
+    cookiePrefix: isLocalDb ? 'sb-trainer-local' : 'sb-trainer',
     redirect: false,
     types: '@macross/shared/types/database.ts',
     clientOptions: {
