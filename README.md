@@ -40,7 +40,12 @@ macross-for-progress/
 ├── packages/
 │   └── shared/           # Tipos y schemas compartidos
 ├── supabase/
-│   └── email-templates/  # Copias versionadas de los templates de Supabase Auth
+│   ├── migrations/       # Schema versionado (fuente de verdad de la base)
+│   ├── email-templates/  # Copias versionadas de los templates de Supabase Auth
+│   ├── scripts/          # Operaciones puntuales sobre un entorno remoto
+│   ├── seed.sql          # Cuentas de la base local
+│   ├── seed-catalog.sql  # Catálogo compartido (grupos musculares, equipamiento)
+│   └── config.toml       # Config del stack local (puertos, auth, SMTP de prueba)
 ├── .oxlintrc.json
 ├── .oxfmtrc.json
 ├── turbo.json
@@ -50,29 +55,54 @@ macross-for-progress/
 
 ## Setup
 
+El desarrollo corre contra una **base local de Supabase en Docker** (requiere Docker corriendo), con el
+schema versionado en `supabase/migrations/`. No hace falta acceso al proyecto de producción.
+
 ```bash
 # Clonar e instalar
 git clone <repo-url>
 cd macross
 pnpm install
 
-# Configurar Supabase (un .env por app)
+# Levantar la base local (API 54321, DB 54322, Studio 54323, Mailpit 54324)
+pnpm db:start
+pnpm db:status        # imprime las URLs y las keys que van en los .env
+
+# Configurar un .env por app (los .env.example ya apuntan a la base local)
 cp apps/trainer/.env.example apps/trainer/.env
 cp apps/client/.env.example apps/client/.env
-# Completar SUPABASE_URL, SUPABASE_KEY (ambas apps)
-# trainer: + SUPABASE_SECRET_KEY, NUXT_TRAINER_APP_URL, NUXT_CLIENT_APP_URL (invites)
-# client:  + NUXT_CLIENT_APP_URL (redirectTo del recovery a la propia app)
+# Completar SUPABASE_KEY y SUPABASE_SECRET_KEY con lo que imprimió db:status
+
+# Aplicar migraciones + datos de arranque
+pnpm db:reset
+
+pnpm dev
 ```
+
+`pnpm db:reset` deja la base **usable**: crea las cuentas de trabajo (manager, trainer y cliente) con
+contraseña conocida, así se puede entrar a las dos apps sin pasos manuales. Las credenciales están en
+`supabase/seed.sql` — son de una base local y descartable, producción da de alta por invitación por mail.
+
+Los mails de auth (invitación, recuperación) **no salen a internet** en local: caen en **Mailpit**
+(`http://localhost:54324`), donde se pueden abrir y seguir los links.
 
 ## Comandos
 
 ```bash
-pnpm dev              # Ambas apps en paralelo
+pnpm dev              # Ambas apps en paralelo (contra la base local)
 pnpm dev:trainer      # Solo el dashboard
 pnpm dev:client       # Solo la PWA
+pnpm dev:trainer:prod # Dashboard contra producción (solo lectura de datos reales)
+pnpm dev:client:prod  # PWA contra producción
 pnpm build            # Build de producción
 pnpm test             # Todos los tests (via Turbo)
 pnpm test:shared      # Tests de packages/shared
+pnpm db:start         # Levanta la base local en Docker
+pnpm db:stop          # Baja los contenedores
+pnpm db:status        # URLs y keys del stack local
+pnpm db:reset         # Recrea la base local: migraciones en orden + seed
+pnpm db:diff          # Captura en SQL lo tocado a mano en Studio local
+pnpm db:push          # Aplica a producción las migraciones que falten
 pnpm db:generate      # Regenera los tipos de Supabase tras una migración
 pnpm lint             # Oxlint
 pnpm lint:fix         # Oxlint con autofix
