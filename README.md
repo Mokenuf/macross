@@ -42,7 +42,9 @@ macross-for-progress/
 ├── supabase/
 │   ├── migrations/       # Schema versionado (fuente de verdad de la base)
 │   ├── email-templates/  # Copias versionadas de los templates de Supabase Auth
-│   ├── seed.sql          # Datos de arranque de la base local
+│   ├── scripts/          # Operaciones puntuales sobre un entorno remoto
+│   ├── seed.sql          # Cuentas de la base local
+│   ├── seed-catalog.sql  # Catálogo compartido (grupos musculares, equipamiento)
 │   └── config.toml       # Config del stack local (puertos, auth, SMTP de prueba)
 ├── .oxlintrc.json
 ├── .oxfmtrc.json
