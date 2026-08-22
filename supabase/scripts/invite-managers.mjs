@@ -12,17 +12,28 @@
 // como dep transitiva de @nuxtjs/supabase, asi que bajo el linkeo estricto de
 // pnpm un script suelto no la puede importar. La API admin de GoTrue es REST.
 //
-// Uso:
-//   SUPABASE_URL=... SUPABASE_SECRET_KEY=... NUXT_TRAINER_APP_URL=... \
-//     node supabase/scripts/invite-managers.mjs
+// Uso (el roster va por argumentos, un manager por argumento):
+//   SUPABASE_URL=... SUPABASE_SECRET_KEY=... NUXT_TRAINER_APP_URL=...
+//   node supabase/scripts/invite-managers.mjs "mail@ejemplo.com:Nombre Completo"
 //
 // Idempotente: si el mail ya tiene usuario, saltea el invite y solo se asegura
 // de la fila en `trainers`. Re-correrlo no manda mails de mas.
 
-const ROSTER = [
-  { email: 'payo.metal@gmail.com', fullName: 'Fran Racciatti' },
-  { email: 'sebacensi@hotmail.com', fullName: 'Seba Censi' },
-]
+// El roster llega por argumentos y no hardcodeado: son mails de personas reales y
+// el repo es publico. Formato: "email:Nombre Completo" (los mails no llevan ":").
+const ROSTER = process.argv.slice(2).map(arg => {
+  const sep = arg.indexOf(':')
+  if (sep < 1 || sep === arg.length - 1) {
+    console.error(`Argumento invalido: "${arg}". Formato esperado: email:Nombre Completo`)
+    process.exit(1)
+  }
+  return { email: arg.slice(0, sep), fullName: arg.slice(sep + 1) }
+})
+
+if (ROSTER.length === 0) {
+  console.error('Uso: node supabase/scripts/invite-managers.mjs "mail@ejemplo.com:Nombre" [...]')
+  process.exit(1)
+}
 
 const { SUPABASE_URL, SUPABASE_SECRET_KEY, NUXT_TRAINER_APP_URL } = process.env
 

@@ -2,9 +2,15 @@
 -- No hace falta que sea idempotente: db reset recrea la base antes de llegar acá.
 --
 -- Contraseña de las tres cuentas: Macross$1234
--- Roster acotado a las cuentas de Fran vía +alias de Gmail. El cliente cuelga del
--- TRAINER y no del manager a propósito: es lo único que ejercita el scoping
--- `trainer_id = auth.uid()` (listados, sidebar por rol, 403 al borrar un manager).
+--
+-- Direcciones ficticias (@macross.local) y no las reales de nadie: el repo es
+-- público, y no hacen falta. Mailpit ataja TODO el correo del stack local sin
+-- importar el destinatario, así que los flows de invite y recovery se prueban
+-- igual con una dirección inventada.
+--
+-- El cliente cuelga del TRAINER y no del manager a propósito: es lo único que
+-- ejercita el scoping `trainer_id = auth.uid()` (listados, sidebar por rol, 403
+-- al borrar un manager).
 
 insert into auth.users (
   instance_id,
@@ -25,7 +31,7 @@ values
     '7b608278-95e8-494d-b0f5-67467d9d0bf8',
     'authenticated',
     'authenticated',
-    'payo.metal@gmail.com',
+    'manager@macross.local',
     extensions.crypt('Macross$1234', extensions.gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
@@ -38,7 +44,7 @@ values
     '2aec9563-71cf-4f4b-a356-2f48d95fb807',
     'authenticated',
     'authenticated',
-    'payo.metal+trainer@gmail.com',
+    'trainer@macross.local',
     extensions.crypt('Macross$1234', extensions.gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
@@ -51,7 +57,7 @@ values
     '506cab7a-5ea4-4a02-b8fe-e29fad40dfbc',
     'authenticated',
     'authenticated',
-    'payo.metal+client@gmail.com',
+    'client@macross.local',
     extensions.crypt('Macross$1234', extensions.gen_salt('bf')),
     now(),
     '{"provider":"email","providers":["email"]}',
@@ -99,8 +105,8 @@ from auth.users u;
 
 insert into public.trainers (id, full_name, email, role)
 values
-  ('7b608278-95e8-494d-b0f5-67467d9d0bf8', 'Fran Racciatti', 'payo.metal@gmail.com', 'manager'),
-  ('2aec9563-71cf-4f4b-a356-2f48d95fb807', 'Fran Trainer', 'payo.metal+trainer@gmail.com', 'trainer');
+  ('7b608278-95e8-494d-b0f5-67467d9d0bf8', 'Manager Local', 'manager@macross.local', 'manager'),
+  ('2aec9563-71cf-4f4b-a356-2f48d95fb807', 'Trainer Local', 'trainer@macross.local', 'trainer');
 
 insert into public.clients (
   id,
@@ -117,8 +123,8 @@ insert into public.clients (
 values (
   '506cab7a-5ea4-4a02-b8fe-e29fad40dfbc',
   '2aec9563-71cf-4f4b-a356-2f48d95fb807',
-  'Fran Cliente',
-  'payo.metal+client@gmail.com',
+  'Cliente Local',
+  'client@macross.local',
   '1990-03-14',
   78.50,
   178,
