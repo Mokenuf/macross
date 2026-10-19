@@ -1,8 +1,13 @@
-type RestTimerState = { endsAt: number; totalMs: number } | null
+export type TimerKind = 'work' | 'transition' | 'rest'
+export type TimerEnd = { kind: TimerKind; elapsedMs: number; totalMs: number }
 
-export function useRestTimer() {
+// Un solo slot: trabajo, transición y descanso nunca corren a la vez.
+type TimerState = { kind: TimerKind; endsAt: number; totalMs: number } | null
+
+export function useWorkoutTimer() {
   const now = shallowRef(Date.now())
-  const state = useState<RestTimerState>('rest-timer', () => null)
+  const state = useState<TimerState>('workout-timer', () => null)
+  const ended = createEventHook<TimerEnd>()
   const { vibrate } = useVibrate()
   const { release, request } = useWakeLock()
 
@@ -13,6 +18,7 @@ export function useRestTimer() {
   // Derivado de un timestamp y no decrementando: el browser congela el tick en background.
   const remaining = computed(() => (state.value ? Math.max(0, state.value.endsAt - now.value) : 0))
   const isRunning = computed(() => remaining.value > 0)
+  const kind = computed(() => state.value?.kind ?? null)
   const progress = computed(() => (state.value ? 1 - remaining.value / state.value.totalMs : 1))
 
   const isFinalCountdown = computed(
@@ -29,11 +35,11 @@ export function useRestTimer() {
     }
   })
 
-  function start(seconds: number) {
+  function start(timerKind: TimerKind, seconds: number) {
     if (seconds <= 0) return
 
     now.value = Date.now()
-    state.value = { endsAt: now.value + seconds * 1000, totalMs: seconds * 1000 }
+    state.value = { kind: timerKind, endsAt: now.value + seconds * 1000, totalMs: seconds * 1000 }
     resume()
     // Con el device bloqueado iOS suspende el AudioContext y congela el tick.
     void request('screen')
@@ -44,6 +50,7 @@ export function useRestTimer() {
     if (!state.value) return
 
     state.value = {
+      ...state.value,
       endsAt: state.value.endsAt + seconds * 1000,
       totalMs: state.value.totalMs + seconds * 1000,
     }
@@ -51,14 +58,29 @@ export function useRestTimer() {
   }
 
   function skip() {
+    const end = snapshot()
     cancelCues()
     stop()
+    if (end) void ended.trigger(end)
   }
 
   // Los tonos no se cancelan: ya están agendados y suenan aunque el tick llegue tarde.
   function finish() {
+    const end = snapshot()
     vibrate(FINAL_VIBRATION)
     stop()
+    if (end) void ended.trigger(end)
+  }
+
+  // El trabajo cortado antes registra lo que se aguantó.
+  function snapshot(): TimerEnd | null {
+    if (!state.value) return null
+    const { endsAt, kind: timerKind, totalMs } = state.value
+    return {
+      kind: timerKind,
+      totalMs,
+      elapsedMs: Math.min(totalMs, Date.now() - (endsAt - totalMs)),
+    }
   }
 
   function stop() {
@@ -78,10 +100,20 @@ export function useRestTimer() {
     }
   }
 
-  return { add, isFinalCountdown, isRunning, progress, remaining, skip, start }
+  return {
+    add,
+    isFinalCountdown,
+    isRunning,
+    kind,
+    onEnd: ended.on,
+    progress,
+    remaining,
+    skip,
+    start,
+  }
 }
 
-// A nivel de módulo: el cliente puede irse del ejercicio mientras descansa y el aviso tiene que sonar igual.
+// A nivel de módulo: el cliente puede irse del ejercicio mientras corre y el aviso tiene que sonar igual.
 let audio: { bus: DynamicsCompressorNode; context: AudioContext } | null = null
 let scheduledTones: OscillatorNode[] = []
 

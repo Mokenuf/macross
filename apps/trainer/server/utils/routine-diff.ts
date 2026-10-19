@@ -1,15 +1,21 @@
-import type { UpdateRoutine, UpdateRoutineExercise } from '@macross/shared'
+import type { UpdateRoutine, UpdateRoutineBlock, UpdateRoutineExercise } from '@macross/shared'
 
 export type OldLog = { completed: boolean; deletedAt?: string | null }
 
 export type OldScheme = {
   id: string
   weekNumber: number
-  sets: number
   reps: string
-  restSeconds: number | null
   notes: string | null
   logs?: OldLog[] | null
+}
+
+export type OldBlockScheme = {
+  id: string
+  weekNumber: number
+  sets: number
+  restSeconds: number | null
+  transitionSeconds: number | null
 }
 
 export type OldSlot = {
@@ -25,6 +31,7 @@ export type OldBlock = {
   type: string
   sortOrder: number
   notes: string | null
+  schemes: OldBlockScheme[]
   exercises: OldSlot[]
 }
 
@@ -56,12 +63,18 @@ type SlotRow = {
   notes: string | null
 }
 
+type BlockSchemeRow = {
+  routine_block_id: string
+  week_number: number
+  sets: number
+  rest_seconds: number | null
+  transition_seconds: number | null
+}
+
 type SchemeRow = {
   routine_exercise_id: string
   week_number: number
-  sets: number
   reps: string
-  rest_seconds: number | null
   notes: string | null
 }
 
@@ -79,26 +92,39 @@ function oldSchemeForWeek(slot: OldSlot, week: number) {
   return slot.schemes.find(scheme => scheme.weekNumber === week) ?? null
 }
 
+function oldBlockSchemeForWeek(block: OldBlock, week: number) {
+  return block.schemes.find(scheme => scheme.weekNumber === week) ?? null
+}
+
 function prescriptionForWeek(exercise: UpdateRoutineExercise, week: number) {
   return exercise.schemes.find(scheme => scheme.weekNumber === week) ?? null
+}
+
+function roundsForWeek(block: UpdateRoutineBlock, week: number) {
+  return block.schemes.find(scheme => scheme.weekNumber === week) ?? null
 }
 
 // Un ejercicio sin prescripción para esa semana no pertenece a esa semana: no la traba. Es lo que
 // deja que un ejercicio cambiado a mitad de fase arranque en la semana en curso sin volver
 // "incompletas" las semanas que el cliente ya cerró. Espejo de isDayDone en apps/client.
 function isOldDayDone(day: OldDay, week: number) {
-  const slots = day.blocks
-    .flatMap(block => block.exercises)
-    .filter(slot => oldSchemeForWeek(slot, week))
+  const slots = day.blocks.flatMap(block => {
+    const rounds = oldBlockSchemeForWeek(block, week)
+    if (!rounds) return []
+
+    return block.exercises.flatMap(slot => {
+      const scheme = oldSchemeForWeek(slot, week)
+      return scheme ? [{ slot, scheme, sets: rounds.sets }] : []
+    })
+  })
 
   if (!slots.length) return true
 
-  const required = slots.filter(slot => !slot.optional)
+  const required = slots.filter(({ slot }) => !slot.optional)
 
-  return (required.length ? required : slots).every(slot => {
-    const scheme = oldSchemeForWeek(slot, week)!
-    return trainedSetCount(scheme) >= scheme.sets
-  })
+  return (required.length ? required : slots).every(
+    ({ scheme, sets }) => trainedSetCount(scheme) >= sets,
+  )
 }
 
 // La semana en curso: la primera sin cerrar. Todo lo que se agregue o cambie arranca acá, para que
@@ -129,6 +155,8 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
   const dayUpdates: DayRow[] = []
   const blockInserts: BlockRow[] = []
   const blockUpdates: BlockRow[] = []
+  const blockSchemeInserts: BlockSchemeRow[] = []
+  const blockSchemeUpdates: (BlockSchemeRow & { id: string })[] = []
   const slotInserts: SlotRow[] = []
   const slotUpdates: SlotRow[] = []
   const schemeInserts: SchemeRow[] = []
@@ -164,6 +192,41 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
         blockInserts.push(blockRow)
       }
 
+      // Mismo predicado que isBlockSchemeLocked en el builder.
+      const trainedInWeek = (week: number) =>
+        block.exercises.some(exercise => {
+          const slot = exercise.id ? oldSlots.get(exercise.id) : undefined
+          const scheme = slot ? oldSchemeForWeek(slot, week) : null
+          return !!scheme && trainedSetCount(scheme) > 0
+        })
+
+      for (let week = 1; week <= body.weeks; week++) {
+        const rounds = roundsForWeek(block, week)
+        if (!rounds) continue
+
+        const values = {
+          routine_block_id: blockId,
+          week_number: week,
+          sets: rounds.sets,
+          rest_seconds: rounds.restSeconds ?? null,
+          transition_seconds: rounds.transitionSeconds ?? null,
+        }
+
+        // Un bloque salido de desagrupar trae las semanas ya transitadas: sin ellas, sus ejercicios
+        // desaparecerían de esas semanas para el cliente.
+        if (!existingBlock) {
+          blockSchemeInserts.push(values)
+          continue
+        }
+
+        if (week < startWeek) continue
+        const oldRounds = oldBlockSchemeForWeek(existingBlock, week)
+        if (oldRounds && trainedInWeek(week)) continue
+
+        if (oldRounds) blockSchemeUpdates.push({ ...values, id: oldRounds.id })
+        else blockSchemeInserts.push(values)
+      }
+
       block.exercises.forEach((exercise, sortOrder) => {
         const existing = exercise.id ? oldSlots.get(exercise.id) : undefined
 
@@ -187,9 +250,7 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
             schemeInserts.push({
               routine_exercise_id: slotId,
               week_number: week,
-              sets: prescription.sets,
               reps: prescription.reps,
-              rest_seconds: prescription.restSeconds ?? null,
               notes: prescription.notes ?? null,
             })
           }
@@ -223,9 +284,7 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
           const values = {
             routine_exercise_id: existing.id,
             week_number: week,
-            sets: prescription.sets,
             reps: prescription.reps,
-            rest_seconds: prescription.restSeconds ?? null,
             notes: prescription.notes ?? null,
           }
 
@@ -278,6 +337,8 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
     dayUpdates,
     blockInserts,
     blockUpdates,
+    blockSchemeInserts,
+    blockSchemeUpdates,
     slotInserts,
     slotUpdates,
     schemeInserts,

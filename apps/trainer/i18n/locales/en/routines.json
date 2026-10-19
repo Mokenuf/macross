@@ -131,7 +131,14 @@
       "applyToRest": "Apply to the following weeks",
       "lockedTrained": "The client already logged sets here",
       "lockedPast": "Week already closed",
-      "notApplicable": "This exercise starts on week {n}"
+      "notApplicable": "This exercise starts on week {n}",
+      "setsRow": "Sets · rest",
+      "roundsRow": "Rounds · rest",
+      "rounds": "Rounds",
+      "roundsHeader": "Block {letter} · Wk {n}",
+      "transition": "Transition (sec)",
+      "transitionPlaceholder": "—",
+      "transitionHint": "Pause between exercises in the same round. Empty = go straight on."
     },
     "toasts": {
       "created": "Routine created",

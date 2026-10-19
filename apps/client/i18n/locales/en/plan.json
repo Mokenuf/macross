@@ -48,7 +48,10 @@
       "unsyncedMany": "{count} sets not saved",
       "retry": "Retry",
       "restSummary": "{rest} rest",
-      "notes": "Trainer's note"
+      "notes": "Trainer's note",
+      "roundSummary": "Round {current} of {total} · target {amount}",
+      "startTimer": "Start {amount}",
+      "completeWithoutTimer": "Complete without timer"
     },
     "rest": {
       "title": "Rest",
@@ -57,7 +60,18 @@
       "skip": "Skip",
       "next": "Up next:",
       "nextSet": "{exercise} · Set {set}",
-      "dayDone": "Day complete"
-    }
+      "dayDone": "Day complete",
+      "nextRound": "{exercise} · Round {set}"
+    },
+    "work": {
+      "title": "Work",
+      "finish": "Finish"
+    },
+    "transition": {
+      "title": "Up next",
+      "go": "I'm ready",
+      "round": "Round {set} of {total}"
+    },
+    "roundsShort": "{count} rounds"
   }
 }

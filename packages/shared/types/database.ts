@@ -252,6 +252,47 @@ export type Database = {
         }
         Relationships: []
       }
+      routine_block_schemes: {
+        Row: {
+          created_at: string
+          id: string
+          rest_seconds: number | null
+          routine_block_id: string
+          sets: number
+          transition_seconds: number | null
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rest_seconds?: number | null
+          routine_block_id: string
+          sets: number
+          transition_seconds?: number | null
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rest_seconds?: number | null
+          routine_block_id?: string
+          sets?: number
+          transition_seconds?: number | null
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'routine_block_schemes_routine_block_id_fkey'
+            columns: ['routine_block_id']
+            isOneToOne: false
+            referencedRelation: 'routine_blocks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       routine_blocks: {
         Row: {
           created_at: string
@@ -340,9 +381,7 @@ export type Database = {
           id: string
           notes: string | null
           reps: string
-          rest_seconds: number | null
           routine_exercise_id: string
-          sets: number
           updated_at: string
           week_number: number
         }
@@ -351,9 +390,7 @@ export type Database = {
           id?: string
           notes?: string | null
           reps: string
-          rest_seconds?: number | null
           routine_exercise_id: string
-          sets: number
           updated_at?: string
           week_number: number
         }
@@ -362,9 +399,7 @@ export type Database = {
           id?: string
           notes?: string | null
           reps?: string
-          rest_seconds?: number | null
           routine_exercise_id?: string
-          sets?: number
           updated_at?: string
           week_number?: number
         }

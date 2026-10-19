@@ -48,7 +48,10 @@
       "unsyncedMany": "{count} series sin guardar",
       "retry": "Reintentar",
       "restSummary": "descanso {rest}",
-      "notes": "Nota del entrenador"
+      "notes": "Nota del entrenador",
+      "roundSummary": "Ronda {current} de {total} · objetivo {amount}",
+      "startTimer": "Empezar {amount}",
+      "completeWithoutTimer": "Completar sin cronometrar"
     },
     "rest": {
       "title": "Descanso",
@@ -57,7 +60,18 @@
       "skip": "Saltar",
       "next": "Después:",
       "nextSet": "{exercise} · Serie {set}",
-      "dayDone": "Día completo"
-    }
+      "dayDone": "Día completo",
+      "nextRound": "{exercise} · Ronda {set}"
+    },
+    "work": {
+      "title": "Trabajo",
+      "finish": "Terminar"
+    },
+    "transition": {
+      "title": "Sigue",
+      "go": "Ya voy",
+      "round": "Ronda {set} de {total}"
+    },
+    "roundsShort": "{count} rondas"
   }
 }

@@ -80,8 +80,11 @@ export default defineEventHandler(async (event): Promise<WorkoutLog | null> => {
     .eq('routine_exercise_scheme_id', routineExerciseSchemeId)
     .eq('completed', true)
     .is('deleted_at', null)
-    .not('weight_kg', 'is', null)
-    .order('weight_kg', { ascending: false })
+    .or('weight_kg.not.is.null,actual_reps.not.is.null')
+    // Con peso, la referencia es la serie más pesada; sin peso (peso corporal, tiempo), la de más
+    // cantidad: más reps, más pasos o más segundos aguantados.
+    .order('weight_kg', { ascending: false, nullsFirst: false })
+    .order('actual_reps', { ascending: false, nullsFirst: false })
     .limit(1)
     .maybeSingle()
 

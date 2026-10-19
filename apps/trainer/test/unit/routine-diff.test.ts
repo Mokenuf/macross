@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import type {
   OldBlock,
+  OldBlockScheme,
   OldDay,
   OldRoutineTree,
   OldScheme,
@@ -19,19 +20,29 @@ const BLOCK_B = '22222222-2222-4222-8222-222222222222'
 const SLOT_A = '33333333-3333-4333-8333-333333333331'
 const SLOT_B = '33333333-3333-4333-8333-333333333332'
 const SCHEME = '44444444-4444-4444-8444-444444444440'
+const BLOCK_SCHEME = '66666666-6666-4666-8666-666666666660'
 const EX_1 = '55555555-5555-4555-8555-555555555551'
 const EX_2 = '55555555-5555-4555-8555-555555555552'
 
-function makeScheme(weekNumber: number, sets: number, done: number): OldScheme {
+function makeScheme(weekNumber: number, done: number): OldScheme {
   return {
     id: `${SCHEME.slice(0, -1)}${weekNumber}`,
     weekNumber,
-    sets,
     reps: '10',
-    restSeconds: 120,
     notes: null,
     logs: Array.from({ length: done }, () => ({ completed: true, deletedAt: null })),
   }
+}
+
+// Las rondas son del bloque: por default 3 por semana, las cuatro semanas.
+function makeRounds(blockId: string, sets = 3, weeks = [1, 2, 3, 4]): OldBlockScheme[] {
+  return weeks.map(weekNumber => ({
+    id: `${BLOCK_SCHEME.slice(0, -2)}${blockId.slice(-1)}${weekNumber}`,
+    weekNumber,
+    sets,
+    restSeconds: 120,
+    transitionSeconds: null,
+  }))
 }
 
 // donePerWeek[i] = series completadas en la semana i+1; una semana ausente = sin prescripción.
@@ -41,18 +52,21 @@ function makeSlot(
   donePerWeek: (number | null)[],
   optional = false,
 ): OldSlot {
-  const schemes = donePerWeek.flatMap((done, i) =>
-    done === null ? [] : [makeScheme(i + 1, 3, done)],
-  )
+  const schemes = donePerWeek.flatMap((done, i) => (done === null ? [] : [makeScheme(i + 1, done)]))
   return { id, exerciseId, optional, notes: null, schemes }
 }
 
-function makeBlock(id: string, sortOrder: number, slot: OldSlot): OldBlock {
-  return { id, type: 'single', sortOrder, notes: null, exercises: [slot] }
+function makeBlock(
+  id: string,
+  sortOrder: number,
+  slot: OldSlot,
+  schemes = makeRounds(id),
+): OldBlock {
+  return { id, type: 'single', sortOrder, notes: null, schemes, exercises: [slot] }
 }
 
 function makeSuperset(id: string, sortOrder: number, slots: OldSlot[]): OldBlock {
-  return { id, type: 'superset', sortOrder, notes: null, exercises: slots }
+  return { id, type: 'superset', sortOrder, notes: null, schemes: makeRounds(id), exercises: slots }
 }
 
 function makeDay(id: string, dayNumber: number, blocks: OldBlock[]): OldDay {
@@ -73,7 +87,11 @@ function makeBody(days: unknown[], weeks = 4): UpdateRoutine {
 }
 
 function weekInput(weekNumber: number, overrides: Record<string, unknown> = {}) {
-  return { weekNumber, sets: 3, reps: '10', restSeconds: 120, ...overrides }
+  return { weekNumber, reps: '10', ...overrides }
+}
+
+function roundsInput(weekNumber: number, overrides: Record<string, unknown> = {}) {
+  return { weekNumber, sets: 3, restSeconds: 120, ...overrides }
 }
 
 function exerciseInput(overrides: Record<string, unknown> = {}) {
@@ -85,7 +103,7 @@ function exerciseInput(overrides: Record<string, unknown> = {}) {
 }
 
 function blockInput(exercises: unknown[], overrides: Record<string, unknown> = {}) {
-  return { exercises, ...overrides }
+  return { exercises, schemes: [1, 2, 3, 4].map(week => roundsInput(week)), ...overrides }
 }
 
 describe('findStartWeek', () => {
@@ -149,6 +167,27 @@ describe('findStartWeek', () => {
 
     expect(findStartWeek(tree, 4)).toBe(4)
   })
+
+  it('una semana se cierra contra las rondas del bloque, no contra un número por ejercicio', () => {
+    const tree = makeTree([
+      makeDay(DAY_1, 1, [
+        makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 0, 0, 0]), makeRounds(BLOCK_A, 4)),
+      ]),
+    ])
+
+    expect(findStartWeek(tree, 4)).toBe(1)
+  })
+
+  it('un bloque sin rondas para esa semana no la traba', () => {
+    const tree = makeTree([
+      makeDay(DAY_1, 1, [
+        makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 0, 0, 0])),
+        makeBlock(BLOCK_B, 1, makeSlot(SLOT_B, EX_2, [0, 0, 0, 0]), makeRounds(BLOCK_B, 3, [2])),
+      ]),
+    ])
+
+    expect(findStartWeek(tree, 4)).toBe(2)
+  })
 })
 
 describe('diffRoutineTree', () => {
@@ -201,27 +240,40 @@ describe('diffRoutineTree', () => {
               exerciseInput({
                 id: SLOT_A,
                 schemes: [
-                  weekInput(1, { sets: 3, reps: '12' }),
-                  weekInput(2, { sets: 3, reps: '10' }),
-                  weekInput(3, { sets: 4, reps: '8' }),
-                  weekInput(4, { sets: 5, reps: '6', restSeconds: 180 }),
+                  weekInput(1, { reps: '12' }),
+                  weekInput(2, { reps: '10' }),
+                  weekInput(3, { reps: '8' }),
+                  weekInput(4, { reps: '6' }),
                 ],
               }),
             ],
-            { id: BLOCK_A },
+            {
+              id: BLOCK_A,
+              schemes: [
+                roundsInput(1),
+                roundsInput(2),
+                roundsInput(3, { sets: 4 }),
+                roundsInput(4, { sets: 5, restSeconds: 180 }),
+              ],
+            },
           ),
         ],
       },
     ])
     const plan = diffRoutineTree(body, untrained, 1)
 
-    expect(plan.schemeUpdates.map(s => [s.week_number, s.sets, s.reps])).toEqual([
-      [1, 3, '12'],
-      [2, 3, '10'],
-      [3, 4, '8'],
-      [4, 5, '6'],
+    expect(plan.schemeUpdates.map(s => [s.week_number, s.reps])).toEqual([
+      [1, '12'],
+      [2, '10'],
+      [3, '8'],
+      [4, '6'],
     ])
-    expect(plan.schemeUpdates.at(-1)?.rest_seconds).toBe(180)
+    expect(plan.blockSchemeUpdates.map(s => [s.week_number, s.sets, s.rest_seconds])).toEqual([
+      [1, 3, 120],
+      [2, 3, 120],
+      [3, 4, 120],
+      [4, 5, 180],
+    ])
   })
 
   // El bloqueo es por celda y no por semana: el picker de /plan deja al cliente registrar series en
@@ -525,5 +577,153 @@ describe('diffRoutineTree', () => {
       [SLOT_B, 0],
       [SLOT_A, 1],
     ])
+  })
+})
+
+describe('diffRoutineTree — rondas del bloque', () => {
+  const tree = makeTree([
+    makeDay(DAY_1, 1, [
+      makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 3, 0, 0])),
+      makeBlock(BLOCK_B, 1, makeSlot(SLOT_B, EX_2, [3, 3, 0, 0])),
+    ]),
+  ])
+
+  it('solo reescribe las rondas desde la semana en curso', () => {
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A }),
+          blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })], { id: BLOCK_B }),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, tree, 3)
+
+    expect(plan.blockSchemeUpdates.map(s => [s.routine_block_id, s.week_number])).toEqual([
+      [BLOCK_A, 3],
+      [BLOCK_A, 4],
+      [BLOCK_B, 3],
+      [BLOCK_B, 4],
+    ])
+    expect(plan.blockSchemeInserts).toEqual([])
+  })
+
+  // Las rondas son de todos los ejercicios del bloque a la vez: si uno ya se entrenó esa semana,
+  // cambiarlas reescribiría lo que el cliente hizo con el otro.
+  it('no reescribe las rondas de una semana donde algún ejercicio ya se entrenó', () => {
+    const trained = makeTree([
+      makeDay(DAY_1, 1, [
+        makeSuperset(BLOCK_A, 0, [
+          makeSlot(SLOT_A, EX_1, [0, 0, 1, 0]),
+          makeSlot(SLOT_B, EX_2, [0, 0, 0, 0]),
+        ]),
+      ]),
+    ])
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput(
+            [exerciseInput({ id: SLOT_A }), exerciseInput({ id: SLOT_B, exerciseId: EX_2 })],
+            { id: BLOCK_A, type: 'superset' },
+          ),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, trained, 1)
+
+    expect(plan.blockSchemeUpdates.map(s => s.week_number)).toEqual([1, 2, 4])
+  })
+
+  it('agrupar con un ejercicio ya entrenado cierra esa semana en el bloque destino', () => {
+    const trained = makeTree([
+      makeDay(DAY_1, 1, [
+        makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [0, 0, 0, 0])),
+        makeBlock(BLOCK_B, 1, makeSlot(SLOT_B, EX_2, [0, 0, 1, 0])),
+      ]),
+    ])
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput(
+            [exerciseInput({ id: SLOT_A }), exerciseInput({ id: SLOT_B, exerciseId: EX_2 })],
+            { id: BLOCK_A, type: 'superset' },
+          ),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, trained, 1)
+
+    expect(plan.blockSchemeUpdates.map(s => s.week_number)).toEqual([1, 2, 4])
+  })
+
+  // Al desagrupar, el ejercicio que sale a su propio bloque ya tiene series en las semanas pasadas:
+  // sin rondas ahí, desaparecería de esas semanas para el cliente.
+  it('un bloque nuevo escribe todas sus semanas, también las ya transitadas', () => {
+    const grouped = makeTree([
+      makeDay(DAY_1, 1, [
+        makeSuperset(BLOCK_A, 0, [
+          makeSlot(SLOT_A, EX_1, [3, 3, 0, 0]),
+          makeSlot(SLOT_B, EX_2, [3, 3, 0, 0]),
+        ]),
+      ]),
+    ])
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A }),
+          blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })]),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, grouped, 3)
+    const newBlock = plan.blockInserts[0]!.id
+
+    expect(
+      plan.blockSchemeInserts.filter(s => s.routine_block_id === newBlock).map(s => s.week_number),
+    ).toEqual([1, 2, 3, 4])
+  })
+
+  it('crea las rondas que le falten a un bloque existente desde la semana en curso', () => {
+    const partial = makeTree([
+      makeDay(DAY_1, 1, [
+        makeBlock(BLOCK_A, 0, makeSlot(SLOT_A, EX_1, [3, 3, 0, 0]), makeRounds(BLOCK_A, 3, [1, 2])),
+      ]),
+    ])
+    const body = makeBody([
+      { id: DAY_1, blocks: [blockInput([exerciseInput({ id: SLOT_A })], { id: BLOCK_A })] },
+    ])
+    const plan = diffRoutineTree(body, partial, 3)
+
+    expect(plan.blockSchemeUpdates).toEqual([])
+    expect(plan.blockSchemeInserts.map(s => [s.routine_block_id, s.week_number])).toEqual([
+      [BLOCK_A, 3],
+      [BLOCK_A, 4],
+    ])
+  })
+
+  it('la transición viaja con las rondas y null es pasar directo', () => {
+    const body = makeBody([
+      {
+        id: DAY_1,
+        blocks: [
+          blockInput([exerciseInput({ id: SLOT_A })], {
+            id: BLOCK_A,
+            schemes: [roundsInput(3, { transitionSeconds: 15 }), roundsInput(4)],
+          }),
+          blockInput([exerciseInput({ id: SLOT_B, exerciseId: EX_2 })], { id: BLOCK_B }),
+        ],
+      },
+    ])
+    const plan = diffRoutineTree(body, tree, 3)
+
+    expect(
+      plan.blockSchemeUpdates
+        .filter(s => s.routine_block_id === BLOCK_A)
+        .map(s => s.transition_seconds),
+    ).toEqual([15, null])
   })
 })
