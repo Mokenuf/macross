@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { blockTypeEnum } from './enums'
 import { equipmentSchema } from './equipment'
 import { queryParamsSchema, type BaseFilters } from './query-params'
+import { unitRefSchema } from './unit'
 import { workoutLogSchema } from './workout-log'
 
 export const routineExerciseSchemeSchema = z.object({
@@ -37,6 +38,7 @@ export const routineExerciseSchema = z.object({
     slug: z.string(),
     nanoId: z.string(),
     equipment: equipmentSchema.nullable(),
+    unit: unitRefSchema,
   }),
   schemes: z.array(routineExerciseSchemeSchema),
   createdAt: z.string(),

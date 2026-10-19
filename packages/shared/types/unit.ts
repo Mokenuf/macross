@@ -14,7 +14,10 @@ export const unitSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
+  exerciseCount: z.number().optional(),
 })
+
+export const unitRefSchema = unitSchema.pick({ id: true, nameEs: true, nameEn: true, kind: true })
 
 // La default se cambia marcando otra: `false` no desmarca la vigente.
 export const createUnitSchema = z.object({
@@ -33,6 +36,7 @@ export const unitQueryParamsSchema = queryParamsSchema.extend({
 })
 
 export type Unit = z.infer<typeof unitSchema>
+export type UnitRef = z.infer<typeof unitRefSchema>
 export type CreateUnit = z.infer<typeof createUnitSchema>
 export type UpdateUnit = z.infer<typeof updateUnitSchema>
 export type UnitQueryParams = z.infer<typeof unitQueryParamsSchema>

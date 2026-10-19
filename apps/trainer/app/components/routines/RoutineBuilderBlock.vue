@@ -87,7 +87,23 @@ function selectedExercise(exercise: BuilderExercise) {
 }
 
 function selectExercise(exercise: BuilderExercise, value: Exercise | undefined) {
-  exercise.exercise = value ? { id: value.id, nameEs: value.nameEs, nameEn: value.nameEn } : null
+  exercise.exercise = value
+    ? {
+        id: value.id,
+        nameEs: value.nameEs,
+        nameEn: value.nameEn,
+        unit: {
+          id: value.unit.id,
+          nameEs: value.unit.nameEs,
+          nameEn: value.unit.nameEn,
+          kind: value.unit.kind,
+        },
+      }
+    : null
+}
+
+function amountLabel(exercise: BuilderExercise) {
+  return exercise.exercise ? localizedName(exercise.exercise.unit) : t('routines.builder.amount')
 }
 
 function isLocked(scheme: BuilderScheme) {
@@ -233,17 +249,22 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                         data-drag-slot
                         class="text-dimmed size-4 shrink-0 cursor-grab active:cursor-grabbing"
                       />
-                      <UInputMenu
-                        :model-value="selectedExercise(exercise)"
-                        :items="options"
-                        by="id"
-                        :label-key="nameKey"
-                        variant="none"
-                        open-on-click
-                        :placeholder="t('routines.builder.exercisePlaceholder')"
-                        class="min-w-0 flex-1"
-                        @update:model-value="value => selectExercise(exercise, value)"
-                      />
+                      <div class="min-w-0 flex-1">
+                        <UInputMenu
+                          :model-value="selectedExercise(exercise)"
+                          :items="options"
+                          by="id"
+                          :label-key="nameKey"
+                          variant="none"
+                          open-on-click
+                          :placeholder="t('routines.builder.exercisePlaceholder')"
+                          class="w-full"
+                          @update:model-value="value => selectExercise(exercise, value)"
+                        />
+                        <p v-if="exercise.exercise" class="text-dimmed -mt-2 px-3 text-xs">
+                          {{ localizedName(exercise.exercise.unit) }}
+                        </p>
+                      </div>
                       <UBadge
                         v-if="exercise.optional"
                         :label="t('routines.builder.optional')"
@@ -368,7 +389,7 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                             <UInputNumber v-model="scheme.sets" :min="1" size="sm" class="w-28" />
                           </div>
                           <div class="flex items-center justify-between gap-3">
-                            <span class="text-muted text-xs">{{ t('routines.builder.reps') }}</span>
+                            <span class="text-muted text-xs">{{ amountLabel(exercise) }}</span>
                             <UInput
                               v-model="scheme.reps"
                               :placeholder="t('routines.builder.repsPlaceholder')"

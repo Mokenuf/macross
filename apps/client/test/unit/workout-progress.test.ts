@@ -64,6 +64,7 @@ function makeExercise(schemes: RoutineExerciseScheme[], optional = false): Routi
       slug: 'sentadilla',
       nanoId: 'abc123abc123',
       equipment: null,
+      unit: { id: UUID, nameEs: 'Repeticiones', nameEn: 'Reps', kind: 'count' },
     },
     schemes,
     createdAt: TIMESTAMP,

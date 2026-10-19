@@ -1,4 +1,4 @@
-import type { BlockType } from '@macross/shared'
+import type { BlockType, UnitRef } from '@macross/shared'
 
 // createRoutineSchema solo lleva exerciseId; el builder guarda el ref del ejercicio para mostrar el nombre.
 
@@ -6,6 +6,7 @@ export interface BuilderExerciseRef {
   id: string
   nameEs: string
   nameEn: string | null
+  unit: UnitRef
 }
 
 export interface BuilderScheme {

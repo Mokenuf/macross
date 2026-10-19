@@ -159,6 +159,7 @@ export type Database = {
           nano_id: string
           slug: string | null
           trainer_id: string
+          unit_id: string
           updated_at: string
           video_url: string | null
         }
@@ -174,6 +175,7 @@ export type Database = {
           nano_id?: string
           slug?: string | null
           trainer_id: string
+          unit_id: string
           updated_at?: string
           video_url?: string | null
         }
@@ -189,6 +191,7 @@ export type Database = {
           nano_id?: string
           slug?: string | null
           trainer_id?: string
+          unit_id?: string
           updated_at?: string
           video_url?: string | null
         }
@@ -205,6 +208,13 @@ export type Database = {
             columns: ['trainer_id']
             isOneToOne: false
             referencedRelation: 'trainers'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'exercises_unit_id_fkey'
+            columns: ['unit_id']
+            isOneToOne: false
+            referencedRelation: 'units'
             referencedColumns: ['id']
           },
         ]

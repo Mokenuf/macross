@@ -6,6 +6,7 @@ import {
   type Equipment,
   type Exercise,
   type MuscleGroup,
+  type Unit,
 } from '@macross/shared'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
@@ -29,6 +30,7 @@ const state = reactive<Partial<CreateExercise>>({
   videoUrl: exercise?.videoUrl ?? '',
   muscleGroupIds: exercise?.muscleGroups.map(mg => mg.id) ?? [],
   equipmentId: exercise?.equipment?.id,
+  unitId: exercise?.unit.id,
 })
 
 const nameKey = computed(() => (locale.value === 'en' ? 'nameEn' : 'nameEs'))
@@ -77,6 +79,20 @@ const equipmentItems = computed<Equipment[]>(() => {
     ? equipmentList.value
     : [selectedEquipment.value, ...equipmentList.value]
 })
+
+const { data: unitsData, pending: unitsPending } = useLazyFetch<BaseResponse<Unit>>('/api/units', {
+  query: { limit: 100 },
+})
+
+const units = computed<Unit[]>(() => unitsData.value?.rows ?? [])
+
+watch(
+  units,
+  list => {
+    state.unitId ??= list.find(u => u.isDefault)?.id
+  },
+  { immediate: true },
+)
 
 watch(
   selectedMuscleGroups,
@@ -164,6 +180,19 @@ function onSubmit(event: FormSubmitEvent<CreateExercise>) {
         :label-key="nameKey"
         clear
         :placeholder="t('exercises.form.equipmentPlaceholder')"
+        class="w-full"
+      />
+    </UFormField>
+
+    <UFormField :label="t('exercises.form.unit')" name="unitId" required>
+      <USelectMenu
+        v-model="state.unitId"
+        :items="units"
+        value-key="id"
+        :label-key="nameKey"
+        :search-input="false"
+        :loading="unitsPending"
+        :placeholder="t('exercises.form.unitPlaceholder')"
         class="w-full"
       />
     </UFormField>

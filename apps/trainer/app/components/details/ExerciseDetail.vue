@@ -67,6 +67,12 @@ const youtubeEmbedUrl = computed(() => {
           </p>
           <BaseBadgeList :items="[localizedName(exercise.equipment)]" color="neutral" :max="99" />
         </div>
+        <div>
+          <p class="text-dimmed mb-3 text-[11px] font-semibold tracking-widest uppercase">
+            {{ t('exercises.detail.unit') }}
+          </p>
+          <BaseBadgeList :items="[localizedName(exercise.unit)]" color="neutral" :max="99" />
+        </div>
       </div>
     </div>
 

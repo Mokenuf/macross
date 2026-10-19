@@ -170,6 +170,7 @@ function seedFromRoutine(r: Routine): RoutineBuilderState {
             id: slot.exercise.id,
             nameEs: slot.exercise.nameEs,
             nameEn: slot.exercise.nameEn,
+            unit: slot.exercise.unit,
           },
           optional: slot.optional,
           notes: slot.notes ?? '',

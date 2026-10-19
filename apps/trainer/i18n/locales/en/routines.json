@@ -120,7 +120,7 @@
       },
       "week": "Wk {n}",
       "sets": "Sets",
-      "reps": "Reps",
+      "amount": "Amount",
       "repsPlaceholder": "12",
       "rest": "Rest (sec)",
       "restPlaceholder": "90",
