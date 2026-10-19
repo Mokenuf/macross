@@ -44,7 +44,7 @@ macross-for-progress/
 │   ├── email-templates/  # Copias versionadas de los templates de Supabase Auth
 │   ├── scripts/          # Operaciones puntuales sobre un entorno remoto
 │   ├── seed.sql          # Cuentas de la base local
-│   ├── seed-catalog.sql  # Catálogo compartido (grupos musculares, equipamiento)
+│   ├── seed-catalog.sql  # Catálogo compartido (grupos musculares, equipamiento, unidades)
 │   └── config.toml       # Config del stack local (puertos, auth, SMTP de prueba)
 ├── .oxlintrc.json
 ├── .oxfmtrc.json
@@ -130,7 +130,8 @@ fix/trainer/auth        ─┘
 ### Trainer app
 
 - Autenticación completa: login/logout, alta por invitación por mail (set-password), y recuperación de contraseña
-- Biblioteca de ejercicios con video, grupos musculares y equipamiento (catálogo compartido), con búsqueda y filtros combinables
+- Biblioteca de ejercicios con video, grupos musculares, equipamiento y unidad de medida (catálogo compartido), con búsqueda y filtros combinables
+- Catálogo de unidades editable por el entrenador (repeticiones, pasos, segundos…): cada ejercicio se prescribe en la suya, con una unidad por defecto para los ejercicios nuevos
 - Gestión de clientes: alta por invitación, ficha con datos de entrenamiento y notas de seguimiento, scoping por rol (el trainer ve los suyos; el manager, todos), soft delete y reactivación
 - Rutinas ("fases"): armado por wizard con progresión semana a semana, agrupación de ejercicios en superseries y dropsets, reordenar bloques y ejercicios (arrastrando o con flechas), duplicar días, activación por cliente (una activa a la vez) y edición del árbol completo
 - Editar una fase en curso preserva lo ya entrenado: las series registradas quedan bloqueadas, los cambios aplican desde la semana en curso y agrupar o reagrupar ejercicios no borra el progreso del cliente
@@ -157,7 +158,7 @@ fix/trainer/auth        ─┘
 
 ## Estado
 
-En desarrollo. El ciclo completo ya funciona de punta a punta: el entrenador arma la fase en el dashboard y el cliente la ejecuta y registra desde el teléfono. Pendientes antes del lanzamiento: plantillas de rutina, panel de seguimiento de adherencia y una pasada final de UI.
+En desarrollo. El ciclo completo ya funciona de punta a punta: el entrenador arma la fase en el dashboard y el cliente la ejecuta y registra desde el teléfono. En curso: que la prescripción diga en qué se mide cada ejercicio (unidades, timer de trabajo para los ejercicios por tiempo, series y descanso por bloque en las superseries). Pendientes antes del lanzamiento: plantillas de rutina, panel de seguimiento de adherencia y una pasada final de UI.
 
 ## Autor
 

@@ -24,6 +24,9 @@ const exercises = computed(() => (day.value ? dayExercises(day.value, week.value
 const position = computed(() => exercises.value.findIndex(e => e.exercise.slug === slug.value))
 const slot = computed(() => exercises.value[position.value] ?? null)
 
+const unit = computed(() => slot.value?.exercise.unit ?? null)
+const unitName = computed(() => (unit.value ? localizedName(unit.value) : ''))
+
 const scheme = computed<RoutineExerciseScheme | null>(() =>
   slot.value ? schemeForWeek(slot.value, week.value) : null,
 )
@@ -71,16 +74,16 @@ const eyebrow = computed(() => {
 })
 
 const setSummary = computed(() => {
-  if (!scheme.value) return ''
+  if (!scheme.value || !unit.value) return ''
   const parts = [
     t('plan.exercise.setSummary', {
       current: selectedSet.value,
       total: scheme.value.sets,
-      reps: scheme.value.reps,
+      amount: formatAmount(scheme.value.reps, unitName.value, unit.value.kind),
     }),
   ]
   if (scheme.value.restSeconds !== null) {
-    parts.push(t('plan.exercise.restSummary', { rest: formatRest(scheme.value.restSeconds) }))
+    parts.push(t('plan.exercise.restSummary', { rest: formatSeconds(scheme.value.restSeconds) }))
   }
   return parts.join(' · ')
 })
@@ -191,14 +194,6 @@ function onWeightInput(value: number | undefined) {
   weight.value = weight.value === undefined && value === 0 ? WEIGHT_STEP : value
 }
 
-function formatRest(seconds: number | null): string {
-  if (seconds === null) return ''
-  if (seconds < 60) return `${seconds} s`
-  const minutes = Math.floor(seconds / 60)
-  const rest = seconds % 60
-  return rest === 0 ? `${minutes} min` : `${minutes} min ${rest} s`
-}
-
 const WEIGHT_STEP = 2.5
 </script>
 
@@ -289,7 +284,7 @@ const WEIGHT_STEP = 2.5
           </div>
           <div>
             <p class="text-dimmed mb-1 text-[10px] font-semibold tracking-widest uppercase">
-              {{ t('plan.exercise.reps') }}
+              {{ unitName }}
             </p>
             <UInput
               v-model="reps"
