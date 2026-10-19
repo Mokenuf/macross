@@ -14,11 +14,14 @@ const { localizedName } = useLocalizedName()
 const { t } = useI18n()
 
 const scheme = computed(() => schemeForWeek(exercise, week))
+const unitName = computed(() => localizedName(exercise.exercise.unit))
 const completedSets = computed(() => completedSetCount(exercise, week))
 const isDone = computed(() => isExerciseDone(exercise, week))
 
 const prescription = computed(() =>
-  scheme.value ? `${scheme.value.sets} × ${scheme.value.reps}` : '—',
+  scheme.value
+    ? `${scheme.value.sets} × ${formatAmount(scheme.value.reps, unitName.value, exercise.exercise.unit.kind)}`
+    : '—',
 )
 
 const rest = computed(() => {
