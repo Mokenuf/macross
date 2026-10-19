@@ -120,7 +120,7 @@
       },
       "week": "Sem {n}",
       "sets": "Series",
-      "reps": "Reps",
+      "amount": "Cantidad",
       "repsPlaceholder": "12",
       "rest": "Descanso (seg)",
       "restPlaceholder": "90",
@@ -131,7 +131,14 @@
       "applyToRest": "Aplicar a las siguientes",
       "lockedTrained": "El cliente ya registró series acá",
       "lockedPast": "Semana ya cerrada",
-      "notApplicable": "Este ejercicio arranca en la semana {n}"
+      "notApplicable": "Este ejercicio arranca en la semana {n}",
+      "setsRow": "Series · desc.",
+      "roundsRow": "Rondas · desc.",
+      "rounds": "Rondas",
+      "roundsHeader": "Bloque {letter} · Sem {n}",
+      "transition": "Transición (seg)",
+      "transitionPlaceholder": "—",
+      "transitionHint": "Pausa entre ejercicios de una misma ronda. Vacío = pasa directo."
     },
     "toasts": {
       "created": "Rutina creada",

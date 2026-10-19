@@ -1,0 +1,49 @@
+{
+  "units": {
+    "title": "Units",
+    "add": "Add Unit",
+    "count": "{count} in catalog",
+    "default": "Default",
+    "columns": {
+      "name": "Name",
+      "kind": "Type"
+    },
+    "kinds": {
+      "count": "Count",
+      "time": "Time"
+    },
+    "filters": {
+      "searchPlaceholder": "Search units..."
+    },
+    "form": {
+      "nameEs": "Name (ES)",
+      "nameEn": "Name (EN)",
+      "nameEsExample": "E.g.: Saltos",
+      "nameEnExample": "E.g.: Jumps",
+      "kind": "Type",
+      "kindHelp": "Time units are always measured in seconds and enable the timer in the client app.",
+      "isDefault": "Default unit",
+      "isDefaultHint": "New exercises start with this unit. If another one was marked, it stops being the default.",
+      "isDefaultLocked": "This is the default unit. To change it, mark another one."
+    },
+    "detail": {
+      "count": "Counted: the client logs how many they did.",
+      "time": "Measured in seconds: the client can time it from the app.",
+      "default": "New exercises start with this unit. It can't be deleted.",
+      "usage": "Not used by any exercise | Used by {count} exercise | Used by {count} exercises"
+    },
+    "pages": {
+      "add": "Add Unit",
+      "edit": "Edit Unit",
+      "detail": "Unit details"
+    },
+    "toasts": {
+      "created": "Unit created",
+      "updated": "Unit updated",
+      "deleted": "Unit deleted",
+      "createError": "Could not create unit",
+      "updateError": "Could not update unit",
+      "deleteError": "Could not delete unit"
+    }
+  }
+}

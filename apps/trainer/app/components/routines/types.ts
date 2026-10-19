@@ -1,4 +1,4 @@
-import type { BlockType } from '@macross/shared'
+import type { BlockType, UnitRef } from '@macross/shared'
 
 // createRoutineSchema solo lleva exerciseId; el builder guarda el ref del ejercicio para mostrar el nombre.
 
@@ -6,13 +6,12 @@ export interface BuilderExerciseRef {
   id: string
   nameEs: string
   nameEn: string | null
+  unit: UnitRef
 }
 
 export interface BuilderScheme {
   weekNumber: number
-  sets: number
   reps: string
-  restSeconds: number | null
   notes: string
   // Series que el cliente ya entrenó en esta semana: es lo que cierra la celda (el server tampoco
   // la reescribe). Es un dato del árbol, no un veredicto de UI — el bloqueo se deriva en el componente.
@@ -27,10 +26,19 @@ export interface BuilderExercise {
   schemes: BuilderScheme[]
 }
 
+// `transitionSeconds` null = pasar directo al siguiente ejercicio de la ronda.
+export interface BuilderBlockScheme {
+  weekNumber: number
+  sets: number
+  restSeconds: number | null
+  transitionSeconds: number | null
+}
+
 export interface BuilderBlock {
   id?: string
   type: BlockType
   notes: string
+  schemes: BuilderBlockScheme[]
   exercises: BuilderExercise[]
 }
 

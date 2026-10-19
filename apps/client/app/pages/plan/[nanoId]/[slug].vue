@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { RoutineExerciseScheme, WorkoutLog } from '@macross/shared'
+import { UnitKinds } from '@macross/shared'
+
+import type { SessionStep } from '@/utils/workout-progress'
 
 definePageMeta({
   middleware: 'auth',
@@ -8,13 +11,19 @@ definePageMeta({
 const route = useRoute()
 const { localizedName } = useLocalizedName()
 const { isUnsynced, logSet, retryUnsynced, unsyncedCount } = useLogSet()
-const { add, isFinalCountdown, isRunning, progress, remaining, skip, start } = useRestTimer()
+const { add, isFinalCountdown, isRunning, kind, onEnd, progress, remaining, skip, start } =
+  useWorkoutTimer()
 const reps = ref('')
 const { routine, loading } = useGetActiveRoutine()
 const selectedSet = ref(1)
 const { t } = useI18n()
 const { week } = usePlanCursor()
 const weight = ref<number | undefined>()
+
+const upcoming = ref<SessionStep | null>(null)
+// Solo la page que anunció el destino lo cumple: una re-creada a mitad de la pausa no lo conoce.
+const awaitingPause = ref(false)
+const workingSet = ref<number | null>(null)
 
 const nanoId = computed(() => String(route.params.nanoId))
 const slug = computed(() => String(route.params.slug))
@@ -23,6 +32,20 @@ const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.va
 const exercises = computed(() => (day.value ? dayExercises(day.value, week.value) : []))
 const position = computed(() => exercises.value.findIndex(e => e.exercise.slug === slug.value))
 const slot = computed(() => exercises.value[position.value] ?? null)
+const steps = computed(() => (day.value ? sessionSteps(day.value, week.value) : []))
+
+const block = computed(() =>
+  day.value && slot.value
+    ? (weekBlocks(day.value, week.value).find(b =>
+        b.exercises.some(e => e.id === slot.value?.id),
+      ) ?? null)
+    : null,
+)
+const rounds = computed(() => (block.value ? blockSchemeForWeek(block.value, week.value) : null))
+const isGrouped = computed(() => (block.value?.exercises.length ?? 0) > 1)
+
+const unit = computed(() => slot.value?.exercise.unit ?? null)
+const unitName = computed(() => (unit.value ? localizedName(unit.value) : ''))
 
 const scheme = computed<RoutineExerciseScheme | null>(() =>
   slot.value ? schemeForWeek(slot.value, week.value) : null,
@@ -40,7 +63,7 @@ const { lastWorkout, loading: loadingLastWorkout } = useGetLastWorkout(() =>
 )
 
 const logs = computed<WorkoutLog[]>(() => scheme.value?.logs ?? [])
-const totalSets = computed(() => scheme.value?.sets ?? 0)
+const totalSets = computed(() => rounds.value?.sets ?? 0)
 
 const firstPendingSet = computed(() => {
   for (let n = 1; n <= totalSets.value; n++) {
@@ -58,6 +81,17 @@ const prescribedReps = computed(() => {
   return target && /^\d+$/.test(target) ? Number(target) : null
 })
 
+// El timer de trabajo necesita un número de segundos: "30-45" no se puede arrancar.
+const workSeconds = computed(() =>
+  unit.value?.kind === UnitKinds.time ? prescribedReps.value : null,
+)
+
+const amount = computed(() =>
+  scheme.value && unit.value
+    ? formatAmount(scheme.value.reps, unitName.value, unit.value.kind)
+    : '',
+)
+
 const dayTitle = computed(() =>
   day.value ? (day.value.label ?? t('plan.dayLabel', { number: day.value.dayNumber })) : '',
 )
@@ -71,44 +105,59 @@ const eyebrow = computed(() => {
 })
 
 const setSummary = computed(() => {
-  if (!scheme.value) return ''
+  if (!scheme.value || !rounds.value) return ''
+  const params = { current: selectedSet.value, total: rounds.value.sets, amount: amount.value }
   const parts = [
-    t('plan.exercise.setSummary', {
-      current: selectedSet.value,
-      total: scheme.value.sets,
-      reps: scheme.value.reps,
-    }),
+    isGrouped.value
+      ? t('plan.exercise.roundSummary', params)
+      : t('plan.exercise.setSummary', params),
   ]
-  if (scheme.value.restSeconds !== null) {
-    parts.push(t('plan.exercise.restSummary', { rest: formatRest(scheme.value.restSeconds) }))
+  if (rounds.value.restSeconds !== null) {
+    parts.push(t('plan.exercise.restSummary', { rest: formatSeconds(rounds.value.restSeconds) }))
   }
   return parts.join(' · ')
 })
 
 const lastTimeLabel = computed(() => {
   if (loadingLastWorkout.value) return '—'
-  return lastWorkout.value ? `${lastWorkout.value.weightKg} kg` : t('plan.exercise.noRecord')
+  const last = lastWorkout.value
+  if (!last) return t('plan.exercise.noRecord')
+  if (last.weightKg !== null) return `${last.weightKg} kg`
+  if (last.actualReps !== null && unit.value)
+    return formatAmount(String(last.actualReps), unitName.value, unit.value.kind)
+  return t('plan.exercise.noRecord')
 })
 
 const exerciseName = computed(() => (slot.value ? localizedName(slot.value.exercise) : ''))
 
-const nextExercise = computed(() => exercises.value[position.value + 1] ?? null)
-
-// Terminado el último ejercicio se vuelve al día, que ya muestra todo tachado.
-const nextExerciseTo = computed(() =>
-  nextExercise.value
-    ? `/plan/${nanoId.value}/${nextExercise.value.exercise.slug}`
-    : `/plan/${nanoId.value}`,
-)
+function stepLabel(step: SessionStep) {
+  const name = localizedName(step.exercise.exercise)
+  return step.block.exercises.length > 1
+    ? t('plan.rest.nextRound', { exercise: name, set: step.set })
+    : t('plan.rest.nextSet', { exercise: name, set: step.set })
+}
 
 const nextLabel = computed(() => {
-  if (firstPendingSet.value !== null) {
-    return t('plan.rest.nextSet', { exercise: exerciseName.value, set: firstPendingSet.value })
-  }
+  const next = awaitingPause.value ? upcoming.value : nextPendingStep(steps.value, week.value)
+  return next ? stepLabel(next) : t('plan.rest.dayDone')
+})
 
-  return nextExercise.value
-    ? t('plan.rest.nextSet', { exercise: localizedName(nextExercise.value.exercise), set: 1 })
-    : t('plan.rest.dayDone')
+const upcomingName = computed(() =>
+  upcoming.value ? localizedName(upcoming.value.exercise.exercise) : '',
+)
+
+const upcomingDetail = computed(() => {
+  const next = upcoming.value
+  if (!next) return ''
+  const nextRounds = blockSchemeForWeek(next.block, week.value)
+  const nextScheme = schemeForWeek(next.exercise, week.value)
+  const nextUnit = next.exercise.exercise.unit
+  return [
+    nextRounds ? t('plan.transition.round', { set: next.set, total: nextRounds.sets }) : '',
+    nextScheme ? formatAmount(nextScheme.reps, localizedName(nextUnit), nextUnit.kind) : '',
+  ]
+    .filter(Boolean)
+    .join(' · ')
 })
 
 const youtubeEmbedUrl = computed(() => {
@@ -125,12 +174,6 @@ const youtubeEmbedUrl = computed(() => {
   }
 })
 
-// Si el descanso venía de la última serie, el overlay ya prometió un destino y hay que cumplirlo.
-watch(isRunning, (running, wasRunning) => {
-  if (running || !wasRunning || firstPendingSet.value !== null) return
-  void navigateTo(nextExerciseTo.value)
-})
-
 // immediate porque al montar la selección tiene que salir del ref inicial.
 watch(
   firstPendingSet,
@@ -145,6 +188,19 @@ watch([selectedSet, scheme], seedInputs, { immediate: true })
 // La vez pasada llega después del montaje: solo siembra si el peso sigue intacto.
 watch(lastWorkout, last => {
   if (weight.value === undefined) weight.value = last?.weightKg ?? undefined
+})
+
+onEnd(end => {
+  if (end.kind === 'work') {
+    const set = workingSet.value
+    workingSet.value = null
+    if (set !== null) completeSet(set, Math.round(end.elapsedMs / 1000))
+    return
+  }
+
+  if (!awaitingPause.value) return
+  awaitingPause.value = false
+  goTo(upcoming.value)
 })
 
 useHead({ title: () => exerciseName.value || t('plan.title') })
@@ -182,21 +238,57 @@ function saveSet(completed: boolean) {
     completed,
   })
 
-  // Solo la transición pendiente → completada arranca el descanso: corregir una serie vieja no.
-  if (completed && !wasCompleted && scheme.value.restSeconds) start(scheme.value.restSeconds)
+  // Solo la transición pendiente → completada sigue la sesión: corregir una serie vieja no.
+  if (completed && !wasCompleted) advanceFrom(selectedSet.value)
+}
+
+function completeSet(setNumber: number, seconds: number) {
+  if (!scheme.value) return
+
+  logSet({
+    routineExerciseSchemeId: scheme.value.id,
+    setNumber,
+    weightKg: weight.value,
+    actualReps: seconds,
+    completed: true,
+  })
+  advanceFrom(setNumber)
+}
+
+function startWork() {
+  if (!workSeconds.value) return
+  workingSet.value = selectedSet.value
+  start('work', workSeconds.value)
+}
+
+function advanceFrom(setNumber: number) {
+  if (!slot.value || !block.value) return
+
+  const current = { block: block.value, exercise: slot.value, set: setNumber }
+  const next = nextPendingStep(steps.value, week.value, { slotId: slot.value.id, set: setNumber })
+  const pause = pauseAfter(current, next, week.value)
+
+  upcoming.value = next
+  awaitingPause.value = !!pause.seconds
+  if (pause.seconds) start(pause.kind, pause.seconds)
+  else if (next) goTo(next)
+}
+
+// Si el overlay prometió un destino, cerrarlo tiene que cumplirlo.
+function goTo(next: SessionStep | null) {
+  upcoming.value = null
+  if (!next) {
+    void navigateTo(`/plan/${nanoId.value}`)
+    return
+  }
+  if (next.exercise.id !== slot.value?.id) {
+    void navigateTo(`/plan/${nanoId.value}/${next.exercise.exercise.slug}`)
+  }
 }
 
 // Reka cae a `min` sin aplicar el paso cuando el campo está vacío, así que el primer + daría 0 kg.
 function onWeightInput(value: number | undefined) {
   weight.value = weight.value === undefined && value === 0 ? WEIGHT_STEP : value
-}
-
-function formatRest(seconds: number | null): string {
-  if (seconds === null) return ''
-  if (seconds < 60) return `${seconds} s`
-  const minutes = Math.floor(seconds / 60)
-  const rest = seconds % 60
-  return rest === 0 ? `${minutes} min` : `${minutes} min ${rest} s`
 }
 
 const WEIGHT_STEP = 2.5
@@ -289,7 +381,7 @@ const WEIGHT_STEP = 2.5
           </div>
           <div>
             <p class="text-dimmed mb-1 text-[10px] font-semibold tracking-widest uppercase">
-              {{ t('plan.exercise.reps') }}
+              {{ unitName }}
             </p>
             <UInput
               v-model="reps"
@@ -310,7 +402,7 @@ const WEIGHT_STEP = 2.5
 
         <div class="flex gap-2">
           <button
-            v-for="n in scheme.sets"
+            v-for="n in totalSets"
             :key="n"
             type="button"
             :class="[
@@ -345,7 +437,25 @@ const WEIGHT_STEP = 2.5
           · {{ t('plan.exercise.retry') }}
         </button>
 
-        <div class="flex gap-2">
+        <template v-if="workSeconds && !selectedLog?.completed">
+          <UButton
+            size="xl"
+            color="primary"
+            block
+            leading-icon="i-lucide-play"
+            :label="t('plan.exercise.startTimer', { amount })"
+            @click="startWork"
+          />
+          <button
+            type="button"
+            class="text-muted hover:text-default w-full text-center text-xs font-semibold transition-colors"
+            @click="saveSet(true)"
+          >
+            {{ t('plan.exercise.completeWithoutTimer') }}
+          </button>
+        </template>
+
+        <div v-else class="flex gap-2">
           <UButton
             size="xl"
             color="primary"
@@ -368,7 +478,7 @@ const WEIGHT_STEP = 2.5
         </div>
 
         <button
-          v-if="weight === undefined"
+          v-if="weight === undefined && !(workSeconds && !selectedLog?.completed)"
           type="button"
           class="text-muted hover:text-default w-full text-center text-xs font-semibold transition-colors"
           @click="saveSet(true)"
@@ -386,10 +496,13 @@ const WEIGHT_STEP = 2.5
     </template>
   </div>
 
-  <RestTimerOverlay
-    v-if="isRunning"
+  <TimerOverlay
+    v-if="isRunning && kind"
+    :kind
     :is-final-countdown="isFinalCountdown"
     :next-label="nextLabel"
+    :next-name="upcomingName"
+    :next-detail="upcomingDetail"
     :progress="progress"
     :remaining="remaining"
     @add="add(15)"

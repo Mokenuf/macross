@@ -3,7 +3,7 @@ import type { BlockType, Exercise } from '@macross/shared'
 import { BlockTypes } from '@macross/shared'
 import { insertNodeAt, removeNode, useSortable } from '@vueuse/integrations/useSortable'
 
-import type { BuilderBlock, BuilderExercise, BuilderScheme } from './types'
+import type { BuilderBlock, BuilderBlockScheme, BuilderExercise, BuilderScheme } from './types'
 
 interface RoutineBuilderBlockProps {
   block: BuilderBlock
@@ -63,7 +63,7 @@ useSortable(rowsEl, exercises, {
   },
 })
 
-let snapshot: BuilderScheme | null = null
+let snapshot: BuilderScheme | BuilderBlockScheme | null = null
 
 // Sin scheme para esa semana la celda no aplica: el ejercicio se agregó cuando la semana ya estaba
 // cerrada. Se recorre el rango y se busca, igual que el desarme del server.
@@ -71,6 +71,13 @@ function cells(exercise: BuilderExercise) {
   return Array.from({ length: weeks }, (_, i) => {
     const week = i + 1
     return { week, scheme: exercise.schemes.find(scheme => scheme.weekNumber === week) }
+  })
+}
+
+function roundCells() {
+  return Array.from({ length: weeks }, (_, i) => {
+    const week = i + 1
+    return { week, scheme: block.schemes.find(scheme => scheme.weekNumber === week) }
   })
 }
 
@@ -87,7 +94,23 @@ function selectedExercise(exercise: BuilderExercise) {
 }
 
 function selectExercise(exercise: BuilderExercise, value: Exercise | undefined) {
-  exercise.exercise = value ? { id: value.id, nameEs: value.nameEs, nameEn: value.nameEn } : null
+  exercise.exercise = value
+    ? {
+        id: value.id,
+        nameEs: value.nameEs,
+        nameEn: value.nameEn,
+        unit: {
+          id: value.unit.id,
+          nameEs: value.unit.nameEs,
+          nameEn: value.unit.nameEn,
+          kind: value.unit.kind,
+        },
+      }
+    : null
+}
+
+function amountLabel(exercise: BuilderExercise) {
+  return exercise.exercise ? localizedName(exercise.exercise.unit) : t('routines.builder.amount')
 }
 
 function isLocked(scheme: BuilderScheme) {
@@ -100,20 +123,34 @@ function lockReason(scheme: BuilderScheme) {
     : t('routines.builder.lockedPast')
 }
 
+function isRoundsLocked(scheme: BuilderBlockScheme) {
+  return isBlockSchemeLocked(block, scheme, startWeek)
+}
+
+function roundsLockReason(scheme: BuilderBlockScheme) {
+  return scheme.weekNumber < startWeek
+    ? t('routines.builder.lockedPast')
+    : t('routines.builder.lockedTrained')
+}
+
 function cellPreview(scheme: BuilderScheme) {
-  return `${scheme.sets}×${scheme.reps || '—'}`
+  return scheme.reps || '—'
 }
 
-function isEditing(exerciseIndex: number, scheme: BuilderScheme) {
-  return editing.value?.exercise === exerciseIndex && editing.value.week === scheme.weekNumber
+function roundsPreview(scheme: BuilderBlockScheme) {
+  return scheme.restSeconds === null ? `${scheme.sets}` : `${scheme.sets} · ${scheme.restSeconds}s`
 }
 
-function toggleCell(exerciseIndex: number, scheme: BuilderScheme, isOpen: boolean) {
-  editing.value = isOpen ? { exercise: exerciseIndex, week: scheme.weekNumber } : null
+function isEditing(row: number, week: number) {
+  return editing.value?.exercise === row && editing.value.week === week
+}
+
+function toggleCell(row: number, scheme: BuilderScheme | BuilderBlockScheme, isOpen: boolean) {
+  editing.value = isOpen ? { exercise: row, week: scheme.weekNumber } : null
   snapshot = isOpen ? { ...scheme } : null
 }
 
-function cancelCell(scheme: BuilderScheme) {
+function cancelCell(scheme: BuilderScheme | BuilderBlockScheme) {
   if (snapshot) Object.assign(scheme, snapshot)
   editing.value = null
 }
@@ -123,13 +160,22 @@ function cancelCell(scheme: BuilderScheme) {
 function applyToRest(exercise: BuilderExercise, scheme: BuilderScheme) {
   for (const target of exercise.schemes) {
     if (target.weekNumber <= scheme.weekNumber || isLocked(target)) continue
-    target.sets = scheme.sets
     target.reps = scheme.reps
-    target.restSeconds = scheme.restSeconds
   }
   editing.value = null
 }
 
+function applyRoundsToRest(scheme: BuilderBlockScheme) {
+  for (const target of block.schemes) {
+    if (target.weekNumber <= scheme.weekNumber || isRoundsLocked(target)) continue
+    target.sets = scheme.sets
+    target.restSeconds = scheme.restSeconds
+    target.transitionSeconds = scheme.transitionSeconds
+  }
+  editing.value = null
+}
+
+const ROUNDS_ROW = -1
 const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.dropset]
 </script>
 
@@ -223,6 +269,130 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                   </th>
                 </tr>
               </thead>
+              <tbody>
+                <tr class="border-default border-b">
+                  <td
+                    class="text-dimmed px-2 py-1.5 text-[10px] font-semibold tracking-widest uppercase"
+                  >
+                    {{
+                      isGrouped ? t('routines.builder.roundsRow') : t('routines.builder.setsRow')
+                    }}
+                  </td>
+                  <td
+                    v-for="{ week, scheme } in roundCells()"
+                    :key="week"
+                    class="px-2 py-1.5 text-center"
+                  >
+                    <UTooltip
+                      v-if="!scheme"
+                      :text="t('routines.builder.notApplicable', { n: startWeek })"
+                    >
+                      <span
+                        class="text-dimmed ring-accented bg-macross-gray-950 font-logo inline-flex min-w-13 cursor-not-allowed justify-center rounded-sm px-2.5 py-2 text-lg leading-none ring ring-inset"
+                        >—</span
+                      >
+                    </UTooltip>
+                    <UTooltip v-else-if="isRoundsLocked(scheme)" :text="roundsLockReason(scheme)">
+                      <span
+                        class="text-dimmed ring-accented bg-macross-gray-950 font-logo inline-flex min-w-13 cursor-not-allowed items-center justify-center gap-1 rounded-sm px-2.5 py-2 text-lg leading-none ring ring-inset"
+                      >
+                        <UIcon name="i-lucide-lock" class="size-3" />
+                        {{ roundsPreview(scheme) }}
+                      </span>
+                    </UTooltip>
+                    <UPopover
+                      v-else
+                      :open="isEditing(ROUNDS_ROW, week)"
+                      @update:open="isOpen => toggleCell(ROUNDS_ROW, scheme, isOpen)"
+                    >
+                      <span
+                        class="bg-macross-gray-950 font-logo inline-flex min-w-13 cursor-pointer justify-center rounded-sm px-2.5 py-2 text-lg leading-none ring transition-colors ring-inset"
+                        :class="
+                          isEditing(ROUNDS_ROW, week)
+                            ? 'text-macross-bronze-soft ring-primary'
+                            : 'text-primary ring-accented hover:ring-primary'
+                        "
+                      >
+                        {{ roundsPreview(scheme) }}
+                      </span>
+
+                      <template #content>
+                        <div class="w-64 space-y-3 p-3">
+                          <p
+                            class="text-primary text-[10px] font-semibold tracking-widest uppercase"
+                          >
+                            {{
+                              t('routines.builder.roundsHeader', { letter: blockLetter, n: week })
+                            }}
+                          </p>
+                          <div class="flex items-center justify-between gap-3">
+                            <span class="text-muted text-xs">
+                              {{
+                                isGrouped
+                                  ? t('routines.builder.rounds')
+                                  : t('routines.builder.sets')
+                              }}
+                            </span>
+                            <UInputNumber v-model="scheme.sets" :min="1" size="sm" class="w-28" />
+                          </div>
+                          <div class="flex items-center justify-between gap-3">
+                            <span class="text-muted text-xs">{{ t('routines.builder.rest') }}</span>
+                            <UInputNumber
+                              v-model="scheme.restSeconds"
+                              :min="0"
+                              :placeholder="t('routines.builder.restPlaceholder')"
+                              size="sm"
+                              class="w-28"
+                            />
+                          </div>
+                          <div v-if="isGrouped" class="flex items-center justify-between gap-3">
+                            <span class="text-muted text-xs">{{
+                              t('routines.builder.transition')
+                            }}</span>
+                            <UInputNumber
+                              v-model="scheme.transitionSeconds"
+                              :min="0"
+                              :placeholder="t('routines.builder.transitionPlaceholder')"
+                              size="sm"
+                              class="w-28"
+                            />
+                          </div>
+                          <p v-if="isGrouped" class="text-dimmed text-xs">
+                            {{ t('routines.builder.transitionHint') }}
+                          </p>
+                          <UButton
+                            :label="t('routines.builder.applyToRest')"
+                            icon="i-lucide-arrow-right-to-line"
+                            color="neutral"
+                            variant="ghost"
+                            size="xs"
+                            block
+                            :disabled="week >= weeks"
+                            @click="applyRoundsToRest(scheme)"
+                          />
+                          <div class="flex gap-2">
+                            <UButton
+                              :label="t('common.actions.cancel')"
+                              color="neutral"
+                              variant="ghost"
+                              size="xs"
+                              block
+                              @click="cancelCell(scheme)"
+                            />
+                            <UButton
+                              :label="t('routines.builder.cellDone')"
+                              color="primary"
+                              size="xs"
+                              block
+                              @click="editing = null"
+                            />
+                          </div>
+                        </div>
+                      </template>
+                    </UPopover>
+                  </td>
+                </tr>
+              </tbody>
               <tbody ref="rowsEl">
                 <tr v-for="(exercise, ei) in exercises" :key="ei">
                   <td class="px-2 py-1.5">
@@ -233,17 +403,22 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                         data-drag-slot
                         class="text-dimmed size-4 shrink-0 cursor-grab active:cursor-grabbing"
                       />
-                      <UInputMenu
-                        :model-value="selectedExercise(exercise)"
-                        :items="options"
-                        by="id"
-                        :label-key="nameKey"
-                        variant="none"
-                        open-on-click
-                        :placeholder="t('routines.builder.exercisePlaceholder')"
-                        class="min-w-0 flex-1"
-                        @update:model-value="value => selectExercise(exercise, value)"
-                      />
+                      <div class="min-w-0 flex-1">
+                        <UInputMenu
+                          :model-value="selectedExercise(exercise)"
+                          :items="options"
+                          by="id"
+                          :label-key="nameKey"
+                          variant="none"
+                          open-on-click
+                          :placeholder="t('routines.builder.exercisePlaceholder')"
+                          class="w-full"
+                          @update:model-value="value => selectExercise(exercise, value)"
+                        />
+                        <p v-if="exercise.exercise" class="text-dimmed -mt-2 px-3 text-xs">
+                          {{ localizedName(exercise.exercise.unit) }}
+                        </p>
+                      </div>
                       <UBadge
                         v-if="exercise.optional"
                         :label="t('routines.builder.optional')"
@@ -337,13 +512,13 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                     </UTooltip>
                     <UPopover
                       v-else
-                      :open="isEditing(ei, scheme)"
+                      :open="isEditing(ei, scheme.weekNumber)"
                       @update:open="isOpen => toggleCell(ei, scheme, isOpen)"
                     >
                       <span
                         class="bg-macross-gray-950 font-logo inline-flex min-w-13 cursor-pointer justify-center rounded-sm px-2.5 py-2 text-lg leading-none ring transition-colors ring-inset"
                         :class="
-                          isEditing(ei, scheme)
+                          isEditing(ei, scheme.weekNumber)
                             ? 'text-macross-bronze-soft ring-primary'
                             : 'text-highlighted ring-accented hover:ring-primary'
                         "
@@ -364,24 +539,10 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                             }}
                           </p>
                           <div class="flex items-center justify-between gap-3">
-                            <span class="text-muted text-xs">{{ t('routines.builder.sets') }}</span>
-                            <UInputNumber v-model="scheme.sets" :min="1" size="sm" class="w-28" />
-                          </div>
-                          <div class="flex items-center justify-between gap-3">
-                            <span class="text-muted text-xs">{{ t('routines.builder.reps') }}</span>
+                            <span class="text-muted text-xs">{{ amountLabel(exercise) }}</span>
                             <UInput
                               v-model="scheme.reps"
                               :placeholder="t('routines.builder.repsPlaceholder')"
-                              size="sm"
-                              class="w-28"
-                            />
-                          </div>
-                          <div class="flex items-center justify-between gap-3">
-                            <span class="text-muted text-xs">{{ t('routines.builder.rest') }}</span>
-                            <UInputNumber
-                              v-model="scheme.restSeconds"
-                              :min="0"
-                              :placeholder="t('routines.builder.restPlaceholder')"
                               size="sm"
                               class="w-28"
                             />

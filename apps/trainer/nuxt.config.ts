@@ -13,6 +13,7 @@ const namespaces = [
   'clients',
   'exercises',
   'equipment',
+  'units',
   'muscle-groups',
   'trainers',
   'routines',

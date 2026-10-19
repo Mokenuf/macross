@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type {
   BuilderBlock,
+  BuilderBlockScheme,
   BuilderDay,
   BuilderExercise,
   BuilderScheme,
@@ -10,8 +11,10 @@ import {
   addExerciseToBlock,
   cloneDay,
   groupWithNext,
+  isBlockSchemeLocked,
   isDayComplete,
   isSchemeLocked,
+  makeBlock,
   makeExercise,
   moveItem,
   nextEmptyDayIndex,
@@ -20,7 +23,17 @@ import {
   ungroupBlock,
 } from '../../app/utils/routine-builder'
 
-const SQUAT = { id: '11111111-1111-4111-8111-111111111111', nameEs: 'Sentadilla', nameEn: 'Squat' }
+const SQUAT = {
+  id: '11111111-1111-4111-8111-111111111111',
+  nameEs: 'Sentadilla',
+  nameEn: 'Squat',
+  unit: {
+    id: '55555555-5555-4555-8555-555555555555',
+    nameEs: 'Repeticiones',
+    nameEn: 'Reps',
+    kind: 'count' as const,
+  },
+}
 const SLOT_A = '33333333-3333-4333-8333-333333333331'
 const SLOT_B = '33333333-3333-4333-8333-333333333332'
 const BLOCK_A = '44444444-4444-4444-8444-444444444441'
@@ -28,15 +41,14 @@ const BLOCK_B = '44444444-4444-4444-8444-444444444442'
 const DAY = '22222222-2222-4222-8222-222222222221'
 
 function makeScheme(weekNumber: number, overrides: Partial<BuilderScheme> = {}): BuilderScheme {
-  return {
-    weekNumber,
-    sets: 3,
-    reps: '10',
-    restSeconds: 120,
-    notes: '',
-    trainedSets: 0,
-    ...overrides,
-  }
+  return { weekNumber, reps: '10', notes: '', trainedSets: 0, ...overrides }
+}
+
+function rounds(
+  weekNumber: number,
+  overrides: Partial<BuilderBlockScheme> = {},
+): BuilderBlockScheme {
+  return { weekNumber, sets: 3, restSeconds: 120, transitionSeconds: null, ...overrides }
 }
 
 function exerciseOf(overrides: Partial<BuilderExercise> = {}): BuilderExercise {
@@ -50,7 +62,13 @@ function exerciseOf(overrides: Partial<BuilderExercise> = {}): BuilderExercise {
 }
 
 function blockOf(overrides: Partial<BuilderBlock> = {}): BuilderBlock {
-  return { type: 'single', notes: '', exercises: [exerciseOf()], ...overrides }
+  return {
+    type: 'single',
+    notes: '',
+    schemes: [rounds(1), rounds(2), rounds(3), rounds(4)],
+    exercises: [exerciseOf()],
+    ...overrides,
+  }
 }
 
 function dayOf(overrides: Partial<BuilderDay> = {}): BuilderDay {
@@ -67,6 +85,30 @@ describe('isSchemeLocked', () => {
   // coincide con "anterior al cursor".
   it('bloquea una semana futura si el cliente ya registró series', () => {
     expect(isSchemeLocked(makeScheme(4, { trainedSets: 1 }), 3)).toBe(true)
+  })
+})
+
+describe('isBlockSchemeLocked', () => {
+  it('bloquea las semanas anteriores a la semana en curso', () => {
+    const block = blockOf()
+    expect(isBlockSchemeLocked(block, rounds(1), 3)).toBe(true)
+    expect(isBlockSchemeLocked(block, rounds(3), 3)).toBe(false)
+  })
+
+  // Las rondas son de todos los ejercicios: con uno entrenado esa semana, quedan cerradas.
+  it('bloquea la semana si cualquier ejercicio del bloque ya se entrenó', () => {
+    const block = blockOf({
+      type: 'superset',
+      exercises: [
+        exerciseOf(),
+        exerciseOf({
+          schemes: [makeScheme(1), makeScheme(2), makeScheme(3), makeScheme(4, { trainedSets: 1 })],
+        }),
+      ],
+    })
+
+    expect(isBlockSchemeLocked(block, rounds(3), 1)).toBe(false)
+    expect(isBlockSchemeLocked(block, rounds(4), 1)).toBe(true)
   })
 })
 
@@ -108,6 +150,28 @@ describe('isDayComplete', () => {
     })
 
     expect(isDayComplete(dayOf({ blocks: [blockOf({ exercises: [exercise] })] }), 2)).toBe(true)
+  })
+
+  it('rechaza un bloque con rondas editables en cero', () => {
+    const block = blockOf({ schemes: [rounds(1, { sets: 0 }), rounds(2), rounds(3), rounds(4)] })
+
+    expect(isDayComplete(dayOf({ blocks: [block] }), 1)).toBe(false)
+  })
+
+  it('ignora las rondas de una semana ya cerrada', () => {
+    const block = blockOf({ schemes: [rounds(1, { sets: 0 }), rounds(2), rounds(3), rounds(4)] })
+
+    expect(isDayComplete(dayOf({ blocks: [block] }), 2)).toBe(true)
+  })
+})
+
+describe('makeBlock', () => {
+  it('las rondas arrancan en la semana en curso, igual que sus ejercicios', () => {
+    const block = makeBlock(4, 3)
+
+    expect(block.schemes.map(s => s.weekNumber)).toEqual([3, 4])
+    expect(block.schemes[0]).toMatchObject({ sets: 3, restSeconds: null, transitionSeconds: null })
+    expect(block.exercises[0]?.schemes.map(s => s.weekNumber)).toEqual([3, 4])
   })
 })
 
@@ -152,9 +216,13 @@ describe('cloneDay', () => {
 
     clone.blocks[0]!.exercises[0]!.schemes[0]!.reps = '20'
     clone.blocks[0]!.exercises[0]!.exercise!.nameEs = 'Otro'
+    clone.blocks[0]!.exercises[0]!.exercise!.unit.nameEs = 'Segundos'
+    clone.blocks[0]!.schemes[0]!.sets = 9
 
+    expect(source.blocks[0]?.schemes[0]?.sets).toBe(3)
     expect(source.blocks[0]?.exercises[0]?.schemes[0]?.reps).toBe('10')
     expect(source.blocks[0]?.exercises[0]?.exercise?.nameEs).toBe('Sentadilla')
+    expect(source.blocks[0]?.exercises[0]?.exercise?.unit.nameEs).toBe('Repeticiones')
   })
 
   // El clon es un slot nuevo: el server lo inserta desde la semana en curso, así que las semanas ya
@@ -181,6 +249,7 @@ describe('cloneDay', () => {
 
     expect(schemes?.map(s => s.weekNumber)).toEqual([3, 4])
     expect(schemes?.every(s => s.trainedSets === 0)).toBe(true)
+    expect(clone.blocks[0]?.schemes.map(s => s.weekNumber)).toEqual([3, 4])
   })
 })
 
@@ -233,6 +302,15 @@ describe('groupWithNext', () => {
   it('no hace nada en el último bloque', () => {
     expect(groupWithNext(blocks, 1)).toBe(blocks)
   })
+
+  it('el bloque agrupado se queda con las rondas del de arriba', () => {
+    const different = [
+      blockOf({ schemes: [rounds(1, { sets: 4 })] }),
+      blockOf({ schemes: [rounds(1, { sets: 2 })] }),
+    ]
+
+    expect(groupWithNext(different, 0)[0]?.schemes.map(s => s.sets)).toEqual([4])
+  })
 })
 
 describe('ungroupBlock', () => {
@@ -252,6 +330,16 @@ describe('ungroupBlock', () => {
     expect(result.map(b => b.exercises.map(e => e.id))).toEqual([[SLOT_A], [SLOT_B]])
     expect(result[0]?.id).toBe(BLOCK_A)
     expect(result[1]?.id).toBeUndefined()
+  })
+
+  // Las semanas ya transitadas también: sin rondas ahí, el ejercicio que sale del bloque
+  // desaparecería de esas semanas para el cliente.
+  it('cada bloque nuevo hereda todas las rondas del original, sin compartirlas', () => {
+    const result = ungroupBlock(grouped, 0)
+
+    expect(result[1]?.schemes.map(s => s.weekNumber)).toEqual([1, 2, 3, 4])
+    result[1]!.schemes[0]!.sets = 9
+    expect(result[0]?.schemes[0]?.sets).toBe(3)
   })
 
   it('no hace nada en un bloque single de un solo ejercicio', () => {

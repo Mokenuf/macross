@@ -34,6 +34,7 @@ export default defineEventHandler(async (event): Promise<Exercise> => {
       description_en: body.descriptionEn ?? null,
       video_url: body.videoUrl ?? null,
       equipment_id: body.equipmentId ?? null,
+      unit_id: body.unitId,
       slug: newSlug,
     })
     .eq('slug', slug)
@@ -69,7 +70,7 @@ export default defineEventHandler(async (event): Promise<Exercise> => {
 
   const { data, error } = await client
     .from('exercises')
-    .select('*, equipment(*), exercise_muscle_groups(muscle_groups(*))')
+    .select('*, equipment(*), unit:units(*), exercise_muscle_groups(muscle_groups(*))')
     .eq('id', updatedExercise.id)
     .single()
 

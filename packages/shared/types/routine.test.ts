@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { blockTypeEnum } from './enums'
 import {
   createRoutineBlockSchema,
+  createRoutineBlockSchemeSchema,
   createRoutineExerciseSchema,
   createRoutineSchema,
   createRoutineSchemeSchema,
@@ -12,12 +13,18 @@ import {
 
 const uuid = '123e4567-e89b-12d3-a456-426614174000'
 
-const scheme = { weekNumber: 1, sets: 4, reps: '12' }
+const scheme = { weekNumber: 1, reps: '12' }
+const blockScheme = { weekNumber: 1, sets: 4 }
 
 const validCreate = {
   name: 'Fase 1',
   daysPerWeek: 2,
-  days: [{ label: 'Día 1', blocks: [{ exercises: [{ exerciseId: uuid, schemes: [scheme] }] }] }],
+  days: [
+    {
+      label: 'Día 1',
+      blocks: [{ schemes: [blockScheme], exercises: [{ exerciseId: uuid, schemes: [scheme] }] }],
+    },
+  ],
 }
 
 describe('createRoutineSchema', () => {
@@ -85,9 +92,10 @@ describe('createRoutineSchema', () => {
 
 describe('createRoutineBlockSchema', () => {
   const exercise = { exerciseId: uuid, schemes: [scheme] }
+  const schemes = [blockScheme]
 
   it('aplica type default single', () => {
-    const result = createRoutineBlockSchema.safeParse({ exercises: [exercise] })
+    const result = createRoutineBlockSchema.safeParse({ schemes, exercises: [exercise] })
     expect(result.success).toBe(true)
     if (result.success) expect(result.data.type).toBe('single')
   })
@@ -96,6 +104,7 @@ describe('createRoutineBlockSchema', () => {
     const result = createRoutineBlockSchema.safeParse({
       type: 'superset',
       notes: 'sin descanso entre los dos',
+      schemes,
       exercises: [exercise, exercise],
     })
     expect(result.success).toBe(true)
@@ -103,12 +112,19 @@ describe('createRoutineBlockSchema', () => {
   })
 
   it('rechaza un bloque sin ejercicios', () => {
-    expect(createRoutineBlockSchema.safeParse({ exercises: [] }).success).toBe(false)
+    expect(createRoutineBlockSchema.safeParse({ schemes, exercises: [] }).success).toBe(false)
+  })
+
+  it('rechaza un bloque sin rondas prescriptas (las series son del bloque)', () => {
+    expect(createRoutineBlockSchema.safeParse({ schemes: [], exercises: [exercise] }).success).toBe(
+      false,
+    )
   })
 
   it('rechaza un type fuera del enum', () => {
     expect(
-      createRoutineBlockSchema.safeParse({ type: 'giant-set', exercises: [exercise] }).success,
+      createRoutineBlockSchema.safeParse({ type: 'giant-set', schemes, exercises: [exercise] })
+        .success,
     ).toBe(false)
   })
 })
@@ -118,8 +134,8 @@ describe('createRoutineExerciseSchema', () => {
     const result = createRoutineExerciseSchema.safeParse({
       exerciseId: uuid,
       schemes: [
-        { weekNumber: 1, sets: 3, reps: '10' },
-        { weekNumber: 4, sets: 4, reps: '8', restSeconds: 120, notes: 'bajar el peso' },
+        { weekNumber: 1, reps: '10' },
+        { weekNumber: 4, reps: '8', notes: 'bajar el peso' },
       ],
     })
     expect(result.success).toBe(true)
@@ -150,19 +166,56 @@ describe('createRoutineSchemeSchema', () => {
     expect(createRoutineSchemeSchema.safeParse({ ...scheme, weekNumber: 0 }).success).toBe(false)
   })
 
-  it('coerce sets y rechaza < 1', () => {
-    expect(createRoutineSchemeSchema.safeParse({ ...scheme, sets: '4' }).success).toBe(true)
-    expect(createRoutineSchemeSchema.safeParse({ ...scheme, sets: 0 }).success).toBe(false)
-  })
-
   it('rechaza reps vacío', () => {
     expect(createRoutineSchemeSchema.safeParse({ ...scheme, reps: '' }).success).toBe(false)
   })
 
-  it('coerce restSeconds de string a number', () => {
-    const result = createRoutineSchemeSchema.safeParse({ ...scheme, restSeconds: '90' })
+  it('descarta sets y descanso: son del bloque', () => {
+    const result = createRoutineSchemeSchema.safeParse({ ...scheme, sets: 4, restSeconds: 90 })
     expect(result.success).toBe(true)
-    if (result.success) expect(result.data.restSeconds).toBe(90)
+    if (result.success) {
+      expect('sets' in result.data).toBe(false)
+      expect('restSeconds' in result.data).toBe(false)
+    }
+  })
+})
+
+describe('createRoutineBlockSchemeSchema', () => {
+  it('coerce sets y rechaza < 1', () => {
+    expect(createRoutineBlockSchemeSchema.safeParse({ ...blockScheme, sets: '4' }).success).toBe(
+      true,
+    )
+    expect(createRoutineBlockSchemeSchema.safeParse({ ...blockScheme, sets: 0 }).success).toBe(
+      false,
+    )
+  })
+
+  it('coerce restSeconds y transitionSeconds de string a number', () => {
+    const result = createRoutineBlockSchemeSchema.safeParse({
+      ...blockScheme,
+      restSeconds: '90',
+      transitionSeconds: '15',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.restSeconds).toBe(90)
+      expect(result.data.transitionSeconds).toBe(15)
+    }
+  })
+
+  it('sin transición es válido (pasar directo es el default)', () => {
+    const result = createRoutineBlockSchemeSchema.safeParse(blockScheme)
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.transitionSeconds).toBeUndefined()
+  })
+
+  it('rechaza descansos negativos', () => {
+    expect(
+      createRoutineBlockSchemeSchema.safeParse({ ...blockScheme, restSeconds: -1 }).success,
+    ).toBe(false)
+    expect(
+      createRoutineBlockSchemeSchema.safeParse({ ...blockScheme, transitionSeconds: -1 }).success,
+    ).toBe(false)
   })
 })
 

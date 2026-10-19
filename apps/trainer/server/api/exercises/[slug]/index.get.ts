@@ -12,7 +12,7 @@ export default defineEventHandler(async (event): Promise<Exercise> => {
 
   const { data, error } = await client
     .from('exercises')
-    .select('*, equipment(*), exercise_muscle_groups(muscle_groups!inner(*))')
+    .select('*, equipment(*), unit:units(*), exercise_muscle_groups(muscle_groups!inner(*))')
     .eq('slug', slug)
     .is('deleted_at', null)
     .is('equipment.deleted_at', null)

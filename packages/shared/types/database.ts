@@ -159,6 +159,7 @@ export type Database = {
           nano_id: string
           slug: string | null
           trainer_id: string
+          unit_id: string
           updated_at: string
           video_url: string | null
         }
@@ -174,6 +175,7 @@ export type Database = {
           nano_id?: string
           slug?: string | null
           trainer_id: string
+          unit_id: string
           updated_at?: string
           video_url?: string | null
         }
@@ -189,6 +191,7 @@ export type Database = {
           nano_id?: string
           slug?: string | null
           trainer_id?: string
+          unit_id?: string
           updated_at?: string
           video_url?: string | null
         }
@@ -205,6 +208,13 @@ export type Database = {
             columns: ['trainer_id']
             isOneToOne: false
             referencedRelation: 'trainers'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'exercises_unit_id_fkey'
+            columns: ['unit_id']
+            isOneToOne: false
+            referencedRelation: 'units'
             referencedColumns: ['id']
           },
         ]
@@ -241,6 +251,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      routine_block_schemes: {
+        Row: {
+          created_at: string
+          id: string
+          rest_seconds: number | null
+          routine_block_id: string
+          sets: number
+          transition_seconds: number | null
+          updated_at: string
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rest_seconds?: number | null
+          routine_block_id: string
+          sets: number
+          transition_seconds?: number | null
+          updated_at?: string
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rest_seconds?: number | null
+          routine_block_id?: string
+          sets?: number
+          transition_seconds?: number | null
+          updated_at?: string
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'routine_block_schemes_routine_block_id_fkey'
+            columns: ['routine_block_id']
+            isOneToOne: false
+            referencedRelation: 'routine_blocks'
+            referencedColumns: ['id']
+          },
+        ]
       }
       routine_blocks: {
         Row: {
@@ -330,9 +381,7 @@ export type Database = {
           id: string
           notes: string | null
           reps: string
-          rest_seconds: number | null
           routine_exercise_id: string
-          sets: number
           updated_at: string
           week_number: number
         }
@@ -341,9 +390,7 @@ export type Database = {
           id?: string
           notes?: string | null
           reps: string
-          rest_seconds?: number | null
           routine_exercise_id: string
-          sets: number
           updated_at?: string
           week_number: number
         }
@@ -352,9 +399,7 @@ export type Database = {
           id?: string
           notes?: string | null
           reps?: string
-          rest_seconds?: number | null
           routine_exercise_id?: string
-          sets?: number
           updated_at?: string
           week_number?: number
         }
@@ -517,6 +562,45 @@ export type Database = {
           nano_id?: string
           phone?: string | null
           role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      units: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_default: boolean
+          kind: string
+          name_en: string | null
+          name_es: string
+          nano_id: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_default?: boolean
+          kind: string
+          name_en?: string | null
+          name_es: string
+          nano_id?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_default?: boolean
+          kind?: string
+          name_en?: string | null
+          name_es?: string
+          nano_id?: string
+          slug?: string
           updated_at?: string
         }
         Relationships: []

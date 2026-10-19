@@ -31,13 +31,16 @@
       "equipment": "Equipamiento",
       "equipmentPlaceholder": "Seleccioná el equipamiento",
       "videoUrl": "URL del video",
-      "videoUrlExample": "Ej: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      "videoUrlExample": "Ej: https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "unit": "Unidad",
+      "unitPlaceholder": "Seleccioná una unidad"
     },
     "detail": {
       "muscleGroups": "Grupos musculares",
       "equipment": "Equipamiento",
       "descriptionEs": "Descripción (ES)",
-      "descriptionEn": "Descripción (EN)"
+      "descriptionEn": "Descripción (EN)",
+      "unit": "Unidad"
     },
     "pages": {
       "add": "Agregar ejercicio",

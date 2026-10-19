@@ -1,29 +1,34 @@
 <script setup lang="ts">
-import type { RoutineExercise } from '@macross/shared'
+import type { RoutineBlock, RoutineExercise } from '@macross/shared'
 
 interface PlanExerciseRowProps {
+  block: RoutineBlock
   exercise: RoutineExercise
   to: string
   week: number
   flat?: boolean
 }
 
-const { exercise, flat = false, week } = defineProps<PlanExerciseRowProps>()
+const { block, exercise, flat = false, week } = defineProps<PlanExerciseRowProps>()
 
 const { localizedName } = useLocalizedName()
 const { t } = useI18n()
 
 const scheme = computed(() => schemeForWeek(exercise, week))
+const rounds = computed(() => blockSchemeForWeek(block, week))
+const unitName = computed(() => localizedName(exercise.exercise.unit))
 const completedSets = computed(() => completedSetCount(exercise, week))
-const isDone = computed(() => isExerciseDone(exercise, week))
+const isDone = computed(() => isExerciseDone(block, exercise, week))
 
-const prescription = computed(() =>
-  scheme.value ? `${scheme.value.sets} × ${scheme.value.reps}` : '—',
-)
+const prescription = computed(() => {
+  if (!scheme.value) return '—'
+  const amount = formatAmount(scheme.value.reps, unitName.value, exercise.exercise.unit.kind)
+  return flat || !rounds.value ? amount : `${rounds.value.sets} × ${amount}`
+})
 
 const rest = computed(() => {
-  const seconds = scheme.value?.restSeconds
-  if (!seconds) return null
+  const seconds = rounds.value?.restSeconds
+  if (flat || !seconds) return null
   return seconds < 60
     ? t('plan.restShort', { rest: `${seconds} s` })
     : t('plan.restShort', { rest: `${Math.round(seconds / 60)} min` })
@@ -67,7 +72,7 @@ const rest = computed(() => {
           {{ prescription }}
           <span v-if="rest" class="text-macross-primary-300 font-semibold">· {{ rest }}</span>
           <span v-if="completedSets > 0" class="text-dimmed tabular-nums">
-            · {{ completedSets }}/{{ scheme?.sets }}
+            · {{ completedSets }}/{{ rounds?.sets }}
           </span>
         </template>
       </p>

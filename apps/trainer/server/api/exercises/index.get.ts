@@ -43,7 +43,9 @@ export default defineEventHandler(async (event): Promise<BaseResponse<Exercise>>
 
   let supabaseQuery = client
     .from('exercises')
-    .select('*, equipment(*), exercise_muscle_groups(muscle_groups!inner(*))', { count: 'exact' })
+    .select('*, equipment(*), unit:units(*), exercise_muscle_groups(muscle_groups!inner(*))', {
+      count: 'exact',
+    })
     .is('deleted_at', null)
     .is('equipment.deleted_at', null)
     .is('exercise_muscle_groups.muscle_groups.deleted_at', null)

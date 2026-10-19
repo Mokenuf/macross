@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { RoutineBlock } from '@macross/shared'
+
 const route = useRoute()
 const { t } = useI18n()
 
@@ -17,9 +19,11 @@ const heroTitle = computed(() =>
 const blocks = computed(() => (day.value ? weekBlocks(day.value, week.value) : []))
 const exercises = computed(() => blocks.value.flatMap(block => block.exercises))
 
-// El ejercicio en curso es el primero con series pendientes, no el primero de la lista.
-const nextExercise = computed(
-  () => exercises.value.find(e => !isExerciseDone(e, week.value)) ?? null,
+// El ejercicio en curso es el próximo paso pendiente por ronda, no el primero de la lista.
+const nextExercise = computed(() =>
+  day.value
+    ? (nextPendingStep(sessionSteps(day.value, week.value), week.value)?.exercise ?? null)
+    : null,
 )
 
 const hasProgress = computed(() => exercises.value.some(e => completedSetCount(e, week.value) > 0))
@@ -28,6 +32,15 @@ useHead({ title: () => heroTitle.value || t('plan.title') })
 
 function blockLetter(index: number): string {
   return String.fromCharCode(65 + index)
+}
+
+function roundsLabel(block: RoutineBlock): string {
+  const rounds = blockSchemeForWeek(block, week.value)
+  if (!rounds) return ''
+  const parts = [t('plan.roundsShort', { count: rounds.sets })]
+  if (rounds.restSeconds)
+    parts.push(t('plan.restShort', { rest: formatSeconds(rounds.restSeconds) }))
+  return parts.join(' · ')
 }
 
 function exercisesText(count: number): string {
@@ -81,10 +94,14 @@ function exercisesText(count: number): string {
               <span class="text-dimmed text-[10.5px] font-semibold tracking-widest uppercase">
                 {{ t(`plan.blockTypes.${block.type}`) }}
               </span>
+              <span class="text-macross-primary-300 ml-auto text-xs font-semibold">
+                {{ roundsLabel(block) }}
+              </span>
             </div>
             <PlanExerciseRow
               v-for="exercise in block.exercises"
               :key="exercise.id"
+              :block="block"
               :exercise="exercise"
               :to="`/plan/${nanoId}/${exercise.exercise.slug}`"
               :week="week"
@@ -96,6 +113,7 @@ function exercisesText(count: number): string {
             v-for="exercise in block.exercises"
             v-else
             :key="exercise.id"
+            :block="block"
             :exercise="exercise"
             :to="`/plan/${nanoId}/${exercise.exercise.slug}`"
             :week="week"

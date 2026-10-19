@@ -28,8 +28,13 @@ function dayExerciseCount(blocks: RoutineBlock[]) {
 }
 
 function schemeCell(exercise: RoutineExercise, week: number) {
-  const scheme = exercise.schemes.find(s => s.weekNumber === week)
-  return scheme ? `${scheme.sets}×${scheme.reps}` : '—'
+  return exercise.schemes.find(s => s.weekNumber === week)?.reps ?? '—'
+}
+
+function roundsCell(block: RoutineBlock, week: number) {
+  const scheme = block.schemes.find(s => s.weekNumber === week)
+  if (!scheme) return '—'
+  return scheme.restSeconds === null ? `${scheme.sets}` : `${scheme.sets} · ${scheme.restSeconds}s`
 }
 </script>
 
@@ -100,6 +105,24 @@ function schemeCell(exercise: RoutineExercise, week: number) {
                 </tr>
               </thead>
               <tbody>
+                <tr class="border-default border-b">
+                  <td
+                    class="text-dimmed px-2 py-1.5 text-[10px] font-semibold tracking-widest uppercase"
+                  >
+                    {{
+                      block.exercises.length > 1
+                        ? t('routines.builder.roundsRow')
+                        : t('routines.builder.setsRow')
+                    }}
+                  </td>
+                  <td v-for="w in routine.weeks" :key="w" class="px-2 py-1.5 text-center">
+                    <span
+                      class="text-primary bg-macross-gray-950 ring-accented font-logo inline-flex min-w-13 justify-center rounded-sm px-2.5 py-2 text-lg leading-none ring ring-inset"
+                    >
+                      {{ roundsCell(block, w) }}
+                    </span>
+                  </td>
+                </tr>
                 <tr v-for="exercise in block.exercises" :key="exercise.id">
                   <td class="px-2 py-1.5">
                     <div class="flex items-center gap-2">
@@ -115,6 +138,7 @@ function schemeCell(exercise: RoutineExercise, week: number) {
                         color="neutral"
                       />
                     </div>
+                    <p class="text-dimmed text-xs">{{ localizedName(exercise.exercise.unit) }}</p>
                   </td>
                   <td v-for="w in routine.weeks" :key="w" class="px-2 py-1.5 text-center">
                     <span
