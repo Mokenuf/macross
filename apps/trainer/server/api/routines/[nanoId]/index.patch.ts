@@ -9,10 +9,11 @@ const oldTreeSelect = `
     id, day_number, label,
     blocks:routine_blocks(
       id, type, sort_order, notes,
+      schemes:routine_block_schemes(id, week_number, sets, rest_seconds, transition_seconds),
       exercises:routine_exercises(
         id, exercise_id, optional, notes,
         schemes:routine_exercise_schemes(
-          id, week_number, sets, reps, rest_seconds, notes,
+          id, week_number, reps, notes,
           logs:workout_logs(completed, deleted_at)
         )
       )
@@ -98,6 +99,12 @@ export default defineEventHandler(async (event): Promise<Routine> => {
   if (plan.blockInserts.length)
     await run('Error al crear los bloques', client.from('routine_blocks').insert(plan.blockInserts))
 
+  if (plan.blockSchemeInserts.length)
+    await run(
+      'Error al crear las rondas',
+      client.from('routine_block_schemes').insert(plan.blockSchemeInserts),
+    )
+
   if (plan.slotInserts.length)
     await run(
       'Error al crear los ejercicios',
@@ -142,6 +149,12 @@ export default defineEventHandler(async (event): Promise<Routine> => {
     await run(
       'Error al actualizar los ejercicios',
       client.from('routine_exercises').upsert(plan.slotUpdates),
+    )
+
+  if (plan.blockSchemeUpdates.length)
+    await run(
+      'Error al actualizar las rondas',
+      client.from('routine_block_schemes').upsert(plan.blockSchemeUpdates),
     )
 
   if (plan.schemeUpdates.length)

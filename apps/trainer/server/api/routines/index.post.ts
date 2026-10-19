@@ -12,7 +12,10 @@ export default defineEventHandler(async (event): Promise<Routine> => {
 
   const routineId = crypto.randomUUID()
 
-  const { dayRows, blockRows, slotRows, schemeRows } = buildRoutineTree(body, routineId)
+  const { dayRows, blockRows, blockSchemeRows, slotRows, schemeRows } = buildRoutineTree(
+    body,
+    routineId,
+  )
 
   // Se inserta inactiva siempre; la activación (desactivar las demás + activar esta) se hace aparte
   // para no chocar con el índice único parcial routines_one_active_per_client al insertar.
@@ -50,6 +53,11 @@ export default defineEventHandler(async (event): Promise<Routine> => {
 
   const { error: blocksError } = await client.from('routine_blocks').insert(blockRows)
   if (blocksError) await abort(blocksError.message ?? 'Error al crear los bloques')
+
+  const { error: blockSchemesError } = await client
+    .from('routine_block_schemes')
+    .insert(blockSchemeRows)
+  if (blockSchemesError) await abort(blockSchemesError.message ?? 'Error al crear las rondas')
 
   const { error: slotsError } = await client.from('routine_exercises').insert(slotRows)
   if (slotsError) await abort(slotsError.message ?? 'Error al crear los ejercicios')

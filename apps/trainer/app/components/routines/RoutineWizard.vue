@@ -4,12 +4,13 @@ import {
   type Client,
   type Exercise,
   type Routine,
+  type RoutineBlock,
   type RoutineExercise,
   type UpdateRoutine,
 } from '@macross/shared'
 import { insertNodeAt, removeNode, useSortable } from '@vueuse/integrations/useSortable'
 
-import type { BuilderDay, BuilderScheme, RoutineBuilderState } from './types'
+import type { BuilderBlockScheme, BuilderDay, BuilderScheme, RoutineBuilderState } from './types'
 
 interface RoutineWizardProps {
   loading?: boolean
@@ -139,11 +140,26 @@ function seedSchemes(slot: RoutineExercise, weeks: number): BuilderScheme[] {
     const source = scheme ?? nearest(week)
 
     return makeScheme(week, {
-      sets: source?.sets,
       reps: source?.reps,
-      restSeconds: source?.restSeconds,
       notes: scheme?.notes ?? undefined,
       trainedSets: scheme?.trainedSets ?? 0,
+    })
+  })
+}
+
+// Mismo relleno que las schemes del slot: esas semanas quedan bloqueadas y no se reescriben.
+function seedBlockSchemes(block: RoutineBlock, weeks: number): BuilderBlockScheme[] {
+  const nearest = (week: number) =>
+    block.schemes.toSorted(
+      (a, b) => Math.abs(a.weekNumber - week) - Math.abs(b.weekNumber - week),
+    )[0]
+
+  return Array.from({ length: weeks }, (_, i) => {
+    const source = nearest(i + 1)
+    return makeBlockScheme(i + 1, {
+      sets: source?.sets,
+      restSeconds: source?.restSeconds,
+      transitionSeconds: source?.transitionSeconds,
     })
   })
 }
@@ -164,6 +180,7 @@ function seedFromRoutine(r: Routine): RoutineBuilderState {
         id: block.id,
         type: block.type,
         notes: block.notes ?? '',
+        schemes: seedBlockSchemes(block, r.weeks),
         exercises: block.exercises.map(slot => ({
           id: slot.id,
           exercise: {
@@ -256,6 +273,12 @@ function submit() {
           id: b.id,
           type: b.type,
           notes: b.notes.trim() || undefined,
+          schemes: b.schemes.map(scheme => ({
+            weekNumber: scheme.weekNumber,
+            sets: scheme.sets,
+            restSeconds: scheme.restSeconds ?? undefined,
+            transitionSeconds: scheme.transitionSeconds ?? undefined,
+          })),
           exercises: b.exercises
             .filter(e => e.exercise)
             .map(e => ({
@@ -265,9 +288,7 @@ function submit() {
               notes: e.notes.trim() || undefined,
               schemes: e.schemes.map(scheme => ({
                 weekNumber: scheme.weekNumber,
-                sets: scheme.sets,
                 reps: scheme.reps.trim(),
-                restSeconds: scheme.restSeconds ?? undefined,
                 notes: scheme.notes.trim() || undefined,
               })),
             })),

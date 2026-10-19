@@ -133,7 +133,7 @@ fix/trainer/auth        ─┘
 - Biblioteca de ejercicios con video, grupos musculares, equipamiento y unidad de medida (catálogo compartido), con búsqueda y filtros combinables
 - Catálogo de unidades editable por el entrenador (repeticiones, pasos, segundos…): cada ejercicio se prescribe en la suya, con una unidad por defecto para los ejercicios nuevos
 - Gestión de clientes: alta por invitación, ficha con datos de entrenamiento y notas de seguimiento, scoping por rol (el trainer ve los suyos; el manager, todos), soft delete y reactivación
-- Rutinas ("fases"): armado por wizard con progresión semana a semana, agrupación de ejercicios en superseries y dropsets, reordenar bloques y ejercicios (arrastrando o con flechas), duplicar días, activación por cliente (una activa a la vez) y edición del árbol completo
+- Rutinas ("fases"): armado por wizard con progresión semana a semana, series y descanso por bloque (una vez por superserie, como en una planilla), agrupación de ejercicios en superseries y dropsets, reordenar bloques y ejercicios (arrastrando o con flechas), duplicar días, activación por cliente (una activa a la vez) y edición del árbol completo
 - Editar una fase en curso preserva lo ya entrenado: las series registradas quedan bloqueadas, los cambios aplican desde la semana en curso y agrupar o reagrupar ejercicios no borra el progreso del cliente
 - Gestión de entrenadores con roles (manager / trainer), restringida a managers
 - Permisos por rol, filtros sincronizados con la URL e interfaz bilingüe es/en (incluye validaciones y contenido de catálogo)
@@ -145,8 +145,9 @@ fix/trainer/auth        ─┘
 - Planificación activa: días, ejercicios con series/reps de la semana y video de cada ejercicio
 - Avance por la fase: la semana en curso sale del propio entrenamiento (la primera sesión sin completar), con días completados marcados y el día que toca destacado; se puede cambiar de semana a mano
 - Registro del entrenamiento: peso y reps por serie, series marcadas como hechas y estado de avance por ejercicio en el listado del día. El registro no espera a la red (se guarda apenas se toca y se reintenta solo si la conexión falla), pensado para usarse en el gimnasio
-- Timer de descanso: arranca solo al completar una serie, con cuenta regresiva sonora y vibración en los últimos segundos, y mantiene la pantalla encendida mientras corre
-- "La vez pasada": el peso máximo de la última vez que se hizo ese ejercicio, cruzando semanas y fases, con el input de peso precargado a partir de ese valor
+- Superseries por ronda: el recorrido es A₁ → B₁ → A₂ → B₂, con transición opcional entre ejercicios y descanso al cerrar cada ronda
+- Timers de descanso, transición y trabajo (para los ejercicios por tiempo, que se registran solos al terminar): cuenta regresiva sonora y vibración en los últimos segundos, con la pantalla encendida mientras corren
+- "La vez pasada": el peso máximo de la última vez que se hizo ese ejercicio (o, sin peso, la mayor cantidad: reps, pasos o segundos), cruzando semanas y fases
 - Perfil del cliente con sus datos de entrenamiento y sección de cuenta (contraseña, idioma, cerrar sesión)
 - Interfaz bilingüe es/en, mismo patrón que el dashboard
 
@@ -158,7 +159,7 @@ fix/trainer/auth        ─┘
 
 ## Estado
 
-En desarrollo. El ciclo completo ya funciona de punta a punta: el entrenador arma la fase en el dashboard y el cliente la ejecuta y registra desde el teléfono. En curso: que la prescripción diga en qué se mide cada ejercicio (unidades, timer de trabajo para los ejercicios por tiempo, series y descanso por bloque en las superseries). Pendientes antes del lanzamiento: plantillas de rutina, panel de seguimiento de adherencia y una pasada final de UI.
+En desarrollo. El ciclo completo ya funciona de punta a punta: el entrenador arma la fase en el dashboard y el cliente la ejecuta y registra desde el teléfono. Pendientes antes del lanzamiento: plantillas de rutina, panel de seguimiento de adherencia y una pasada final de UI.
 
 ## Autor
 

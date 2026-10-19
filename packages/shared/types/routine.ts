@@ -10,9 +10,7 @@ export const routineExerciseSchemeSchema = z.object({
   id: z.uuid(),
   routineExerciseId: z.uuid(),
   weekNumber: z.number().int(),
-  sets: z.number().int(),
   reps: z.string(),
-  restSeconds: z.number().int().nullable(),
   notes: z.string().nullable(),
   // Dos consumidores, dos shapes: la PWA necesita las filas (peso y reps por serie); el builder del
   // trainer solo el conteo, para bloquear la celda ya entrenada. El read del trainer sirve el
@@ -46,12 +44,25 @@ export const routineExerciseSchema = z.object({
   deletedAt: z.string().nullable(),
 })
 
+// Las rondas y el descanso son del bloque: en una superserie A+B, "2 series" son 2 rondas de A → B.
+export const routineBlockSchemeSchema = z.object({
+  id: z.uuid(),
+  routineBlockId: z.uuid(),
+  weekNumber: z.number().int(),
+  sets: z.number().int(),
+  restSeconds: z.number().int().nullable(),
+  transitionSeconds: z.number().int().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
 export const routineBlockSchema = z.object({
   id: z.uuid(),
   routineDayId: z.uuid(),
   type: blockTypeEnum,
   sortOrder: z.number().int(),
   notes: z.string().nullable(),
+  schemes: z.array(routineBlockSchemeSchema),
   exercises: z.array(routineExerciseSchema),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -99,10 +110,15 @@ export const routineSchema = z.object({
 // es rango abierto y no una tupla de 4.
 export const createRoutineSchemeSchema = z.object({
   weekNumber: z.coerce.number().int().min(1),
-  sets: z.coerce.number().int().min(1),
   reps: z.string().min(1),
-  restSeconds: z.coerce.number().int().nonnegative().optional(),
   notes: z.string().optional(),
+})
+
+export const createRoutineBlockSchemeSchema = z.object({
+  weekNumber: z.coerce.number().int().min(1),
+  sets: z.coerce.number().int().min(1),
+  restSeconds: z.coerce.number().int().nonnegative().optional(),
+  transitionSeconds: z.coerce.number().int().nonnegative().optional(),
 })
 
 // El scheme no lleva id: `(slot, weekNumber)` ya lo identifica (índice único en la DB), así que el
@@ -117,6 +133,7 @@ export const createRoutineExerciseSchema = z.object({
 export const createRoutineBlockSchema = z.object({
   type: blockTypeEnum.optional().default('single'),
   notes: z.string().optional(),
+  schemes: z.array(createRoutineBlockSchemeSchema).min(1),
   exercises: z.array(createRoutineExerciseSchema).min(1),
 })
 
@@ -171,11 +188,13 @@ export const routineQueryParamsSchema = queryParamsSchema.extend({
 
 export type RoutineExerciseScheme = z.infer<typeof routineExerciseSchemeSchema>
 export type RoutineExercise = z.infer<typeof routineExerciseSchema>
+export type RoutineBlockScheme = z.infer<typeof routineBlockSchemeSchema>
 export type RoutineBlock = z.infer<typeof routineBlockSchema>
 export type RoutineDay = z.infer<typeof routineDaySchema>
 export type Routine = z.infer<typeof routineSchema>
 
 export type CreateRoutineScheme = z.infer<typeof createRoutineSchemeSchema>
+export type CreateRoutineBlockScheme = z.infer<typeof createRoutineBlockSchemeSchema>
 export type CreateRoutineExercise = z.infer<typeof createRoutineExerciseSchema>
 export type CreateRoutineBlock = z.infer<typeof createRoutineBlockSchema>
 export type CreateRoutineDay = z.infer<typeof createRoutineDaySchema>

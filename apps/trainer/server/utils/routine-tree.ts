@@ -33,6 +33,23 @@ export function buildRoutineTree(body: CreateRoutine, routineId: string) {
     notes: b.block.notes ?? null,
   }))
 
+  const weekRange = Array.from({ length: body.weeks }, (_, w) => w + 1)
+
+  const blockSchemeRows = blocks.flatMap(b =>
+    weekRange.flatMap(week => {
+      const scheme = b.block.schemes.find(candidate => candidate.weekNumber === week)
+      if (!scheme) return []
+
+      return {
+        routine_block_id: b.id,
+        week_number: week,
+        sets: scheme.sets,
+        rest_seconds: scheme.restSeconds ?? null,
+        transition_seconds: scheme.transitionSeconds ?? null,
+      }
+    }),
+  )
+
   const slots = blocks.flatMap(b =>
     b.block.exercises.map((exercise, k) => ({
       id: crypto.randomUUID(),
@@ -54,20 +71,18 @@ export function buildRoutineTree(body: CreateRoutine, routineId: string) {
   // Se recorre el rango de semanas y se busca la prescripción, en vez de mapear el array del body:
   // así una semana fuera de rango o repetida no puede llegar a la DB sin validarla en el schema.
   const schemeRows = slots.flatMap(s =>
-    Array.from({ length: body.weeks }, (_, w) => w + 1).flatMap(week => {
+    weekRange.flatMap(week => {
       const scheme = s.exercise.schemes.find(candidate => candidate.weekNumber === week)
       if (!scheme) return []
 
       return {
         routine_exercise_id: s.id,
         week_number: week,
-        sets: scheme.sets,
         reps: scheme.reps,
-        rest_seconds: scheme.restSeconds ?? null,
         notes: scheme.notes ?? null,
       }
     }),
   )
 
-  return { dayRows, blockRows, slotRows, schemeRows }
+  return { dayRows, blockRows, blockSchemeRows, slotRows, schemeRows }
 }
