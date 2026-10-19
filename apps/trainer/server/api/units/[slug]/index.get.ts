@@ -25,7 +25,13 @@ export default defineEventHandler(async (event): Promise<Unit> => {
 
   if (!data) throw createError({ statusCode: 404, statusMessage: 'Unidad no encontrada' })
 
-  const unit = unitSchema.parse(toCamelCase<Unit>(data))
+  const { count } = await client
+    .from('exercises')
+    .select('*', { count: 'exact', head: true })
+    .eq('unit_id', data.id)
+    .is('deleted_at', null)
+
+  const unit = unitSchema.parse({ ...toCamelCase<Unit>(data), exerciseCount: count ?? 0 })
 
   return unit
 })

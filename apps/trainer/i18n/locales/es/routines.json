@@ -120,7 +120,7 @@
       },
       "week": "Sem {n}",
       "sets": "Series",
-      "reps": "Reps",
+      "amount": "Cantidad",
       "repsPlaceholder": "12",
       "rest": "Descanso (seg)",
       "restPlaceholder": "90",

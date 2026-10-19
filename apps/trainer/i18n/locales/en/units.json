@@ -29,7 +29,8 @@
     "detail": {
       "count": "Counted: the client logs how many they did.",
       "time": "Measured in seconds: the client can time it from the app.",
-      "default": "New exercises start with this unit. It can't be deleted."
+      "default": "New exercises start with this unit. It can't be deleted.",
+      "usage": "Not used by any exercise | Used by {count} exercise | Used by {count} exercises"
     },
     "pages": {
       "add": "Add Unit",

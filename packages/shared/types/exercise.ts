@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { equipmentSchema } from './equipment'
 import { muscleGroupSchema } from './muscle-group'
 import { queryParamsSchema, type BaseFilters } from './query-params'
+import { unitSchema } from './unit'
 
 export const exerciseSchema = z.object({
   id: z.uuid(),
@@ -14,6 +15,7 @@ export const exerciseSchema = z.object({
   videoUrl: z.url().nullable(),
   muscleGroups: z.array(muscleGroupSchema),
   equipment: equipmentSchema.nullable(),
+  unit: unitSchema,
   slug: z.string(),
   nanoId: z.string(),
   createdAt: z.string(),
@@ -29,6 +31,7 @@ export const createExerciseSchema = z.object({
   videoUrl: z.preprocess(val => (val === '' ? undefined : val), z.url().optional()),
   muscleGroupIds: z.array(z.uuid()).optional().default([]),
   equipmentId: z.uuid().optional(),
+  unitId: z.uuid(),
 })
 
 export const updateExerciseSchema = createExerciseSchema.extend({})

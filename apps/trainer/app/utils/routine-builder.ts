@@ -74,7 +74,9 @@ export function makeDay(): BuilderDay {
 // misma y una de las dos perdería su ejercicio) y sin prescripción para las semanas ya cerradas.
 function cloneExercise(exercise: BuilderExercise, startWeek: number): BuilderExercise {
   return {
-    exercise: exercise.exercise ? { ...exercise.exercise } : null,
+    exercise: exercise.exercise
+      ? { ...exercise.exercise, unit: { ...exercise.exercise.unit } }
+      : null,
     optional: exercise.optional,
     notes: exercise.notes,
     schemes: exercise.schemes

@@ -20,7 +20,17 @@ import {
   ungroupBlock,
 } from '../../app/utils/routine-builder'
 
-const SQUAT = { id: '11111111-1111-4111-8111-111111111111', nameEs: 'Sentadilla', nameEn: 'Squat' }
+const SQUAT = {
+  id: '11111111-1111-4111-8111-111111111111',
+  nameEs: 'Sentadilla',
+  nameEn: 'Squat',
+  unit: {
+    id: '55555555-5555-4555-8555-555555555555',
+    nameEs: 'Repeticiones',
+    nameEn: 'Reps',
+    kind: 'count' as const,
+  },
+}
 const SLOT_A = '33333333-3333-4333-8333-333333333331'
 const SLOT_B = '33333333-3333-4333-8333-333333333332'
 const BLOCK_A = '44444444-4444-4444-8444-444444444441'
@@ -152,9 +162,11 @@ describe('cloneDay', () => {
 
     clone.blocks[0]!.exercises[0]!.schemes[0]!.reps = '20'
     clone.blocks[0]!.exercises[0]!.exercise!.nameEs = 'Otro'
+    clone.blocks[0]!.exercises[0]!.exercise!.unit.nameEs = 'Segundos'
 
     expect(source.blocks[0]?.exercises[0]?.schemes[0]?.reps).toBe('10')
     expect(source.blocks[0]?.exercises[0]?.exercise?.nameEs).toBe('Sentadilla')
+    expect(source.blocks[0]?.exercises[0]?.exercise?.unit.nameEs).toBe('Repeticiones')
   })
 
   // El clon es un slot nuevo: el server lo inserta desde la semana en curso, así que las semanas ya

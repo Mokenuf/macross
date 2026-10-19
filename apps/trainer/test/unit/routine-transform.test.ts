@@ -83,6 +83,7 @@ function makeRoutine(schemes: RoutineExerciseScheme[]): Routine {
                   slug: 'sentadilla',
                   nanoId: 'ex123',
                   equipment: null,
+                  unit: { id: UUID, nameEs: 'Repeticiones', nameEn: 'Reps', kind: 'count' },
                 },
                 schemes,
                 createdAt: '2026-08-17T10:00:00Z',

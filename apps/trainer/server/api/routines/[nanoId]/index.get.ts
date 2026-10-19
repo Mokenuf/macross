@@ -12,7 +12,7 @@ const treeSelect = `
       *,
       exercises:routine_exercises(
         *,
-        exercise:exercises(id, name_es, name_en, video_url, slug, nano_id, equipment(*)),
+        exercise:exercises(id, name_es, name_en, video_url, slug, nano_id, equipment(*), unit:units(id, name_es, name_en, kind)),
         schemes:routine_exercise_schemes(
           *,
           logs:workout_logs(id, routine_exercise_scheme_id, set_number, weight_kg, actual_reps, completed, logged_at)

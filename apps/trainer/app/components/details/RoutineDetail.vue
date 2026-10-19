@@ -115,6 +115,7 @@ function schemeCell(exercise: RoutineExercise, week: number) {
                         color="neutral"
                       />
                     </div>
+                    <p class="text-dimmed text-xs">{{ localizedName(exercise.exercise.unit) }}</p>
                   </td>
                   <td v-for="w in routine.weeks" :key="w" class="px-2 py-1.5 text-center">
                     <span

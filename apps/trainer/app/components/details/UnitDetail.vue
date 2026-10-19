@@ -20,5 +20,6 @@ const { kindLabels } = useUnitOptions()
       {{ unit.kind === UnitKinds.time ? t('units.detail.time') : t('units.detail.count') }}
     </p>
     <p v-if="unit.isDefault" class="text-muted text-sm">{{ t('units.detail.default') }}</p>
+    <p class="text-muted text-sm">{{ t('units.detail.usage', unit.exerciseCount ?? 0) }}</p>
   </div>
 </template>

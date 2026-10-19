@@ -29,7 +29,8 @@
     "detail": {
       "count": "Se cuenta: el cliente registra cuántas hizo.",
       "time": "Se mide en segundos: el cliente puede cronometrarla desde la app.",
-      "default": "Es la unidad con la que arranca un ejercicio nuevo. No se puede eliminar."
+      "default": "Es la unidad con la que arranca un ejercicio nuevo. No se puede eliminar.",
+      "usage": "No la usa ningún ejercicio | La usa {count} ejercicio | La usan {count} ejercicios"
     },
     "pages": {
       "add": "Agregar Unidad",
