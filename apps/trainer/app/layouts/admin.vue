@@ -59,6 +59,11 @@ const navigation = computed<NavigationMenuItem[]>(() => [
     to: '/equipment',
   },
   {
+    label: t('nav.units'),
+    icon: 'i-lucide-ruler',
+    to: '/units',
+  },
+  {
     label: t('nav.users'),
     type: 'label',
   },

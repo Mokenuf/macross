@@ -1,4 +1,4 @@
--- Catalogo compartido: grupos musculares y equipamiento, bilingue.
+-- Catalogo compartido: grupos musculares, equipamiento y unidades, bilingue.
 --
 -- Lo consumen DOS entornos, y por eso vive aparte de `seed.sql`:
 --   - Local: `config.toml` lo lista en [db.seed].sql_paths, asi que `db reset` lo
@@ -33,4 +33,11 @@ insert into public.equipment (name_es, name_en, slug) values
   ('Barra',     'Barbell',  'barra'),
   ('Mancuerna', 'Dumbbell', 'mancuerna'),
   ('Polea',     'Cable',    'polea')
+on conflict (slug) do nothing;
+
+-- Una unidad `time` se mide siempre en segundos: "minutos" es formato de display.
+insert into public.units (name_es, name_en, slug, kind, is_default) values
+  ('Repeticiones', 'Reps',    'repeticiones', 'count', true),
+  ('Pasos',        'Steps',   'pasos',        'count', false),
+  ('Segundos',     'Seconds', 'segundos',     'time',  false)
 on conflict (slug) do nothing;

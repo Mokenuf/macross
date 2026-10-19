@@ -1,0 +1,48 @@
+{
+  "units": {
+    "title": "Unidades",
+    "add": "Agregar Unidad",
+    "count": "{count} en catálogo",
+    "default": "Por defecto",
+    "columns": {
+      "name": "Nombre",
+      "kind": "Tipo"
+    },
+    "kinds": {
+      "count": "Conteo",
+      "time": "Tiempo"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar unidad..."
+    },
+    "form": {
+      "nameEs": "Nombre (ES)",
+      "nameEn": "Nombre (EN)",
+      "nameEsExample": "Ej: Saltos",
+      "nameEnExample": "Ej: Jumps",
+      "kind": "Tipo",
+      "kindHelp": "Las unidades de tiempo se miden siempre en segundos y habilitan el timer en la app del cliente.",
+      "isDefault": "Unidad por defecto",
+      "isDefaultHint": "Los ejercicios nuevos arrancan con esta unidad. Si otra estaba marcada, deja de estarlo.",
+      "isDefaultLocked": "Es la unidad por defecto. Para cambiarla, marcá otra."
+    },
+    "detail": {
+      "count": "Se cuenta: el cliente registra cuántas hizo.",
+      "time": "Se mide en segundos: el cliente puede cronometrarla desde la app.",
+      "default": "Es la unidad con la que arranca un ejercicio nuevo. No se puede eliminar."
+    },
+    "pages": {
+      "add": "Agregar Unidad",
+      "edit": "Editar Unidad",
+      "detail": "Detalle de la unidad"
+    },
+    "toasts": {
+      "created": "Unidad creada",
+      "updated": "Unidad actualizada",
+      "deleted": "Unidad eliminada",
+      "createError": "No se pudo crear la unidad",
+      "updateError": "No se pudo actualizar la unidad",
+      "deleteError": "No se pudo eliminar la unidad"
+    }
+  }
+}

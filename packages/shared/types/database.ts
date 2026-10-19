@@ -521,6 +521,45 @@ export type Database = {
         }
         Relationships: []
       }
+      units: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          id: string
+          is_default: boolean
+          kind: string
+          name_en: string | null
+          name_es: string
+          nano_id: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_default?: boolean
+          kind: string
+          name_en?: string | null
+          name_es: string
+          nano_id?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          is_default?: boolean
+          kind?: string
+          name_en?: string | null
+          name_es?: string
+          nano_id?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       workout_logs: {
         Row: {
           actual_reps: number | null
