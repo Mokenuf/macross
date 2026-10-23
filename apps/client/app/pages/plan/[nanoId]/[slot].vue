@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RoutineExerciseScheme, WorkoutLog } from '@macross/shared'
-import { UnitKinds } from '@macross/shared'
+import { toVideoEmbed, UnitKinds } from '@macross/shared'
 
 import type { SessionStep } from '@/utils/workout-progress'
 
@@ -26,12 +26,17 @@ const awaitingPause = ref(false)
 const workingSet = ref<number | null>(null)
 
 const nanoId = computed(() => String(route.params.nanoId))
-const slug = computed(() => String(route.params.slug))
+const slotNanoId = computed(() => String(route.params.slot))
 
 const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.value) ?? null)
 const exercises = computed(() => (day.value ? dayExercises(day.value, week.value) : []))
-const position = computed(() => exercises.value.findIndex(e => e.exercise.slug === slug.value))
+const position = computed(() => exercises.value.findIndex(e => e.nanoId === slotNanoId.value))
 const slot = computed(() => exercises.value[position.value] ?? null)
+const occurrence = computed(
+  () =>
+    exercises.value.slice(0, position.value).filter(e => e.exerciseId === slot.value?.exerciseId)
+      .length,
+)
 const steps = computed(() => (day.value ? sessionSteps(day.value, week.value) : []))
 
 const block = computed(() =>
@@ -58,6 +63,7 @@ const { lastWorkout, loading: loadingLastWorkout } = useGetLastWorkout(() =>
         routineId: routine.value.id,
         dayNumber: day.value.dayNumber,
         weekNumber: scheme.value.weekNumber,
+        occurrence: occurrence.value,
       }
     : null,
 )
@@ -75,9 +81,11 @@ const firstPendingSet = computed(() => {
 const selectedLog = computed(() => logFor(selectedSet.value))
 const allSetsDone = computed(() => totalSets.value > 0 && firstPendingSet.value === null)
 
+const setTarget = computed(() => (scheme.value ? repsForSet(scheme.value, selectedSet.value) : ''))
+
 // La prescripción es texto libre ("6-8", "15 12 10", "al fallo") y el log es un entero.
 const prescribedReps = computed(() => {
-  const target = scheme.value?.reps.trim()
+  const target = setTarget.value.trim()
   return target && /^\d+$/.test(target) ? Number(target) : null
 })
 
@@ -87,9 +95,7 @@ const workSeconds = computed(() =>
 )
 
 const amount = computed(() =>
-  scheme.value && unit.value
-    ? formatAmount(scheme.value.reps, unitName.value, unit.value.kind)
-    : '',
+  scheme.value && unit.value ? formatAmount(setTarget.value, unitName.value, unit.value.kind) : '',
 )
 
 const dayTitle = computed(() =>
@@ -128,6 +134,14 @@ const lastTimeLabel = computed(() => {
   return t('plan.exercise.noRecord')
 })
 
+const notes = computed(() =>
+  [
+    { label: t('plan.notes.block'), text: block.value?.notes },
+    { label: t('plan.exercise.notes'), text: slot.value?.notes },
+    { label: t('plan.notes.week', { number: week.value }), text: scheme.value?.notes },
+  ].filter((note): note is { label: string; text: string } => !!note.text),
+)
+
 const exerciseName = computed(() => (slot.value ? localizedName(slot.value.exercise) : ''))
 
 function stepLabel(step: SessionStep) {
@@ -154,25 +168,15 @@ const upcomingDetail = computed(() => {
   const nextUnit = next.exercise.exercise.unit
   return [
     nextRounds ? t('plan.transition.round', { set: next.set, total: nextRounds.sets }) : '',
-    nextScheme ? formatAmount(nextScheme.reps, localizedName(nextUnit), nextUnit.kind) : '',
+    nextScheme
+      ? formatAmount(repsForSet(nextScheme, next.set), localizedName(nextUnit), nextUnit.kind)
+      : '',
   ]
     .filter(Boolean)
     .join(' · ')
 })
 
-const youtubeEmbedUrl = computed(() => {
-  const videoUrl = slot.value?.exercise.videoUrl
-  if (!videoUrl) return null
-  try {
-    const url = new URL(videoUrl)
-    const isYoutube = url.hostname.includes('youtube.com') || url.hostname === 'youtu.be'
-    if (!isYoutube) return null
-    const videoId = url.searchParams.get('v') || url.pathname.split('/').pop()
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : null
-  } catch {
-    return null
-  }
-})
+const video = computed(() => toVideoEmbed(slot.value?.exercise.videoUrl))
 
 // immediate porque al montar la selección tiene que salir del ref inicial.
 watch(
@@ -222,7 +226,8 @@ function seedInputs() {
   const previous = logs.value.findLast(l => l.setNumber < selectedSet.value)
 
   weight.value = own?.weightKg ?? previous?.weightKg ?? lastWorkout.value?.weightKg ?? undefined
-  reps.value = String(own?.actualReps ?? previous?.actualReps ?? prescribedReps.value ?? '')
+  const previousReps = scheme.value?.setReps ? undefined : previous?.actualReps
+  reps.value = String(own?.actualReps ?? previousReps ?? prescribedReps.value ?? '')
 }
 
 function saveSet(completed: boolean) {
@@ -282,7 +287,7 @@ function goTo(next: SessionStep | null) {
     return
   }
   if (next.exercise.id !== slot.value?.id) {
-    void navigateTo(`/plan/${nanoId.value}/${next.exercise.exercise.slug}`)
+    void navigateTo(`/plan/${nanoId.value}/${next.exercise.nanoId}`)
   }
 }
 
@@ -332,9 +337,12 @@ const WEIGHT_STEP = 2.5
       </header>
 
       <iframe
-        v-if="youtubeEmbedUrl"
-        :src="youtubeEmbedUrl"
-        class="border-default aspect-video w-full rounded-lg border"
+        v-if="video"
+        :src="video.src"
+        class="border-default rounded-lg border"
+        :class="
+          video.vertical ? 'mx-auto aspect-[9/16] h-[60dvh] max-w-full' : 'aspect-video w-full'
+        "
         frameborder="0"
         allow="
           accelerometer;
@@ -487,11 +495,8 @@ const WEIGHT_STEP = 2.5
         </button>
       </div>
 
-      <div v-if="slot.notes" class="border-default border-t pt-4">
-        <p class="text-dimmed mb-1 text-[10px] font-semibold tracking-widest uppercase">
-          {{ t('plan.exercise.notes') }}
-        </p>
-        <p class="text-default text-sm whitespace-pre-line">{{ slot.notes }}</p>
+      <div v-if="notes.length" class="border-default space-y-3 border-t pt-4">
+        <PlanNote v-for="note in notes" :key="note.label" :label="note.label" :text="note.text" />
       </div>
     </template>
   </div>

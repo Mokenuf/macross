@@ -130,10 +130,10 @@ fix/trainer/auth        ─┘
 ### Trainer app
 
 - Autenticación completa: login/logout, alta por invitación por mail (set-password), y recuperación de contraseña
-- Biblioteca de ejercicios con video, grupos musculares, equipamiento y unidad de medida (catálogo compartido), con búsqueda y filtros combinables
+- Biblioteca de ejercicios con video (los YouTube Shorts se muestran verticales y en loop), grupos musculares, equipamiento y unidad de medida (catálogo compartido), con búsqueda y filtros combinables
 - Catálogo de unidades editable por el entrenador (repeticiones, pasos, segundos…): cada ejercicio se prescribe en la suya, con una unidad por defecto para los ejercicios nuevos
 - Gestión de clientes: alta por invitación, ficha con datos de entrenamiento y notas de seguimiento, scoping por rol (el trainer ve los suyos; el manager, todos), soft delete y reactivación
-- Rutinas ("fases"): armado por wizard con progresión semana a semana, series y descanso por bloque (una vez por superserie, como en una planilla), agrupación de ejercicios en superseries y dropsets, reordenar bloques y ejercicios (arrastrando o con flechas), duplicar días, activación por cliente (una activa a la vez) y edición del árbol completo
+- Rutinas ("fases"): armado por wizard con progresión semana a semana, series y descanso por bloque (una vez por superserie, como en una planilla), cantidad distinta por serie (pirámides tipo 16/12/9/6), notas de la fase, del bloque, del ejercicio y de la semana, agrupación de ejercicios en superseries y dropsets, reordenar bloques y ejercicios (arrastrando o con flechas), duplicar días, activación por cliente (una activa a la vez) y edición del árbol completo
 - Editar una fase en curso preserva lo ya entrenado: las series registradas quedan bloqueadas, los cambios aplican desde la semana en curso y agrupar o reagrupar ejercicios no borra el progreso del cliente
 - Gestión de entrenadores con roles (manager / trainer), restringida a managers
 - Permisos por rol, filtros sincronizados con la URL e interfaz bilingüe es/en (incluye validaciones y contenido de catálogo)
@@ -142,12 +142,12 @@ fix/trainer/auth        ─┘
 
 - PWA instalable con identidad de marca propia (paleta cálida, navegación mobile) y splash de arranque
 - Autenticación completa: login/logout, set-password por invitación, recuperación y cambio de contraseña; login bloqueado para cuentas desactivadas
-- Planificación activa: días, ejercicios con series/reps de la semana y video de cada ejercicio
+- Planificación activa: días, ejercicios con series/reps de la semana (con el objetivo de cada serie cuando la prescripción es una pirámide), las notas del entrenador y video de cada ejercicio (los Shorts, verticales y en loop)
 - Avance por la fase: la semana en curso sale del propio entrenamiento (la primera sesión sin completar), con días completados marcados y el día que toca destacado; se puede cambiar de semana a mano
 - Registro del entrenamiento: peso y reps por serie, series marcadas como hechas y estado de avance por ejercicio en el listado del día. El registro no espera a la red (se guarda apenas se toca y se reintenta solo si la conexión falla), pensado para usarse en el gimnasio
-- Superseries por ronda: el recorrido es A₁ → B₁ → A₂ → B₂, con transición opcional entre ejercicios y descanso al cerrar cada ronda
+- Superseries y dropsets por ronda: el recorrido es A₁ → B₁ → A₂ → B₂, con transición opcional entre ejercicios y descanso al cerrar cada ronda
 - Timers de descanso, transición y trabajo (para los ejercicios por tiempo, que se registran solos al terminar): cuenta regresiva sonora y vibración en los últimos segundos, con la pantalla encendida mientras corren
-- "La vez pasada": el peso máximo de la última vez que se hizo ese ejercicio (o, sin peso, la mayor cantidad: reps, pasos o segundos), cruzando semanas y fases
+- "La vez pasada": el peso máximo de la última vez que se hizo ese ejercicio (o, sin peso, la mayor cantidad: reps, pasos o segundos), cruzando semanas y fases; en un dropset, cada serie contra la suya
 - Perfil del cliente con sus datos de entrenamiento y sección de cuenta (contraseña, idioma, cerrar sesión)
 - Interfaz bilingüe es/en, mismo patrón que el dashboard
 

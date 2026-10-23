@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatAmount, formatSeconds } from '../../app/utils/prescription'
+import { formatAmount, formatSeconds, repsForSet } from '../../app/utils/prescription'
 
 describe('formatSeconds', () => {
   it('debajo del minuto escribe segundos', () => {
@@ -43,5 +43,22 @@ describe('formatAmount', () => {
 
   it('ignora espacios alrededor del valor', () => {
     expect(formatAmount(' 20 ', 'Pasos', 'count')).toBe('20 pasos')
+  })
+})
+
+describe('repsForSet', () => {
+  it('con cantidad por serie, cada serie tiene la suya', () => {
+    const scheme = { reps: '16/12/9/6', setReps: ['16', '12', '9', '6'] }
+
+    expect(repsForSet(scheme, 1)).toBe('16')
+    expect(repsForSet(scheme, 3)).toBe('9')
+  })
+
+  it('sin cantidad por serie, todas usan la misma', () => {
+    expect(repsForSet({ reps: '12', setReps: null }, 3)).toBe('12')
+  })
+
+  it('una serie sin cantidad propia cae a la de la celda', () => {
+    expect(repsForSet({ reps: '16/12', setReps: ['16', '12'] }, 3)).toBe('16/12')
   })
 })

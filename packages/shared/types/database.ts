@@ -382,6 +382,7 @@ export type Database = {
           notes: string | null
           reps: string
           routine_exercise_id: string
+          set_reps: string[] | null
           updated_at: string
           week_number: number
         }
@@ -391,6 +392,7 @@ export type Database = {
           notes?: string | null
           reps: string
           routine_exercise_id: string
+          set_reps?: string[] | null
           updated_at?: string
           week_number: number
         }
@@ -400,6 +402,7 @@ export type Database = {
           notes?: string | null
           reps?: string
           routine_exercise_id?: string
+          set_reps?: string[] | null
           updated_at?: string
           week_number?: number
         }
@@ -419,6 +422,7 @@ export type Database = {
           deleted_at: string | null
           exercise_id: string
           id: string
+          nano_id: string
           notes: string | null
           optional: boolean
           routine_block_id: string
@@ -430,6 +434,7 @@ export type Database = {
           deleted_at?: string | null
           exercise_id: string
           id?: string
+          nano_id?: string
           notes?: string | null
           optional?: boolean
           routine_block_id: string
@@ -441,6 +446,7 @@ export type Database = {
           deleted_at?: string | null
           exercise_id?: string
           id?: string
+          nano_id?: string
           notes?: string | null
           optional?: boolean
           routine_block_id?: string

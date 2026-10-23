@@ -15,7 +15,7 @@ export function useGetLastWorkout(session: MaybeRefOrGetter<LastWorkoutQueryPara
 
   const { data, pending } = useFetch<WorkoutLog | null>('/api/workout-logs/last', {
     key: () =>
-      `last-workout-${query.value?.exerciseId}-${query.value?.dayNumber}-${query.value?.weekNumber}`,
+      `last-workout-${query.value?.exerciseId}-${query.value?.dayNumber}-${query.value?.weekNumber}-${query.value?.occurrence}`,
     query: () => query.value ?? {},
     enabled: () => query.value !== null,
     default: () => null,

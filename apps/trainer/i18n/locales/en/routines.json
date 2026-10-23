@@ -122,6 +122,8 @@
       "sets": "Sets",
       "amount": "Amount",
       "repsPlaceholder": "12",
+      "perSet": "Per set",
+      "setLabel": "Set {n}",
       "rest": "Rest (sec)",
       "restPlaceholder": "90",
       "optional": "Optional",
