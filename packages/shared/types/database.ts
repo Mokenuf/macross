@@ -419,6 +419,7 @@ export type Database = {
           deleted_at: string | null
           exercise_id: string
           id: string
+          nano_id: string
           notes: string | null
           optional: boolean
           routine_block_id: string
@@ -430,6 +431,7 @@ export type Database = {
           deleted_at?: string | null
           exercise_id: string
           id?: string
+          nano_id?: string
           notes?: string | null
           optional?: boolean
           routine_block_id: string
@@ -441,6 +443,7 @@ export type Database = {
           deleted_at?: string | null
           exercise_id?: string
           id?: string
+          nano_id?: string
           notes?: string | null
           optional?: boolean
           routine_block_id?: string

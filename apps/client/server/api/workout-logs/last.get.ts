@@ -16,9 +16,40 @@ const sessionSelect = `
 const logSelect = `
   routine_exercise_scheme_id,
   scheme:routine_exercise_schemes!inner(
-    slot:routine_exercises!inner(exercise_id)
+    week_number,
+    slot:routine_exercises!inner(
+      exercise_id,
+      block:routine_blocks!inner(
+        day:routine_days!inner(day_number, routine_id)
+      )
+    )
   )
 `
+
+const previousSessionSelect = `
+  id,
+  slot:routine_exercises!inner(
+    sort_order,
+    exercise_id,
+    block:routine_blocks!inner(
+      sort_order,
+      day:routine_days!inner(day_number, routine_id)
+    )
+  ),
+  logs:workout_logs!inner(id)
+`
+
+type LatestLog = {
+  scheme: {
+    weekNumber: number
+    slot: { block: { day: { dayNumber: number; routineId: string } } }
+  }
+}
+
+type SessionScheme = {
+  id: string
+  slot: { sortOrder: number; block: { sortOrder: number } }
+}
 
 export default defineEventHandler(async (event): Promise<WorkoutLog | null> => {
   const user = await serverSupabaseUser(event)
@@ -72,12 +103,35 @@ export default defineEventHandler(async (event): Promise<WorkoutLog | null> => {
 
   if (!latest) return null
 
-  const { routineExerciseSchemeId } = toCamelCase<{ routineExerciseSchemeId: string }>(latest)
+  const { scheme: latestScheme } = toCamelCase<LatestLog>(latest)
+  const previousDay = latestScheme.slot.block.day
+
+  // El último log marca la sesión, no la fila: en un dropset el último registrado es el drop.
+  const { data: previousSession, error: previousSessionError } = await client
+    .from('routine_exercise_schemes')
+    .select(previousSessionSelect)
+    .eq('week_number', latestScheme.weekNumber)
+    .eq('slot.exercise_id', query.exerciseId)
+    .eq('slot.block.day.routine_id', previousDay.routineId)
+    .eq('slot.block.day.day_number', previousDay.dayNumber)
+    .eq('logs.completed', true)
+    .is('logs.deleted_at', null)
+
+  if (previousSessionError) {
+    throw createError({ statusCode: 500, statusMessage: 'No se pudo cargar tu registro anterior' })
+  }
+
+  const previousScheme = toCamelCase<SessionScheme[]>(previousSession ?? []).toSorted(
+    (a, b) =>
+      a.slot.block.sortOrder - b.slot.block.sortOrder || a.slot.sortOrder - b.slot.sortOrder,
+  )[query.occurrence]
+
+  if (!previousScheme) return null
 
   const { data, error } = await client
     .from('workout_logs')
     .select(workoutLogColumns)
-    .eq('routine_exercise_scheme_id', routineExerciseSchemeId)
+    .eq('routine_exercise_scheme_id', previousScheme.id)
     .eq('completed', true)
     .is('deleted_at', null)
     .or('weight_kg.not.is.null,actual_reps.not.is.null')

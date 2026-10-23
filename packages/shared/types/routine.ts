@@ -28,6 +28,7 @@ export const routineExerciseSchema = z.object({
   sortOrder: z.number().int(),
   optional: z.boolean(),
   notes: z.string().nullable(),
+  nanoId: z.string(),
   exercise: z.object({
     id: z.uuid(),
     nameEs: z.string(),

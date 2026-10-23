@@ -103,7 +103,7 @@ function exercisesText(count: number): string {
               :key="exercise.id"
               :block="block"
               :exercise="exercise"
-              :to="`/plan/${nanoId}/${exercise.exercise.slug}`"
+              :to="`/plan/${nanoId}/${exercise.nanoId}`"
               :week="week"
               flat
             />
@@ -115,7 +115,7 @@ function exercisesText(count: number): string {
             :key="exercise.id"
             :block="block"
             :exercise="exercise"
-            :to="`/plan/${nanoId}/${exercise.exercise.slug}`"
+            :to="`/plan/${nanoId}/${exercise.nanoId}`"
             :week="week"
           />
         </template>
@@ -127,7 +127,7 @@ function exercisesText(count: number): string {
       >
         <UButton
           v-if="nextExercise"
-          :to="`/plan/${nanoId}/${nextExercise.exercise.slug}`"
+          :to="`/plan/${nanoId}/${nextExercise.nanoId}`"
           :label="hasProgress ? t('plan.continueWorkout') : t('plan.startWorkout')"
           size="xl"
           block
