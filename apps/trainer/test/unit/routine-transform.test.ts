@@ -85,6 +85,7 @@ function makeRoutine(schemes: RoutineExerciseScheme[]): Routine {
                 sortOrder: 0,
                 optional: false,
                 notes: null,
+                nanoId: 'slot123',
                 exercise: {
                   id: UUID,
                   nameEs: 'Sentadilla',

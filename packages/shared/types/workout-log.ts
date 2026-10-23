@@ -27,6 +27,8 @@ export const lastWorkoutQueryParamsSchema = z.object({
   routineId: z.uuid(),
   dayNumber: z.coerce.number().int().min(1).max(7),
   weekNumber: z.coerce.number().int().min(1).max(52),
+  // En un dropset, la vez pasada del drop es el drop de la sesión anterior, no la serie pesada.
+  occurrence: z.coerce.number().int().min(0).optional().default(0),
 })
 
 export type WorkoutLog = z.infer<typeof workoutLogSchema>

@@ -26,12 +26,17 @@ const awaitingPause = ref(false)
 const workingSet = ref<number | null>(null)
 
 const nanoId = computed(() => String(route.params.nanoId))
-const slug = computed(() => String(route.params.slug))
+const slotNanoId = computed(() => String(route.params.slot))
 
 const day = computed(() => routine.value?.days?.find(d => d.nanoId === nanoId.value) ?? null)
 const exercises = computed(() => (day.value ? dayExercises(day.value, week.value) : []))
-const position = computed(() => exercises.value.findIndex(e => e.exercise.slug === slug.value))
+const position = computed(() => exercises.value.findIndex(e => e.nanoId === slotNanoId.value))
 const slot = computed(() => exercises.value[position.value] ?? null)
+const occurrence = computed(
+  () =>
+    exercises.value.slice(0, position.value).filter(e => e.exerciseId === slot.value?.exerciseId)
+      .length,
+)
 const steps = computed(() => (day.value ? sessionSteps(day.value, week.value) : []))
 
 const block = computed(() =>
@@ -58,6 +63,7 @@ const { lastWorkout, loading: loadingLastWorkout } = useGetLastWorkout(() =>
         routineId: routine.value.id,
         dayNumber: day.value.dayNumber,
         weekNumber: scheme.value.weekNumber,
+        occurrence: occurrence.value,
       }
     : null,
 )
@@ -282,7 +288,7 @@ function goTo(next: SessionStep | null) {
     return
   }
   if (next.exercise.id !== slot.value?.id) {
-    void navigateTo(`/plan/${nanoId.value}/${next.exercise.exercise.slug}`)
+    void navigateTo(`/plan/${nanoId.value}/${next.exercise.nanoId}`)
   }
 }
 

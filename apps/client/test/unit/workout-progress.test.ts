@@ -64,6 +64,7 @@ function makeExercise(schemes: RoutineExerciseScheme[], optional = false): Routi
     sortOrder: 0,
     optional,
     notes: null,
+    nanoId: 'slot12slot12',
     exercise: {
       id: UUID,
       nameEs: 'Sentadilla',
