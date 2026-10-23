@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RoutineExerciseScheme, WorkoutLog } from '@macross/shared'
-import { UnitKinds } from '@macross/shared'
+import { toVideoEmbed, UnitKinds } from '@macross/shared'
 
 import type { SessionStep } from '@/utils/workout-progress'
 
@@ -176,19 +176,7 @@ const upcomingDetail = computed(() => {
     .join(' · ')
 })
 
-const youtubeEmbedUrl = computed(() => {
-  const videoUrl = slot.value?.exercise.videoUrl
-  if (!videoUrl) return null
-  try {
-    const url = new URL(videoUrl)
-    const isYoutube = url.hostname.includes('youtube.com') || url.hostname === 'youtu.be'
-    if (!isYoutube) return null
-    const videoId = url.searchParams.get('v') || url.pathname.split('/').pop()
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : null
-  } catch {
-    return null
-  }
-})
+const video = computed(() => toVideoEmbed(slot.value?.exercise.videoUrl))
 
 // immediate porque al montar la selección tiene que salir del ref inicial.
 watch(
@@ -349,9 +337,12 @@ const WEIGHT_STEP = 2.5
       </header>
 
       <iframe
-        v-if="youtubeEmbedUrl"
-        :src="youtubeEmbedUrl"
-        class="border-default aspect-video w-full rounded-lg border"
+        v-if="video"
+        :src="video.src"
+        class="border-default rounded-lg border"
+        :class="
+          video.vertical ? 'mx-auto aspect-[9/16] h-[60dvh] max-w-full' : 'aspect-video w-full'
+        "
         frameborder="0"
         allow="
           accelerometer;
