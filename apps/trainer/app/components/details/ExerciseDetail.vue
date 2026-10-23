@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Exercise } from '@macross/shared'
+import { toVideoEmbed } from '@macross/shared'
 
 const { exercise } = defineProps<{ exercise: Exercise }>()
 const { t } = useI18n()
@@ -14,28 +15,17 @@ const descriptions = computed(() =>
   ].filter(d => d.text),
 )
 
-const youtubeEmbedUrl = computed(() => {
-  if (!exercise.videoUrl) return null
-  try {
-    const url = new URL(exercise.videoUrl)
-    const isYoutube = url.hostname.includes('youtube.com') || url.hostname === 'youtu.be'
-    if (!isYoutube) return null
-    const videoId = url.searchParams.get('v') || url.pathname.split('/').pop()
-    if (!videoId) return null
-    return `https://www.youtube.com/embed/${videoId}`
-  } catch {
-    return null
-  }
-})
+const video = computed(() => toVideoEmbed(exercise.videoUrl))
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="grid gap-5 md:grid-cols-[1.5fr_1fr]">
       <iframe
-        v-if="youtubeEmbedUrl"
-        :src="youtubeEmbedUrl"
-        class="border-default aspect-video w-full rounded-lg border"
+        v-if="video"
+        :src="video.src"
+        class="border-default rounded-lg border"
+        :class="video.vertical ? 'mx-auto aspect-[9/16] h-120 max-w-full' : 'aspect-video w-full'"
         frameborder="0"
         allow="
           accelerometer;
