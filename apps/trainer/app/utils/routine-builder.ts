@@ -31,14 +31,36 @@ export function isBlockSchemeLocked(
   )
 }
 
+export function blockSetsForWeek(block: BuilderBlock, week: number) {
+  return block.schemes.find(scheme => scheme.weekNumber === week)?.sets ?? 0
+}
+
+export function setRepsFor(scheme: BuilderScheme, sets: number) {
+  return Array.from({ length: sets }, (_, i) => scheme.setReps?.[i] ?? '')
+}
+
+export function schemeReps(scheme: BuilderScheme, sets: number) {
+  return scheme.setReps
+    ? setRepsFor(scheme, sets)
+        .map(reps => reps.trim())
+        .join('/')
+    : scheme.reps.trim()
+}
+
+function isSchemeFilled(scheme: BuilderScheme, sets: number) {
+  return scheme.setReps
+    ? sets > 0 && setRepsFor(scheme, sets).every(reps => reps.trim().length > 0)
+    : scheme.reps.trim().length > 0
+}
+
 // Solo se exigen las celdas que el server va a escribir: una bloqueada no viaja, así que pedirle
 // datos deja el guardado trabado sin forma de destrabarlo.
-function isExerciseComplete(exercise: BuilderExercise, startWeek: number) {
+function isExerciseComplete(block: BuilderBlock, exercise: BuilderExercise, startWeek: number) {
   return (
     !!exercise.exercise &&
     exercise.schemes
       .filter(scheme => !isSchemeLocked(scheme, startWeek))
-      .every(scheme => scheme.reps.trim().length > 0)
+      .every(scheme => isSchemeFilled(scheme, blockSetsForWeek(block, scheme.weekNumber)))
   )
 }
 
@@ -48,7 +70,7 @@ function isBlockComplete(block: BuilderBlock, startWeek: number) {
     block.schemes
       .filter(scheme => !isBlockSchemeLocked(block, scheme, startWeek))
       .every(scheme => scheme.sets >= 1) &&
-    block.exercises.every(exercise => isExerciseComplete(exercise, startWeek))
+    block.exercises.every(exercise => isExerciseComplete(block, exercise, startWeek))
   )
 }
 
@@ -68,6 +90,7 @@ export function makeScheme(weekNumber: number, from?: Partial<BuilderScheme>): B
   return {
     weekNumber,
     reps: from?.reps ?? '',
+    setReps: from?.setReps ? [...from.setReps] : null,
     notes: from?.notes ?? '',
     trainedSets: from?.trainedSets ?? 0,
   }
@@ -124,7 +147,13 @@ function cloneExercise(exercise: BuilderExercise, startWeek: number): BuilderExe
     notes: exercise.notes,
     schemes: exercise.schemes
       .filter(scheme => scheme.weekNumber >= startWeek)
-      .map(scheme => makeScheme(scheme.weekNumber, { reps: scheme.reps, notes: scheme.notes })),
+      .map(scheme =>
+        makeScheme(scheme.weekNumber, {
+          reps: scheme.reps,
+          setReps: scheme.setReps,
+          notes: scheme.notes,
+        }),
+      ),
   }
 }
 

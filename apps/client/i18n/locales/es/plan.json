@@ -8,6 +8,11 @@
     "weekShort": "Sem {number}",
     "dayTodo": "te toca",
     "dayCompleted": "Completado",
+    "notes": {
+      "phase": "Notas de la fase",
+      "block": "Nota del bloque",
+      "week": "Nota de la semana {number}"
+    },
     "phaseDone": {
       "title": "¡Fase completada!",
       "description": "Terminaste las {weeks} semanas. Tu entrenador ya puede armarte la próxima."

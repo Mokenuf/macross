@@ -382,6 +382,7 @@ export type Database = {
           notes: string | null
           reps: string
           routine_exercise_id: string
+          set_reps: string[] | null
           updated_at: string
           week_number: number
         }
@@ -391,6 +392,7 @@ export type Database = {
           notes?: string | null
           reps: string
           routine_exercise_id: string
+          set_reps?: string[] | null
           updated_at?: string
           week_number: number
         }
@@ -400,6 +402,7 @@ export type Database = {
           notes?: string | null
           reps?: string
           routine_exercise_id?: string
+          set_reps?: string[] | null
           updated_at?: string
           week_number?: number
         }

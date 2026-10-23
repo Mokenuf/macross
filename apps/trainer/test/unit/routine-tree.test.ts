@@ -188,6 +188,7 @@ describe('buildRoutineTree', () => {
       'notes',
       'reps',
       'routine_exercise_id',
+      'set_reps',
       'week_number',
     ])
   })

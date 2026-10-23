@@ -1,3 +1,4 @@
+import type { RoutineExerciseScheme } from '@macross/shared'
 import { UnitKinds, type UnitKind } from '@macross/shared'
 
 export function formatSeconds(seconds: number) {
@@ -16,4 +17,8 @@ export function formatAmount(value: string, unitName: string, kind: UnitKind) {
     return /^\d+$/.test(amount) ? formatSeconds(Number(amount)) : `${amount} s`
   }
   return `${amount} ${unitName.toLocaleLowerCase()}`
+}
+
+export function repsForSet(scheme: Pick<RoutineExerciseScheme, 'reps' | 'setReps'>, set: number) {
+  return scheme.setReps?.[set - 1] ?? scheme.reps
 }
