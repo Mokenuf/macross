@@ -107,17 +107,30 @@ function exercisesText(count: number): string {
               :week="week"
               flat
             />
+            <PlanNote
+              v-if="block.notes"
+              :label="t('plan.notes.block')"
+              :text="block.notes"
+              class="px-3.5 py-3"
+            />
           </div>
 
-          <PlanExerciseRow
-            v-for="exercise in block.exercises"
-            v-else
-            :key="exercise.id"
-            :block="block"
-            :exercise="exercise"
-            :to="`/plan/${nanoId}/${exercise.nanoId}`"
-            :week="week"
-          />
+          <template v-else>
+            <PlanExerciseRow
+              v-for="exercise in block.exercises"
+              :key="exercise.id"
+              :block="block"
+              :exercise="exercise"
+              :to="`/plan/${nanoId}/${exercise.nanoId}`"
+              :week="week"
+            />
+            <PlanNote
+              v-if="block.notes"
+              :label="t('plan.notes.block')"
+              :text="block.notes"
+              class="px-3.5"
+            />
+          </template>
         </template>
       </div>
 

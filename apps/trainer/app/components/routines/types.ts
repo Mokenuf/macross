@@ -12,6 +12,7 @@ export interface BuilderExerciseRef {
 export interface BuilderScheme {
   weekNumber: number
   reps: string
+  setReps: string[] | null
   notes: string
   // Series que el cliente ya entrenó en esta semana: es lo que cierra la celda (el server tampoco
   // la reescribe). Es un dato del árbol, no un veredicto de UI — el bloqueo se deriva en el componente.

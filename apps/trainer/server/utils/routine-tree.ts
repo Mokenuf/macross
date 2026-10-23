@@ -79,6 +79,7 @@ export function buildRoutineTree(body: CreateRoutine, routineId: string) {
         routine_exercise_id: s.id,
         week_number: week,
         reps: scheme.reps,
+        set_reps: scheme.setReps ?? null,
         notes: scheme.notes ?? null,
       }
     }),

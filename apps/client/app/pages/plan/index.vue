@@ -69,6 +69,13 @@ type WeekButton = {
       </div>
     </div>
 
+    <PlanNote
+      v-if="routine?.notes"
+      :label="t('plan.notes.phase')"
+      :text="routine.notes"
+      class="bg-muted ring-accented rounded-md p-3.5 ring-1"
+    />
+
     <div v-if="loading" class="space-y-3">
       <div
         v-for="n in 4"

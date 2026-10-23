@@ -11,6 +11,7 @@ export const routineExerciseSchemeSchema = z.object({
   routineExerciseId: z.uuid(),
   weekNumber: z.number().int(),
   reps: z.string(),
+  setReps: z.array(z.string()).nullable(),
   notes: z.string().nullable(),
   // Dos consumidores, dos shapes: la PWA necesita las filas (peso y reps por serie); el builder del
   // trainer solo el conteo, para bloquear la celda ya entrenada. El read del trainer sirve el
@@ -112,6 +113,7 @@ export const routineSchema = z.object({
 export const createRoutineSchemeSchema = z.object({
   weekNumber: z.coerce.number().int().min(1),
   reps: z.string().min(1),
+  setReps: z.array(z.string().min(1)).min(1).optional(),
   notes: z.string().optional(),
 })
 

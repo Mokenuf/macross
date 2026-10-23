@@ -141,6 +141,7 @@ function seedSchemes(slot: RoutineExercise, weeks: number): BuilderScheme[] {
 
     return makeScheme(week, {
       reps: source?.reps,
+      setReps: source?.setReps,
       notes: scheme?.notes ?? undefined,
       trainedSets: scheme?.trainedSets ?? 0,
     })
@@ -286,11 +287,17 @@ function submit() {
               exerciseId: e.exercise!.id,
               optional: e.optional,
               notes: e.notes.trim() || undefined,
-              schemes: e.schemes.map(scheme => ({
-                weekNumber: scheme.weekNumber,
-                reps: scheme.reps.trim(),
-                notes: scheme.notes.trim() || undefined,
-              })),
+              schemes: e.schemes.map(scheme => {
+                const sets = blockSetsForWeek(b, scheme.weekNumber)
+                return {
+                  weekNumber: scheme.weekNumber,
+                  reps: schemeReps(scheme, sets),
+                  setReps: scheme.setReps
+                    ? setRepsFor(scheme, sets).map(reps => reps.trim())
+                    : undefined,
+                  notes: scheme.notes.trim() || undefined,
+                }
+              }),
             })),
         }))
         .filter(b => b.exercises.length > 0),

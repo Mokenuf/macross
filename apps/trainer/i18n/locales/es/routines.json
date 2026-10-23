@@ -122,6 +122,8 @@
       "sets": "Series",
       "amount": "Cantidad",
       "repsPlaceholder": "12",
+      "perSet": "Por serie",
+      "setLabel": "Serie {n}",
       "rest": "Descanso (seg)",
       "restPlaceholder": "90",
       "optional": "Opcional",

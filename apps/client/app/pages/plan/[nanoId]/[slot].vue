@@ -81,9 +81,11 @@ const firstPendingSet = computed(() => {
 const selectedLog = computed(() => logFor(selectedSet.value))
 const allSetsDone = computed(() => totalSets.value > 0 && firstPendingSet.value === null)
 
+const setTarget = computed(() => (scheme.value ? repsForSet(scheme.value, selectedSet.value) : ''))
+
 // La prescripción es texto libre ("6-8", "15 12 10", "al fallo") y el log es un entero.
 const prescribedReps = computed(() => {
-  const target = scheme.value?.reps.trim()
+  const target = setTarget.value.trim()
   return target && /^\d+$/.test(target) ? Number(target) : null
 })
 
@@ -93,9 +95,7 @@ const workSeconds = computed(() =>
 )
 
 const amount = computed(() =>
-  scheme.value && unit.value
-    ? formatAmount(scheme.value.reps, unitName.value, unit.value.kind)
-    : '',
+  scheme.value && unit.value ? formatAmount(setTarget.value, unitName.value, unit.value.kind) : '',
 )
 
 const dayTitle = computed(() =>
@@ -134,6 +134,14 @@ const lastTimeLabel = computed(() => {
   return t('plan.exercise.noRecord')
 })
 
+const notes = computed(() =>
+  [
+    { label: t('plan.notes.block'), text: block.value?.notes },
+    { label: t('plan.exercise.notes'), text: slot.value?.notes },
+    { label: t('plan.notes.week', { number: week.value }), text: scheme.value?.notes },
+  ].filter((note): note is { label: string; text: string } => !!note.text),
+)
+
 const exerciseName = computed(() => (slot.value ? localizedName(slot.value.exercise) : ''))
 
 function stepLabel(step: SessionStep) {
@@ -160,7 +168,9 @@ const upcomingDetail = computed(() => {
   const nextUnit = next.exercise.exercise.unit
   return [
     nextRounds ? t('plan.transition.round', { set: next.set, total: nextRounds.sets }) : '',
-    nextScheme ? formatAmount(nextScheme.reps, localizedName(nextUnit), nextUnit.kind) : '',
+    nextScheme
+      ? formatAmount(repsForSet(nextScheme, next.set), localizedName(nextUnit), nextUnit.kind)
+      : '',
   ]
     .filter(Boolean)
     .join(' · ')
@@ -228,7 +238,8 @@ function seedInputs() {
   const previous = logs.value.findLast(l => l.setNumber < selectedSet.value)
 
   weight.value = own?.weightKg ?? previous?.weightKg ?? lastWorkout.value?.weightKg ?? undefined
-  reps.value = String(own?.actualReps ?? previous?.actualReps ?? prescribedReps.value ?? '')
+  const previousReps = scheme.value?.setReps ? undefined : previous?.actualReps
+  reps.value = String(own?.actualReps ?? previousReps ?? prescribedReps.value ?? '')
 }
 
 function saveSet(completed: boolean) {
@@ -493,11 +504,8 @@ const WEIGHT_STEP = 2.5
         </button>
       </div>
 
-      <div v-if="slot.notes" class="border-default border-t pt-4">
-        <p class="text-dimmed mb-1 text-[10px] font-semibold tracking-widest uppercase">
-          {{ t('plan.exercise.notes') }}
-        </p>
-        <p class="text-default text-sm whitespace-pre-line">{{ slot.notes }}</p>
+      <div v-if="notes.length" class="border-default space-y-3 border-t pt-4">
+        <PlanNote v-for="note in notes" :key="note.label" :label="note.label" :text="note.text" />
       </div>
     </template>
   </div>

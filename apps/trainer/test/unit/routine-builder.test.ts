@@ -19,6 +19,7 @@ import {
   moveItem,
   nextEmptyDayIndex,
   removeExerciseAt,
+  schemeReps,
   setBlockType,
   ungroupBlock,
 } from '../../app/utils/routine-builder'
@@ -41,7 +42,7 @@ const BLOCK_B = '44444444-4444-4444-8444-444444444442'
 const DAY = '22222222-2222-4222-8222-222222222221'
 
 function makeScheme(weekNumber: number, overrides: Partial<BuilderScheme> = {}): BuilderScheme {
-  return { weekNumber, reps: '10', notes: '', trainedSets: 0, ...overrides }
+  return { weekNumber, reps: '10', setReps: null, notes: '', trainedSets: 0, ...overrides }
 }
 
 function rounds(
@@ -481,5 +482,39 @@ describe('moveItem', () => {
     const items = ['a', 'b', 'c']
 
     expect(moveItem(items, 5, 0)).toBe(items)
+  })
+})
+
+describe('cantidad por serie', () => {
+  it('resume las cantidades de las series del bloque', () => {
+    expect(schemeReps(makeScheme(1, { setReps: ['16', '12', '9', '6'] }), 4)).toBe('16/12/9/6')
+  })
+
+  it('al bajar las series del bloque, las de más dejan de contar', () => {
+    expect(schemeReps(makeScheme(1, { setReps: ['16', '12', '9', '6'] }), 3)).toBe('16/12/9')
+  })
+
+  it('sin cantidad por serie usa la de la celda', () => {
+    expect(schemeReps(makeScheme(1, { reps: ' 12 ' }), 3)).toBe('12')
+  })
+
+  it('exige la cantidad de cada serie para completar el día', () => {
+    const exercise = exerciseOf({ schemes: [makeScheme(1, { setReps: ['16', '', '9'] })] })
+
+    expect(isDayComplete(dayOf({ blocks: [blockOf({ exercises: [exercise] })] }), 1)).toBe(false)
+  })
+
+  it('al subir las series del bloque, la serie nueva queda sin cantidad', () => {
+    const exercise = exerciseOf({ schemes: [makeScheme(1, { setReps: ['16', '12'] })] })
+
+    expect(isDayComplete(dayOf({ blocks: [blockOf({ exercises: [exercise] })] }), 1)).toBe(false)
+  })
+})
+
+describe('cantidad por serie completa', () => {
+  it('completa el día con una cantidad por cada serie del bloque', () => {
+    const exercise = exerciseOf({ schemes: [makeScheme(1, { setReps: ['16', '12', '9', '6'] })] })
+
+    expect(isDayComplete(dayOf({ blocks: [blockOf({ exercises: [exercise] })] }), 1)).toBe(true)
   })
 })

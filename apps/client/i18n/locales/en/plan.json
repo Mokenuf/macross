@@ -8,6 +8,11 @@
     "weekShort": "Wk {number}",
     "dayTodo": "you're here",
     "dayCompleted": "Completed",
+    "notes": {
+      "phase": "Phase notes",
+      "block": "Block note",
+      "week": "Week {number} note"
+    },
     "phaseDone": {
       "title": "Phase complete!",
       "description": "You finished all {weeks} weeks. Your trainer can set up the next one."

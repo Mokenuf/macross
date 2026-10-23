@@ -133,8 +133,25 @@ function roundsLockReason(scheme: BuilderBlockScheme) {
     : t('routines.builder.lockedTrained')
 }
 
+function setsFor(scheme: BuilderScheme) {
+  return blockSetsForWeek(block, scheme.weekNumber)
+}
+
 function cellPreview(scheme: BuilderScheme) {
-  return scheme.reps || '—'
+  return schemeReps(scheme, setsFor(scheme)) || '—'
+}
+
+function togglePerSet(scheme: BuilderScheme, perSet: boolean) {
+  if (perSet) {
+    scheme.setReps = Array.from({ length: setsFor(scheme) }, () => scheme.reps)
+  } else {
+    scheme.reps = scheme.setReps?.[0] ?? scheme.reps
+    scheme.setReps = null
+  }
+}
+
+function setRepAt(scheme: BuilderScheme, i: number, value: string) {
+  scheme.setReps = setRepsFor(scheme, setsFor(scheme)).with(i, value)
 }
 
 function roundsPreview(scheme: BuilderBlockScheme) {
@@ -161,6 +178,7 @@ function applyToRest(exercise: BuilderExercise, scheme: BuilderScheme) {
   for (const target of exercise.schemes) {
     if (target.weekNumber <= scheme.weekNumber || isLocked(target)) continue
     target.reps = scheme.reps
+    target.setReps = scheme.setReps ? [...scheme.setReps] : null
   }
   editing.value = null
 }
@@ -538,7 +556,32 @@ const TYPES: BlockType[] = [BlockTypes.single, BlockTypes.superset, BlockTypes.d
                               })
                             }}
                           </p>
-                          <div class="flex items-center justify-between gap-3">
+                          <USwitch
+                            :model-value="!!scheme.setReps"
+                            :label="t('routines.builder.perSet')"
+                            :disabled="!scheme.setReps && setsFor(scheme) < 2"
+                            size="sm"
+                            @update:model-value="perSet => togglePerSet(scheme, perSet)"
+                          />
+                          <template v-if="scheme.setReps">
+                            <div
+                              v-for="(reps, i) in setRepsFor(scheme, setsFor(scheme))"
+                              :key="i"
+                              class="flex items-center justify-between gap-3"
+                            >
+                              <span class="text-muted text-xs">
+                                {{ t('routines.builder.setLabel', { n: i + 1 }) }}
+                              </span>
+                              <UInput
+                                :model-value="reps"
+                                :placeholder="t('routines.builder.repsPlaceholder')"
+                                size="sm"
+                                class="w-28"
+                                @update:model-value="value => setRepAt(scheme, i, String(value))"
+                              />
+                            </div>
+                          </template>
+                          <div v-else class="flex items-center justify-between gap-3">
                             <span class="text-muted text-xs">{{ amountLabel(exercise) }}</span>
                             <UInput
                               v-model="scheme.reps"

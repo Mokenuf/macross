@@ -23,6 +23,7 @@ function makeScheme(logs?: WorkoutLog[]): RoutineExerciseScheme {
     routineExerciseId: UUID,
     weekNumber: 1,
     reps: '10',
+    setReps: null,
     notes: null,
     logs,
     createdAt: '2026-08-17T10:00:00Z',

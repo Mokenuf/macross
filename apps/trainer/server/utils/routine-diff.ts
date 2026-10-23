@@ -75,6 +75,7 @@ type SchemeRow = {
   routine_exercise_id: string
   week_number: number
   reps: string
+  set_reps: string[] | null
   notes: string | null
 }
 
@@ -251,6 +252,7 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
               routine_exercise_id: slotId,
               week_number: week,
               reps: prescription.reps,
+              set_reps: prescription.setReps ?? null,
               notes: prescription.notes ?? null,
             })
           }
@@ -285,6 +287,7 @@ export function diffRoutineTree(body: UpdateRoutine, old: OldRoutineTree, startW
             routine_exercise_id: existing.id,
             week_number: week,
             reps: prescription.reps,
+            set_reps: prescription.setReps ?? null,
             notes: prescription.notes ?? null,
           }
 

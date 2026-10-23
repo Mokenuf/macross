@@ -49,6 +49,7 @@ function makeScheme(weekNumber: number, done: number): RoutineExerciseScheme {
     routineExerciseId: UUID,
     weekNumber,
     reps: '10',
+    setReps: null,
     notes: null,
     logs,
     createdAt: TIMESTAMP,
